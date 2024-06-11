@@ -1,0 +1,12 @@
+DROP TABLE users CASCADE;
+DROP TABLE categories CASCADE;
+DROP TABLE products CASCADE;
+DROP TABLE carts CASCADE;
+DROP TABLE cart_items;
+DROP TABLE orders CASCADE;
+DROP TABLE order_items;
+DROP TABLE loyalty_programs CASCADE;
+DROP TABLE user_loyalty_programs;
+DROP TABLE bonuses CASCADE;
+DROP TABLE user_bonuses;
+DROP TABLE analytics;
