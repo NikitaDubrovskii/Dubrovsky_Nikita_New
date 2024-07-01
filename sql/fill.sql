@@ -23,14 +23,14 @@ VALUES (1, 1, 1),
        (1, 1, 3),
        (2, 3, 1);
 
-INSERT INTO orders (total_price, user_id)
-VALUES (131, 1),
-       (121, 3);
+INSERT INTO orders (total_price, address, payment_method, user_id)
+VALUES (131, 'Minsk', 'Card', 1),
+       (121, 'Grodno', 'Cash', 3);
 
-INSERT INTO order_items (quantity, price, order_id, product_id)
-VALUES (1, 59.99, 1, 1),
-       (1, 69.99, 1, 3),
-       (2, 59.99, 2, 1);
+INSERT INTO order_items (quantity, order_id, product_id)
+VALUES (1, 1, 1),
+       (1, 1, 3),
+       (2, 2, 1);
 
 INSERT INTO loyalty_programs (name, description)
 VALUES ('Gold', 'Gold program'),
