@@ -27,7 +27,7 @@ public class ConnectionDataBase {
 
             return connection;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new DbException("Ошибка подключения к базе данных: " + e.getMessage());
         }
     }
 
