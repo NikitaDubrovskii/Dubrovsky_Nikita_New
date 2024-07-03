@@ -13,6 +13,7 @@
     <module>model</module>
     <module>util</module>
     <module>exception</module>
+    <module>starter</module>
   </modules>
 
   <properties>
