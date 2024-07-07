@@ -37,7 +37,8 @@ public class UserLoyaltyProgram {
     @Override
     public String toString() {
         return "UserLoyaltyProgram{" +
-                "userLoyaltyProgramId=" + userLoyaltyProgramId +
+                "userId=" + userLoyaltyProgramId.getUserId() +
+                ", loyaltyProgramId=" + userLoyaltyProgramId.getProgramId() +
                 ", receivedAt=" + receivedAt +
                 '}';
     }

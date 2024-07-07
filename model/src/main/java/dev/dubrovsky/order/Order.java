@@ -9,16 +9,16 @@ public class Order {
     private final Integer totalPrice;
     private final Timestamp createdAt;
     private final String address;
-    private final String paymentMethod;
+    private final Integer paymentMethodId;
     private final Integer userId;
 
     public Order(Integer id, Integer totalPrice, Timestamp createdAt,
-                 String address, String paymentMethod, Integer userId) {
+                 String address, Integer paymentMethodId, Integer userId) {
         this.id = id;
         this.totalPrice = totalPrice;
         this.createdAt = createdAt;
         this.address = address;
-        this.paymentMethod = paymentMethod;
+        this.paymentMethodId = paymentMethodId;
         this.userId = userId;
     }
 
@@ -38,8 +38,8 @@ public class Order {
         return address;
     }
 
-    public String getPaymentMethod() {
-        return paymentMethod;
+    public Integer getPaymentMethodId() {
+        return paymentMethodId;
     }
 
     public Integer getUserId() {
@@ -53,12 +53,12 @@ public class Order {
         Order order = (Order) o;
         return Objects.equals(id, order.id) && Objects.equals(totalPrice, order.totalPrice)
                 && Objects.equals(createdAt, order.createdAt) && Objects.equals(address, order.address)
-                && Objects.equals(paymentMethod, order.paymentMethod) && Objects.equals(userId, order.userId);
+                && Objects.equals(paymentMethodId, order.paymentMethodId) && Objects.equals(userId, order.userId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, totalPrice, createdAt, address, paymentMethod, userId);
+        return Objects.hash(id, totalPrice, createdAt, address, paymentMethodId, userId);
     }
 
     @Override
@@ -68,7 +68,7 @@ public class Order {
                 ", totalPrice=" + totalPrice +
                 ", createdAt=" + createdAt +
                 ", address='" + address + '\'' +
-                ", paymentMethod='" + paymentMethod + '\'' +
+                ", paymentMethodId='" + paymentMethodId + '\'' +
                 ", userId=" + userId +
                 '}';
     }

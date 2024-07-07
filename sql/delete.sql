@@ -10,3 +10,4 @@ DROP TABLE user_loyalty_programs;
 DROP TABLE bonuses CASCADE;
 DROP TABLE user_bonuses;
 DROP TABLE analytics;
+DROP TABLE payment_method;

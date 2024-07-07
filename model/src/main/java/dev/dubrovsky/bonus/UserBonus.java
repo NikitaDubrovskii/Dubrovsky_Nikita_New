@@ -37,7 +37,8 @@ public class UserBonus {
     @Override
     public String toString() {
         return "UserBonus{" +
-                "userBonusId=" + userBonusId +
+                "userId=" + userBonusId.getUserId() +
+                ", bonusId=" + userBonusId.getBonusId() +
                 ", receivedAt=" + receivedAt +
                 '}';
     }
