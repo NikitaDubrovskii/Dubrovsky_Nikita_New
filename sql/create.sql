@@ -41,12 +41,12 @@ CREATE TABLE cart_items
 
 CREATE TABLE orders
 (
-    id             BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    total_price    DECIMAL(10, 2) NOT NULL,
-    created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    address        TEXT           NOT NULL,
-    payment_method TEXT           NOT NULL,
-    user_id        BIGINT REFERENCES users (id)
+    id                BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    total_price       DECIMAL(10, 2) NOT NULL,
+    created_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    address           TEXT           NOT NULL,
+    payment_method_id BIGINT REFERENCES payment_method (id),
+    user_id           BIGINT REFERENCES users (id)
 );
 
 CREATE TABLE order_items
@@ -96,4 +96,10 @@ CREATE TABLE analytics
     activity  TEXT,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     user_id   BIGINT REFERENCES users (id)
+);
+
+CREATE TABLE payment_method
+(
+    id     BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    method VARCHAR(50)
 );
