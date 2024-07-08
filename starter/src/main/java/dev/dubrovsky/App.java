@@ -4,40 +4,52 @@ public class App {
 
     public static void main(String[] args) {
         /*ICategoryDao categoryDao = new CategoryDao();
-        System.out.println(categoryDao.getAll());*/
+        ICategoryService categoryService = new CategoryService(categoryDao);
+        categoryService.getAll();*/
 
         /*IProductDao productDao = new ProductDao();
-        System.out.println(productDao.getAll());*/
+        IProductService productService = new ProductService(productDao);
+        productService.getAll();*/
 
         /*IUserDao userDao = new UserDao();
-        System.out.println(userDao.getAll());*/
+        IUserService userService = new UserService(userDao);
+        userService.getAll();*/
 
         /*IAnalyticsDao analyticsDao = new AnalyticsDao();
-        System.out.println(analyticsDao.getAll());*/
+        IAnalyticsService analyticsService = new AnalyticsService(analyticsDao);
+        analyticsService.getAll();*/
 
         /*IBonusDao bonusDao = new BonusDao();
-        System.out.println(bonusDao.getAll());*/
+        IBonusService bonusService = new BonusService(bonusDao);
+        bonusService.getAll();*/
 
         /*ICartItemDao cartItemDao = new CartItemDao();
-        System.out.println(cartItemDao.getAll());*/
+        ICartItemService cartItemService = new CartItemService(cartItemDao);
+        cartItemService.getAll();*/
 
         /*ICartDao cartDao = new CartDao();
-        System.out.println(cartDao.getAll());*/
+        ICartService cartService = new CartService(cartDao);
+        cartService.getAll();*/
 
         /*ILoyaltyProgramDao loyaltyProgramDao = new LoyaltyProgramDao();
-        System.out.println(loyaltyProgramDao.getAll());*/
+        ILoyaltyProgramService loyaltyProgramService = new LoyaltyProgramService(loyaltyProgramDao);
+        loyaltyProgramService.getAll();*/
 
         /*IOrderItemDao orderItemDao = new OrderItemDao();
-        System.out.println(orderItemDao.getAll());*/
+        IOrderItemService orderItemService = new OrderItemService(orderItemDao);
+        orderItemService.getAll();*/
 
         /*IOrderDao orderDao = new OrderDao();
-        System.out.println(orderDao.getAll());*/
+        IOrderService orderService = new OrderService(orderDao);
+        orderService.getAll();*/
 
         /*IUserBonusDao userBonusDao = new UserBonusDao();
-        System.out.println(userBonusDao.getAll());*/
+        IUserBonusService userBonusService = new UserBonusService(userBonusDao);
+        userBonusService.getAll();*/
 
         /*IPaymentMethodDao paymentMethodDao = new PaymentMethodDao();
-        System.out.println(paymentMethodDao.getAll());*/
+        IPaymentMethodService paymentMethodService = new PaymentMethodService(paymentMethodDao);
+        paymentMethodService.getAll();*/
     }
 
 }

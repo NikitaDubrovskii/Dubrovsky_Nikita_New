@@ -2,7 +2,6 @@ package dev.dubrovsky.loyalty_program;
 
 import dev.dubrovsky.ConnectionDataBase;
 import dev.dubrovsky.DbException;
-import dev.dubrovsky.product.Product;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -57,7 +56,11 @@ public class LoyaltyProgramDao implements ILoyaltyProgramDao {
             pst.setString(2, entity.getDescription());
             pst.setInt(3, entity.getId());
 
-            pst.executeUpdate();
+            int i = pst.executeUpdate();
+
+            if (i == 0) {
+                throw new DbException("Id " + entity.getId() + " не существует");
+            }
 
         } catch (SQLException e) {
             throw new DbException(e.getMessage());
@@ -66,11 +69,15 @@ public class LoyaltyProgramDao implements ILoyaltyProgramDao {
 
     @Override
     public void delete(Integer id) {
-        try (PreparedStatement pst = connection.prepareStatement("DELETE FROM loyalty_programs WHERE id = ?")){
+        try (PreparedStatement pst = connection.prepareStatement("DELETE FROM loyalty_programs WHERE id = ?")) {
 
             pst.setInt(1, id);
 
-            pst.executeUpdate();
+            int i = pst.executeUpdate();
+
+            if (i == 0) {
+                throw new DbException("Id " + id + " не существует");
+            }
 
         } catch (SQLException e) {
             throw new DbException(e.getMessage());

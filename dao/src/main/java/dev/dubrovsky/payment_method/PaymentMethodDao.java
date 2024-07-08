@@ -52,7 +52,11 @@ public class PaymentMethodDao implements IPaymentMethodDao {
             pst.setString(1, entity.getMethod());
             pst.setInt(2, entity.getId());
 
-            pst.executeUpdate();
+            int i = pst.executeUpdate();
+
+            if (i == 0) {
+                throw new DbException("Id " + entity.getId() + " не существует");
+            }
 
         } catch (SQLException e) {
             throw new DbException(e.getMessage());
@@ -65,7 +69,11 @@ public class PaymentMethodDao implements IPaymentMethodDao {
 
             pst.setInt(1, id);
 
-            pst.executeUpdate();
+            int i = pst.executeUpdate();
+
+            if (i == 0) {
+                throw new DbException("Id " + id + " не существует");
+            }
 
         } catch (SQLException e) {
             throw new DbException(e.getMessage());

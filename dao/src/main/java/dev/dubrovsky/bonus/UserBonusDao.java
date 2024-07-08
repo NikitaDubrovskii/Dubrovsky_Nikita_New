@@ -56,7 +56,11 @@ public class UserBonusDao implements IUserBonusDao {
             pst.setInt(1, userId);
             pst.setInt(2, bonusId);
 
-            pst.executeUpdate();
+            int i = pst.executeUpdate();
+
+            if (i == 0) {
+                throw new DbException("Id " + userId + " или " + bonusId + " не существует");
+            }
 
         } catch (SQLException e) {
             throw new DbException(e.getMessage());
