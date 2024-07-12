@@ -23,9 +23,9 @@ VALUES (1, 1, 1),
        (1, 1, 3),
        (2, 3, 1);
 
-INSERT INTO orders (total_price, address, payment_method, user_id)
-VALUES (131, 'Minsk', 'Card', 1),
-       (121, 'Grodno', 'Cash', 3);
+INSERT INTO orders (total_price, address, payment_method_id, user_id)
+VALUES (131, 'Minsk', 1, 1),
+       (121, 'Grodno', 2, 3);
 
 INSERT INTO order_items (quantity, order_id, product_id)
 VALUES (1, 1, 1),
