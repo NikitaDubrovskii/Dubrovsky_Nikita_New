@@ -1,9 +1,14 @@
 package dev.dubrovsky.starter;
 
-import dev.dubrovsky.dao.cart.CartItemDao;
-import dev.dubrovsky.dao.cart.ICartItemDao;
-import dev.dubrovsky.service.cart.CartItemService;
-import dev.dubrovsky.service.cart.ICartItemService;
+import dev.dubrovsky.dao.analytics.AnalyticsDao;
+import dev.dubrovsky.dao.analytics.IAnalyticsDao;
+import dev.dubrovsky.dao.user.IUserDao;
+import dev.dubrovsky.dao.user.UserDao;
+import dev.dubrovsky.model.analytics.Analytics;
+import dev.dubrovsky.service.analytics.AnalyticsService;
+import dev.dubrovsky.service.analytics.IAnalyticsService;
+import dev.dubrovsky.service.user.IUserService;
+import dev.dubrovsky.service.user.UserService;
 
 public class App {
 
@@ -20,9 +25,12 @@ public class App {
         IUserService userService = new UserService(userDao);
         userService.getAll();*/
 
-        /*IAnalyticsDao analyticsDao = new AnalyticsDao();
+        IAnalyticsDao analyticsDao = new AnalyticsDao();
         IAnalyticsService analyticsService = new AnalyticsService(analyticsDao);
-        analyticsService.getAll();*/
+        //analyticsService.delete(8);
+        //analyticsService.create(new Analytics(null, "Comment", null, 2));
+        //analyticsService.update(new Analytics(2, "Subscribe", null, 3));
+        //analyticsService.getAll();
 
         /*IBonusDao bonusDao = new BonusDao();
         IBonusService bonusService = new BonusService(bonusDao);

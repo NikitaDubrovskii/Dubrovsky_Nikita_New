@@ -2,7 +2,12 @@ package dev.dubrovsky.dao.user;
 
 import dev.dubrovsky.dao.connection.ConnectionDataBase;
 import dev.dubrovsky.exception.DbException;
+import dev.dubrovsky.model.analytics.Analytics;
 import dev.dubrovsky.model.user.User;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Query;
+import jakarta.persistence.TypedQuery;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -10,80 +15,79 @@ import java.util.List;
 
 public class UserDao implements IUserDao {
 
-    private final Connection connection = ConnectionDataBase.getConnection();
+    private final EntityManagerFactory entityManagerFactory = ConnectionDataBase.getEntityManagerFactory();
 
     @Override
     public void create(User entity) {
-        try (PreparedStatement pst = connection.prepareStatement("INSERT INTO users (username, password, email) VALUES (?, ?, ?)")) {
+        try (EntityManager em = entityManagerFactory.createEntityManager()){
+            em.getTransaction().begin();
 
-            pst.setString(1, entity.getUsername());
-            pst.setString(2, entity.getPassword());
-            pst.setString(3, entity.getEmail());
+            String jpql = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
+            Query query = em.createNativeQuery(jpql);
+            query.setParameter(1, entity.getUsername());
+            query.setParameter(2, entity.getPassword());
+            query.setParameter(3, entity.getEmail());
 
-            pst.executeUpdate();
+            query.executeUpdate();
 
-        } catch (SQLException e) {
+            em.getTransaction().commit();
+        } catch (Exception e) {
             throw new DbException(e.getMessage());
         }
     }
 
     @Override
     public List<User> getAll() {
-        try (Statement st = connection.createStatement();
-             ResultSet rs = st.executeQuery("SELECT * FROM users")) {
-
-            final List<User> users = new ArrayList<>();
-
-            while (rs.next()) {
-                users.add(new User(
-                        rs.getInt("id"),
-                        rs.getString("username"),
-                        rs.getString("password"),
-                        rs.getString("email"),
-                        rs.getTimestamp("created_at")
-                ));
-            }
-
-            return users;
-
-        } catch (SQLException e) {
+        try (EntityManager em = entityManagerFactory.createEntityManager()){
+            String jpql = "SELECT u FROM User u";
+            TypedQuery<User> query = em.createQuery(jpql, User.class);
+            return query.getResultList();
+        } catch (Exception e) {
             throw new DbException(e.getMessage());
         }
     }
 
     @Override
     public void update(User entity) {
-        try (PreparedStatement pst = connection.prepareStatement("UPDATE users SET username = ?, password = ?, email = ? WHERE id = ?")) {
+        try (EntityManager em = entityManagerFactory.createEntityManager()){
+            em.getTransaction().begin();
 
-            pst.setString(1, entity.getUsername());
-            pst.setString(2, entity.getPassword());
-            pst.setString(3, entity.getEmail());
-            pst.setInt(4, entity.getId());
+            String jpql = "UPDATE users SET username = ?, password = ?, email = ? WHERE id = ?";
+            Query query = em.createNativeQuery(jpql);
+            query.setParameter(1, entity.getUsername());
+            query.setParameter(2, entity.getPassword());
+            query.setParameter(3, entity.getEmail());
+            query.setParameter(4, entity.getId());
 
-            int i = pst.executeUpdate();
+            int i = query.executeUpdate();
 
             if (i == 0) {
                 throw new DbException("Id " + entity.getId() + " не существует");
             }
 
-        } catch (SQLException e) {
+            em.getTransaction().commit();
+        } catch (Exception e) {
             throw new DbException(e.getMessage());
         }
     }
 
     @Override
     public void delete(Integer id) {
-        try (PreparedStatement pst = connection.prepareStatement("DELETE FROM users WHERE id = ?")){
+        try (EntityManager em = entityManagerFactory.createEntityManager()){
+            em.getTransaction().begin();
 
-            pst.setInt(1, id);
+            String jpql = "DELETE FROM User u WHERE u.id = :id";
+            Query query = em.createQuery(jpql);
+            query.setParameter("id", id);
 
-            int i = pst.executeUpdate();
+            int i = query.executeUpdate();
 
             if (i == 0) {
                 throw new DbException("Id " + id + " не существует");
             }
 
-        } catch (SQLException e) {
+            em.getTransaction().commit();
+        } catch (Exception e) {
             throw new DbException(e.getMessage());
         }
     }

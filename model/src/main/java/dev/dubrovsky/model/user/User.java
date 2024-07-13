@@ -1,15 +1,33 @@
 package dev.dubrovsky.model.user;
 
+import jakarta.persistence.*;
+
 import java.sql.Timestamp;
 import java.util.Objects;
 
+@Entity
+@Table(name = "users")
 public class User {
 
-    private final Integer id;
-    private final String username;
-    private final String password;
-    private final String email;
-    private final Timestamp createdAt;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Integer id;
+
+    @Column(name = "username")
+    private String username;
+
+    @Column(name = "password")
+    private String password;
+
+    @Column(name = "email")
+    private String email;
+
+    @Column(name = "created_at")
+    private Timestamp createdAt;
+
+    public User() {
+    }
 
     public User(Integer id, String username, String password, String email, Timestamp createdAt) {
         this.id = id;

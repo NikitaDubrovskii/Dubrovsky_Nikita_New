@@ -1,86 +1,88 @@
 package dev.dubrovsky.dao.analytics;
 
 import dev.dubrovsky.dao.connection.ConnectionDataBase;
-import dev.dubrovsky.model.analytics.Analytics;
 import dev.dubrovsky.exception.DbException;
+import dev.dubrovsky.model.analytics.Analytics;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Query;
+import jakarta.persistence.TypedQuery;
 
-import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 
 public class AnalyticsDao implements IAnalyticsDao {
 
-    private final Connection connection = ConnectionDataBase.getConnection();
+    private final EntityManagerFactory entityManagerFactory = ConnectionDataBase.getEntityManagerFactory();
 
     @Override
     public void create(Analytics entity) {
-        try (PreparedStatement pst = connection.prepareStatement("INSERT INTO analytics (activity, user_id) VALUES (?, ?)")) {
+        try (EntityManager em = entityManagerFactory.createEntityManager()){
+            em.getTransaction().begin();
 
-            pst.setString(1, entity.getActivity());
-            pst.setInt(2, entity.getUserId());
+            String jpql = "INSERT INTO analytics (activity, user_id) VALUES (?, ?)";
+            Query query = em.createNativeQuery(jpql);
+            query.setParameter(1, entity.getActivity());
+            query.setParameter(2, entity.getUserId());
 
-            pst.executeUpdate();
+            query.executeUpdate();
 
-        } catch (SQLException e) {
+            em.getTransaction().commit();
+        } catch (Exception e) {
             throw new DbException(e.getMessage());
         }
     }
 
     @Override
     public List<Analytics> getAll() {
-        try (Statement st = connection.createStatement();
-             ResultSet rs = st.executeQuery("SELECT * FROM analytics")) {
-
-            final List<Analytics> analytics = new ArrayList<>();
-
-            while (rs.next()) {
-                analytics.add(new Analytics(
-                        rs.getInt("id"),
-                        rs.getString("activity"),
-                        rs.getTimestamp("timestamp"),
-                        rs.getInt("user_id")
-                ));
-            }
-
-            return analytics;
-
-        } catch (SQLException e) {
+        try (EntityManager em = entityManagerFactory.createEntityManager()){
+            String jpql = "SELECT a FROM Analytics a";
+            TypedQuery<Analytics> query = em.createQuery(jpql, Analytics.class);
+            return query.getResultList();
+        } catch (Exception e) {
             throw new DbException(e.getMessage());
         }
     }
 
     @Override
     public void update(Analytics entity) {
-        try (PreparedStatement pst = connection.prepareStatement("UPDATE analytics SET activity = ?, user_id = ? WHERE id = ?")) {
+        try (EntityManager em = entityManagerFactory.createEntityManager()){
+            em.getTransaction().begin();
 
-            pst.setString(1, entity.getActivity());
-            pst.setInt(2, entity.getUserId());
-            pst.setInt(3, entity.getId());
+            String jpql = "UPDATE analytics SET activity = ?, user_id = ? WHERE id = ?";
+            Query query = em.createNativeQuery(jpql);
+            query.setParameter(1, entity.getActivity());
+            query.setParameter(2, entity.getUserId());
+            query.setParameter(3, entity.getId());
 
-            int i = pst.executeUpdate();
+            int i = query.executeUpdate();
 
             if (i == 0) {
                 throw new DbException("Id " + entity.getId() + " не существует");
             }
 
-        } catch (SQLException e) {
+            em.getTransaction().commit();
+        } catch (Exception e) {
             throw new DbException(e.getMessage());
         }
     }
 
     @Override
     public void delete(Integer id) {
-        try (PreparedStatement pst = connection.prepareStatement("DELETE FROM analytics WHERE id = ?")){
+        try (EntityManager em = entityManagerFactory.createEntityManager()){
+            em.getTransaction().begin();
 
-            pst.setInt(1, id);
+            String jpql = "DELETE FROM Analytics a WHERE a.id = :id";
+            Query query = em.createQuery(jpql);
+            query.setParameter("id", id);
 
-            int i = pst.executeUpdate();
+            int i = query.executeUpdate();
 
             if (i == 0) {
                 throw new DbException("Id " + id + " не существует");
             }
 
-        } catch (SQLException e) {
+            em.getTransaction().commit();
+        } catch (Exception e) {
             throw new DbException(e.getMessage());
         }
     }

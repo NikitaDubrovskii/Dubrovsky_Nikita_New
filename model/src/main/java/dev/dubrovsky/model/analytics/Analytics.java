@@ -1,14 +1,30 @@
 package dev.dubrovsky.model.analytics;
 
+import jakarta.persistence.*;
+
 import java.sql.Timestamp;
 import java.util.Objects;
 
+@Entity
+@Table(name = "analytics")
 public class Analytics {
 
-    private final Integer id;
-    private final String activity;
-    private final Timestamp timestamp;
-    private final Integer userId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Integer id;
+
+    @Column(name = "activity")
+    private String activity;
+
+    @Column(name = "timestamp")
+    private Timestamp timestamp;
+
+    @Column(name = "user_id")
+    private Integer userId;
+
+    public Analytics() {
+    }
 
     public Analytics(Integer id, String activity, Timestamp timestamp, Integer userId) {
         this.id = id;
