@@ -2,15 +2,11 @@ package dev.dubrovsky.dao.user;
 
 import dev.dubrovsky.dao.connection.ConnectionDataBase;
 import dev.dubrovsky.exception.DbException;
-import dev.dubrovsky.model.analytics.Analytics;
 import dev.dubrovsky.model.user.User;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 
-import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao implements IUserDao {
@@ -18,19 +14,29 @@ public class UserDao implements IUserDao {
     private final EntityManagerFactory entityManagerFactory = ConnectionDataBase.getEntityManagerFactory();
 
     @Override
-    public void create(User entity) {
-        try (EntityManager em = entityManagerFactory.createEntityManager()){
-            em.getTransaction().begin();
+    public void create(User user) {
+        try (EntityManager em = entityManagerFactory.createEntityManager()) {
+            try {
+                em.getTransaction().begin();
 
-            String jpql = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
-            Query query = em.createNativeQuery(jpql);
-            query.setParameter(1, entity.getUsername());
-            query.setParameter(2, entity.getPassword());
-            query.setParameter(3, entity.getEmail());
+                em.persist(user);
 
-            query.executeUpdate();
+                em.getTransaction().commit();
+            } catch (Exception ex) {
+                if (em.getTransaction().isActive()) {
+                    em.getTransaction().rollback();
+                }
+                throw ex;
+            }
+        } catch (Exception e) {
+            throw new DbException(e.getMessage());
+        }
+    }
 
-            em.getTransaction().commit();
+    @Override
+    public User getById(Integer id) {
+        try (EntityManager em = entityManagerFactory.createEntityManager()) {
+            return em.find(User.class, id);
         } catch (Exception e) {
             throw new DbException(e.getMessage());
         }
@@ -38,34 +44,28 @@ public class UserDao implements IUserDao {
 
     @Override
     public List<User> getAll() {
-        try (EntityManager em = entityManagerFactory.createEntityManager()){
-            String jpql = "SELECT u FROM User u";
-            TypedQuery<User> query = em.createQuery(jpql, User.class);
-            return query.getResultList();
+        try (EntityManager em = entityManagerFactory.createEntityManager()) {
+            return em.createQuery("SELECT u FROM User u", User.class).getResultList();
         } catch (Exception e) {
             throw new DbException(e.getMessage());
         }
     }
 
     @Override
-    public void update(User entity) {
-        try (EntityManager em = entityManagerFactory.createEntityManager()){
-            em.getTransaction().begin();
+    public void update(User user) {
+        try (EntityManager em = entityManagerFactory.createEntityManager()) {
+            try {
+                em.getTransaction().begin();
 
-            String jpql = "UPDATE users SET username = ?, password = ?, email = ? WHERE id = ?";
-            Query query = em.createNativeQuery(jpql);
-            query.setParameter(1, entity.getUsername());
-            query.setParameter(2, entity.getPassword());
-            query.setParameter(3, entity.getEmail());
-            query.setParameter(4, entity.getId());
+                em.merge(user);
 
-            int i = query.executeUpdate();
-
-            if (i == 0) {
-                throw new DbException("Id " + entity.getId() + " не существует");
+                em.getTransaction().commit();
+            } catch (Exception ex) {
+                if (em.getTransaction().isActive()) {
+                    em.getTransaction().rollback();
+                }
+                throw ex;
             }
-
-            em.getTransaction().commit();
         } catch (Exception e) {
             throw new DbException(e.getMessage());
         }
@@ -73,20 +73,41 @@ public class UserDao implements IUserDao {
 
     @Override
     public void delete(Integer id) {
-        try (EntityManager em = entityManagerFactory.createEntityManager()){
-            em.getTransaction().begin();
+        try (EntityManager em = entityManagerFactory.createEntityManager()) {
+            try {
+                em.getTransaction().begin();
 
-            String jpql = "DELETE FROM User u WHERE u.id = :id";
-            Query query = em.createQuery(jpql);
-            query.setParameter("id", id);
+                em.remove(em.find(User.class, id));
 
-            int i = query.executeUpdate();
-
-            if (i == 0) {
-                throw new DbException("Id " + id + " не существует");
+                em.getTransaction().commit();
+            } catch (Exception ex) {
+                if (em.getTransaction().isActive()) {
+                    em.getTransaction().rollback();
+                }
+                throw ex;
             }
+        } catch (Exception e) {
+            throw new DbException(e.getMessage());
+        }
+    }
 
-            em.getTransaction().commit();
+    @Override
+    public User findByUsername(String username) {
+        try (EntityManager em = entityManagerFactory.createEntityManager()) {
+            TypedQuery<User> query = em.createQuery("SELECT u FROM User u WHERE u.username = :username", User.class);
+            query.setParameter("username", username);
+            return query.getSingleResult();
+        } catch (Exception e) {
+            throw new DbException(e.getMessage());
+        }
+    }
+
+    @Override
+    public User findByEmail(String email) {
+        try (EntityManager em = entityManagerFactory.createEntityManager()) {
+            TypedQuery<User> query = em.createQuery("SELECT u FROM User u WHERE u.email = :email", User.class);
+            query.setParameter("email", email);
+            return query.getSingleResult();
         } catch (Exception e) {
             throw new DbException(e.getMessage());
         }

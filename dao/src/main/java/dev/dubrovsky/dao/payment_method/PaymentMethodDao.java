@@ -3,80 +3,89 @@ package dev.dubrovsky.dao.payment_method;
 import dev.dubrovsky.dao.connection.ConnectionDataBase;
 import dev.dubrovsky.exception.DbException;
 import dev.dubrovsky.model.payment_method.PaymentMethod;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 
-import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 
 public class PaymentMethodDao implements IPaymentMethodDao {
 
-    private final Connection connection = ConnectionDataBase.getConnection();
+    private final EntityManagerFactory entityManagerFactory = ConnectionDataBase.getEntityManagerFactory();
 
     @Override
-    public void create(PaymentMethod entity) {
-        try (PreparedStatement pst = connection.prepareStatement("INSERT INTO payment_method (method) VALUES (?)")) {
+    public void create(PaymentMethod paymentMethod) {
+        try (EntityManager em = entityManagerFactory.createEntityManager()) {
+            try {
+                em.getTransaction().begin();
 
-            pst.setString(1, entity.getMethod());
+                em.persist(paymentMethod);
 
-            pst.executeUpdate();
+                em.getTransaction().commit();
+            } catch (Exception ex) {
+                if (em.getTransaction().isActive()) {
+                    em.getTransaction().rollback();
+                }
+                throw ex;
+            }
+        } catch (Exception e) {
+            throw new DbException(e.getMessage());
+        }
+    }
 
-        } catch (SQLException e) {
+    @Override
+    public PaymentMethod getById(Integer id) {
+        try (EntityManager em = entityManagerFactory.createEntityManager()) {
+            return em.find(PaymentMethod.class, id);
+        } catch (Exception e) {
             throw new DbException(e.getMessage());
         }
     }
 
     @Override
     public List<PaymentMethod> getAll() {
-        try (Statement st = connection.createStatement();
-             ResultSet rs = st.executeQuery("SELECT * FROM payment_method")) {
-
-            final List<PaymentMethod> paymentMethods = new ArrayList<>();
-
-            while (rs.next()) {
-                paymentMethods.add(new PaymentMethod(
-                        rs.getInt("id"),
-                        rs.getString("method")
-                ));
-            }
-
-            return paymentMethods;
-
-        } catch (SQLException e) {
+        try (EntityManager em = entityManagerFactory.createEntityManager()) {
+            return em.createQuery("SELECT pm FROM PaymentMethod pm", PaymentMethod.class).getResultList();
+        } catch (Exception e) {
             throw new DbException(e.getMessage());
         }
     }
 
     @Override
-    public void update(PaymentMethod entity) {
-        try (PreparedStatement pst = connection.prepareStatement("UPDATE payment_method SET method = ? WHERE id = ?")) {
+    public void update(PaymentMethod paymentMethod) {
+        try (EntityManager em = entityManagerFactory.createEntityManager()) {
+            try {
+                em.getTransaction().begin();
 
-            pst.setString(1, entity.getMethod());
-            pst.setInt(2, entity.getId());
+                em.merge(paymentMethod);
 
-            int i = pst.executeUpdate();
-
-            if (i == 0) {
-                throw new DbException("Id " + entity.getId() + " не существует");
+                em.getTransaction().commit();
+            } catch (Exception ex) {
+                if (em.getTransaction().isActive()) {
+                    em.getTransaction().rollback();
+                }
+                throw ex;
             }
-
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw new DbException(e.getMessage());
         }
     }
 
     @Override
     public void delete(Integer id) {
-        try (PreparedStatement pst = connection.prepareStatement("DELETE FROM payment_method WHERE id = ?")){
+        try (EntityManager em = entityManagerFactory.createEntityManager()) {
+            try {
+                em.getTransaction().begin();
 
-            pst.setInt(1, id);
+                em.remove(em.find(PaymentMethod.class, id));
 
-            int i = pst.executeUpdate();
-
-            if (i == 0) {
-                throw new DbException("Id " + id + " не существует");
+                em.getTransaction().commit();
+            } catch (Exception ex) {
+                if (em.getTransaction().isActive()) {
+                    em.getTransaction().rollback();
+                }
+                throw ex;
             }
-
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw new DbException(e.getMessage());
         }
     }

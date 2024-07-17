@@ -3,6 +3,9 @@ package dev.dubrovsky.service.payment_method;
 import dev.dubrovsky.dao.payment_method.IPaymentMethodDao;
 import dev.dubrovsky.model.payment_method.PaymentMethod;
 
+import java.util.NoSuchElementException;
+import java.util.Optional;
+
 public class PaymentMethodService implements IPaymentMethodService {
 
     private final IPaymentMethodDao paymentMethodDao;
@@ -12,8 +15,17 @@ public class PaymentMethodService implements IPaymentMethodService {
     }
 
     @Override
-    public void create(PaymentMethod entity) {
-        paymentMethodDao.create(entity);
+    public void create(PaymentMethod paymentMethod) {
+        validatePaymentMethod(paymentMethod);
+
+        paymentMethodDao.create(paymentMethod);
+    }
+
+    @Override
+    public void getById(Integer id) {
+        checkId(id);
+
+        System.out.println(paymentMethodDao.getById(id));
     }
 
     @Override
@@ -26,16 +38,34 @@ public class PaymentMethodService implements IPaymentMethodService {
     }
 
     @Override
-    public void update(PaymentMethod entity) {
-        paymentMethodDao.update(entity);
+    public void update(PaymentMethod paymentMethod, Integer id) {
+        validatePaymentMethod(paymentMethod);
+        checkId(id);
+
+        paymentMethod.setId(id);
+        paymentMethodDao.update(paymentMethod);
     }
 
     @Override
     public void delete(Integer id) {
-        if (id < 1) {
-            System.out.println("Id должен быть > 0");
+        checkId(id);
+
+        paymentMethodDao.delete(id);
+    }
+
+    private void validatePaymentMethod(PaymentMethod paymentMethod) {
+        if (paymentMethod == null) {
+            throw new IllegalArgumentException("Способ оплаты не может отсутствовать");
+        }
+    }
+
+    private void checkId(Integer id) {
+        if (id > 0) {
+            Optional
+                    .ofNullable(paymentMethodDao.getById(id))
+                    .orElseThrow(() -> new NoSuchElementException("Ничего не найдено с id: " + id));
         } else {
-            paymentMethodDao.delete(id);
+            throw new IllegalArgumentException("Id должен быть больше 0");
         }
     }
 

@@ -1,25 +1,48 @@
 package dev.dubrovsky.model.product;
 
-import java.sql.Timestamp;
+import jakarta.persistence.*;
+
+import java.time.LocalDateTime;
 import java.util.Objects;
 
+@Entity
+@Table(name = "products")
 public class Product {
 
-    private final Integer id;
-    private final String name;
-    private final String description;
-    private final Integer price;
-    private final Timestamp createdAt;
-    private final Integer categoryId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Integer id;
 
-    public Product(Integer id, String name, String description, Integer price,
-                   Timestamp createdAt, Integer categoryId) {
-        this.id = id;
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "description")
+    private String description;
+
+    @Column(name = "price")
+    private Integer price;
+
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "category_id")
+    private Integer categoryId;
+
+    public Product() {
+    }
+
+    public Product(String name, String description,
+                   Integer price, Integer categoryId) {
         this.name = name;
         this.description = description;
         this.price = price;
-        this.createdAt = createdAt;
+        this.createdAt = LocalDateTime.now();
         this.categoryId = categoryId;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public Integer getId() {
@@ -38,7 +61,7 @@ public class Product {
         return price;
     }
 
-    public Timestamp getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 

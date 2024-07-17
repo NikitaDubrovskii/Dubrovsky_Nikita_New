@@ -1,17 +1,34 @@
 package dev.dubrovsky.model.category;
 
+import jakarta.persistence.*;
+
 import java.util.Objects;
 
+@Entity
+@Table(name = "categories")
 public class Category {
 
-    private final Integer id;
-    private final String name;
-    private final String description;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Integer id;
 
-    public Category(Integer id, String name, String description) {
-        this.id = id;
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "description")
+    private String description;
+
+    public Category() {
+    }
+
+    public Category(String name, String description) {
         this.name = name;
         this.description = description;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public Integer getId() {

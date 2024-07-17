@@ -1,86 +1,93 @@
 package dev.dubrovsky.dao.category;
 
 import dev.dubrovsky.dao.connection.ConnectionDataBase;
-import dev.dubrovsky.model.category.Category;
 import dev.dubrovsky.exception.DbException;
+import dev.dubrovsky.model.category.Category;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 
-import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 
 public class CategoryDao implements ICategoryDao {
 
-    private final Connection connection = ConnectionDataBase.getConnection();
+    private final EntityManagerFactory entityManagerFactory = ConnectionDataBase.getEntityManagerFactory();
 
     @Override
-    public void create(Category entity) {
-        try (PreparedStatement pst = connection.prepareStatement("INSERT INTO categories (name, description) VALUES (?, ?)")) {
+    public void create(Category category) {
+        try (EntityManager em = entityManagerFactory.createEntityManager()) {
+            try {
+                em.getTransaction().begin();
 
-            pst.setString(1, entity.getName());
-            pst.setString(2, entity.getDescription());
+                em.persist(category);
 
-            pst.executeUpdate();
+                em.getTransaction().commit();
+            } catch (Exception ex) {
+                if (em.getTransaction().isActive()) {
+                    em.getTransaction().rollback();
+                }
+                throw ex;
+            }
+        } catch (Exception e) {
+            throw new DbException(e.getMessage());
+        }
+    }
 
-        } catch (SQLException e) {
+    @Override
+    public Category getById(Integer id) {
+        try (EntityManager em = entityManagerFactory.createEntityManager()) {
+            return em.find(Category.class, id);
+        } catch (Exception e) {
             throw new DbException(e.getMessage());
         }
     }
 
     @Override
     public List<Category> getAll() {
-        try (Statement st = connection.createStatement();
-             ResultSet rs = st.executeQuery("SELECT * FROM categories")) {
-
-            final List<Category> categories = new ArrayList<>();
-
-            while (rs.next()) {
-                categories.add(new Category(
-                        rs.getInt("id"),
-                        rs.getString("name"),
-                        rs.getString("description")
-                ));
-            }
-
-            return categories;
-
-        } catch (SQLException e) {
+        try (EntityManager em = entityManagerFactory.createEntityManager()) {
+            return em.createQuery("SELECT c FROM Category c", Category.class).getResultList();
+        } catch (Exception e) {
             throw new DbException(e.getMessage());
         }
     }
 
     @Override
-    public void update(Category entity) {
-        try (PreparedStatement pst = connection.prepareStatement("UPDATE categories SET name = ?, description = ? WHERE id = ?")) {
+    public void update(Category category) {
+        try (EntityManager em = entityManagerFactory.createEntityManager()) {
+            try {
+                em.getTransaction().begin();
 
-            pst.setString(1, entity.getName());
-            pst.setString(2, entity.getDescription());
-            pst.setInt(3, entity.getId());
+                em.merge(category);
 
-            int i = pst.executeUpdate();
-
-            if (i == 0) {
-                throw new DbException("Id " + entity.getId() + " не существует");
+                em.getTransaction().commit();
+            } catch (Exception ex) {
+                if (em.getTransaction().isActive()) {
+                    em.getTransaction().rollback();
+                }
+                throw ex;
             }
-
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw new DbException(e.getMessage());
         }
     }
 
     @Override
     public void delete(Integer id) {
-        try (PreparedStatement pst = connection.prepareStatement("DELETE FROM categories WHERE id = ?")) {
+        try (EntityManager em = entityManagerFactory.createEntityManager()) {
+            try {
+                em.getTransaction().begin();
 
-            pst.setInt(1, id);
+                em.remove(em.find(Category.class, id));
 
-            int i = pst.executeUpdate();
-
-            if (i == 0) {
-                throw new DbException("Id " + id + " не существует");
+                em.getTransaction().commit();
+            } catch (Exception ex) {
+                if (em.getTransaction().isActive()) {
+                    em.getTransaction().rollback();
+                }
+                throw ex;
             }
-
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw new DbException(e.getMessage());
         }
     }
+
 }

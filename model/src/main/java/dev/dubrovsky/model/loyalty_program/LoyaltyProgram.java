@@ -1,20 +1,39 @@
 package dev.dubrovsky.model.loyalty_program;
 
-import java.sql.Timestamp;
+import jakarta.persistence.*;
+
+import java.time.LocalDateTime;
 import java.util.Objects;
 
+@Entity
+@Table(name = "loyalty_programs")
 public class LoyaltyProgram {
 
-    private final Integer id;
-    private final String name;
-    private final String description;
-    private final Timestamp createdAt;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Integer id;
 
-    public LoyaltyProgram(Integer id, String name, String description, Timestamp createdAt) {
-        this.id = id;
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "description")
+    private String description;
+
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    public LoyaltyProgram() {
+    }
+
+    public LoyaltyProgram(String name, String description) {
         this.name = name;
         this.description = description;
-        this.createdAt = createdAt;
+        this.createdAt = LocalDateTime.now();
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public Integer getId() {
@@ -29,7 +48,7 @@ public class LoyaltyProgram {
         return description;
     }
 
-    public Timestamp getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 

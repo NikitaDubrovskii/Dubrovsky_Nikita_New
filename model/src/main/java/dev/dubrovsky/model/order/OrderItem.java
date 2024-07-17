@@ -1,19 +1,38 @@
 package dev.dubrovsky.model.order;
 
+import jakarta.persistence.*;
+
 import java.util.Objects;
 
+@Entity
+@Table(name = "order_items")
 public class OrderItem {
 
-    private final Integer id;
-    private final Integer quantity;
-    private final Integer orderId;
-    private final Integer productId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Integer id;
 
-    public OrderItem(Integer id, Integer quantity, Integer orderId, Integer productId) {
-        this.id = id;
+    @Column(name = "quantity")
+    private Integer quantity;
+
+    @Column(name = "order_id")
+    private Integer orderId;
+
+    @Column(name = "product_id")
+    private Integer productId;
+
+    public OrderItem() {
+    }
+
+    public OrderItem(Integer quantity, Integer orderId, Integer productId) {
         this.quantity = quantity;
         this.orderId = orderId;
         this.productId = productId;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public Integer getId() {

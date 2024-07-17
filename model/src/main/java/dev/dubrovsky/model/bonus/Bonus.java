@@ -28,12 +28,15 @@ public class Bonus {
     public Bonus() {
     }
 
-    public Bonus(Integer id, String name, String description, Integer points, Integer programId) {
-        this.id = id;
+    public Bonus(String name, String description, Integer points, Integer programId) {
         this.name = name;
         this.description = description;
         this.points = points;
         this.programId = programId;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public Integer getId() {

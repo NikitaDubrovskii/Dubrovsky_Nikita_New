@@ -1,11 +1,17 @@
 package dev.dubrovsky.model.loyalty_program;
 
+import jakarta.persistence.Embeddable;
+
 import java.util.Objects;
 
+@Embeddable
 public class UserLoyaltyProgramId {
 
-    private final Integer userId;
-    private final Integer programId;
+    private Integer userId;
+    private Integer programId;
+
+    public UserLoyaltyProgramId() {
+    }
 
     public UserLoyaltyProgramId(Integer userId, Integer programId) {
         this.userId = userId;

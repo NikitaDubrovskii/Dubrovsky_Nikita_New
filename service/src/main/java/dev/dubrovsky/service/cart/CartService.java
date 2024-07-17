@@ -1,19 +1,35 @@
 package dev.dubrovsky.service.cart;
 
 import dev.dubrovsky.dao.cart.ICartDao;
+import dev.dubrovsky.dao.user.IUserDao;
 import dev.dubrovsky.model.cart.Cart;
+
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 public class CartService implements ICartService {
 
     private final ICartDao cartDao;
+    private final IUserDao userDao;
 
-    public CartService(ICartDao cartDao) {
+    public CartService(ICartDao cartDao, IUserDao userDao) {
         this.cartDao = cartDao;
+        this.userDao = userDao;
     }
 
     @Override
-    public void create(Cart entity) {
-        cartDao.create(entity);
+    public void create(Cart cart) {
+        validateCart(cart);
+        checkUserPresent(cart.getUserId());
+
+        cartDao.create(cart);
+    }
+
+    @Override
+    public void getById(Integer id) {
+        checkId(id);
+
+        System.out.println(cartDao.getById(id));
     }
 
     @Override
@@ -26,16 +42,45 @@ public class CartService implements ICartService {
     }
 
     @Override
-    public void update(Cart entity) {
-        cartDao.update(entity);
+    public void update(Cart cart, Integer id) {
+        validateCart(cart);
+        checkUserPresent(cart.getUserId());
+        checkId(id);
+
+        cart.setId(id);
+        cartDao.update(cart);
     }
 
     @Override
     public void delete(Integer id) {
-        if (id < 1) {
-            System.out.println("Id должен быть > 0");
+        checkId(id);
+
+        cartDao.delete(id);
+    }
+
+    private void validateCart(Cart cart) {
+        if (cart == null) {
+            throw new IllegalArgumentException("Корзина не может отсутствовать");
+        }
+    }
+
+    private void checkUserPresent(Integer userId) {
+        if (userId > 0) {
+            Optional
+                    .ofNullable(userDao.getById(userId))
+                    .orElseThrow(() -> new NoSuchElementException("Ничего не найдено с id: " + userId));
         } else {
-            cartDao.delete(id);
+            throw new IllegalArgumentException("Id должен быть больше 0");
+        }
+    }
+
+    private void checkId(Integer id) {
+        if (id > 0) {
+            Optional
+                    .ofNullable(cartDao.getById(id))
+                    .orElseThrow(() -> new NoSuchElementException("Ничего не найдено с id: " + id));
+        } else {
+            throw new IllegalArgumentException("Id должен быть больше 0");
         }
     }
 

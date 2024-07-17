@@ -1,19 +1,35 @@
 package dev.dubrovsky.service.bonus;
 
 import dev.dubrovsky.dao.bonus.IBonusDao;
+import dev.dubrovsky.dao.loyalty_program.ILoyaltyProgramDao;
 import dev.dubrovsky.model.bonus.Bonus;
+
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 public class BonusService implements IBonusService {
 
     private final IBonusDao bonusDao;
+    private final ILoyaltyProgramDao loyaltyProgramDao;
 
-    public BonusService(IBonusDao bonusDao) {
+    public BonusService(IBonusDao bonusDao, ILoyaltyProgramDao loyaltyProgramDao) {
         this.bonusDao = bonusDao;
+        this.loyaltyProgramDao = loyaltyProgramDao;
     }
 
     @Override
-    public void create(Bonus entity) {
-        bonusDao.create(entity);
+    public void create(Bonus bonus) {
+        validateBonus(bonus);
+        checkProgramPresent(bonus.getProgramId());
+
+        bonusDao.create(bonus);
+    }
+
+    @Override
+    public void getById(Integer id) {
+        checkId(id);
+
+        System.out.println(bonusDao.getById(id));
     }
 
     @Override
@@ -26,16 +42,51 @@ public class BonusService implements IBonusService {
     }
 
     @Override
-    public void update(Bonus entity) {
-        bonusDao.update(entity);
+    public void update(Bonus bonus, Integer id) {
+        validateBonus(bonus);
+        checkProgramPresent(bonus.getProgramId());
+        checkId(id);
+
+        bonus.setId(id);
+        bonusDao.update(bonus);
     }
 
     @Override
     public void delete(Integer id) {
-        if (id < 1) {
-            System.out.println("Id должен быть > 0");
+        checkId(id);
+
+        bonusDao.delete(id);
+    }
+
+    private void validateBonus(Bonus bonus) {
+        if (bonus == null) {
+            throw new IllegalArgumentException("Бонус не может отсутствовать");
+        }
+        if (bonus.getName() == null || bonus.getName().isEmpty()) {
+            throw new IllegalArgumentException("Название должно быть");
+        }
+        if (bonus.getPoints() == null) {
+            throw new IllegalArgumentException("Количество очков должно быть");
+        }
+    }
+
+    private void checkProgramPresent(Integer programId) {
+        if (programId > 0) {
+            Optional
+                    .ofNullable(loyaltyProgramDao.getById(programId))
+                    .orElseThrow(() -> new NoSuchElementException("Ничего не найдено с id: " + programId));
         } else {
-            bonusDao.delete(id);
+            throw new IllegalArgumentException("Id должен быть больше 0");
+        }
+    }
+
+    private void checkId(Integer id) {
+        if (id > 0) {
+            Optional.
+                    ofNullable(bonusDao.getById(id)).
+                    orElseThrow(() -> new NoSuchElementException("Ничего не найдено с id: " + id));
+        } else {
+            throw new IllegalArgumentException("Id должен быть больше 0");
         }
     }
 

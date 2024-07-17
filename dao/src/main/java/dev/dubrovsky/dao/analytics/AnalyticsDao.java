@@ -5,8 +5,6 @@ import dev.dubrovsky.exception.DbException;
 import dev.dubrovsky.model.analytics.Analytics;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Query;
-import jakarta.persistence.TypedQuery;
 
 import java.util.List;
 
@@ -15,18 +13,29 @@ public class AnalyticsDao implements IAnalyticsDao {
     private final EntityManagerFactory entityManagerFactory = ConnectionDataBase.getEntityManagerFactory();
 
     @Override
-    public void create(Analytics entity) {
-        try (EntityManager em = entityManagerFactory.createEntityManager()){
-            em.getTransaction().begin();
+    public void create(Analytics analytics) {
+        try (EntityManager em = entityManagerFactory.createEntityManager()) {
+            try {
+                em.getTransaction().begin();
 
-            String jpql = "INSERT INTO analytics (activity, user_id) VALUES (?, ?)";
-            Query query = em.createNativeQuery(jpql);
-            query.setParameter(1, entity.getActivity());
-            query.setParameter(2, entity.getUserId());
+                em.persist(analytics);
 
-            query.executeUpdate();
+                em.getTransaction().commit();
+            } catch (Exception ex) {
+                if (em.getTransaction().isActive()) {
+                    em.getTransaction().rollback();
+                }
+                throw ex;
+            }
+        } catch (Exception e) {
+            throw new DbException(e.getMessage());
+        }
+    }
 
-            em.getTransaction().commit();
+    @Override
+    public Analytics getById(Integer id) {
+        try (EntityManager em = entityManagerFactory.createEntityManager()) {
+            return em.find(Analytics.class, id);
         } catch (Exception e) {
             throw new DbException(e.getMessage());
         }
@@ -34,33 +43,28 @@ public class AnalyticsDao implements IAnalyticsDao {
 
     @Override
     public List<Analytics> getAll() {
-        try (EntityManager em = entityManagerFactory.createEntityManager()){
-            String jpql = "SELECT a FROM Analytics a";
-            TypedQuery<Analytics> query = em.createQuery(jpql, Analytics.class);
-            return query.getResultList();
+        try (EntityManager em = entityManagerFactory.createEntityManager()) {
+            return em.createQuery("SELECT a FROM Analytics a", Analytics.class).getResultList();
         } catch (Exception e) {
             throw new DbException(e.getMessage());
         }
     }
 
     @Override
-    public void update(Analytics entity) {
-        try (EntityManager em = entityManagerFactory.createEntityManager()){
-            em.getTransaction().begin();
+    public void update(Analytics analytics) {
+        try (EntityManager em = entityManagerFactory.createEntityManager()) {
+            try {
+                em.getTransaction().begin();
 
-            String jpql = "UPDATE analytics SET activity = ?, user_id = ? WHERE id = ?";
-            Query query = em.createNativeQuery(jpql);
-            query.setParameter(1, entity.getActivity());
-            query.setParameter(2, entity.getUserId());
-            query.setParameter(3, entity.getId());
+                em.merge(analytics);
 
-            int i = query.executeUpdate();
-
-            if (i == 0) {
-                throw new DbException("Id " + entity.getId() + " не существует");
+                em.getTransaction().commit();
+            } catch (Exception ex) {
+                if (em.getTransaction().isActive()) {
+                    em.getTransaction().rollback();
+                }
+                throw ex;
             }
-
-            em.getTransaction().commit();
         } catch (Exception e) {
             throw new DbException(e.getMessage());
         }
@@ -68,23 +72,33 @@ public class AnalyticsDao implements IAnalyticsDao {
 
     @Override
     public void delete(Integer id) {
-        try (EntityManager em = entityManagerFactory.createEntityManager()){
-            em.getTransaction().begin();
+        try (EntityManager em = entityManagerFactory.createEntityManager()) {
+            try {
+                em.getTransaction().begin();
 
-            String jpql = "DELETE FROM Analytics a WHERE a.id = :id";
-            Query query = em.createQuery(jpql);
-            query.setParameter("id", id);
+                em.remove(em.find(Analytics.class, id));
 
-            int i = query.executeUpdate();
-
-            if (i == 0) {
-                throw new DbException("Id " + id + " не существует");
+                em.getTransaction().commit();
+            } catch (Exception ex) {
+                if (em.getTransaction().isActive()) {
+                    em.getTransaction().rollback();
+                }
+                throw ex;
             }
-
-            em.getTransaction().commit();
         } catch (Exception e) {
             throw new DbException(e.getMessage());
         }
     }
+
+    /*@Override
+    public List<Analytics> findByUserId(Integer userId) {
+        try (EntityManager em = entityManagerFactory.createEntityManager()) {
+            TypedQuery<Analytics> query = em.createQuery("SELECT a FROM Analytics a WHERE a.userId = :userId", Analytics.class);
+            query.setParameter("userId", userId);
+            return query.getResultList();
+        } catch (Exception e) {
+            throw new DbException(e.getMessage());
+        }
+    }*/
 
 }

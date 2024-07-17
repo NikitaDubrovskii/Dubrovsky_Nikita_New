@@ -1,11 +1,17 @@
 package dev.dubrovsky.model.bonus;
 
+import jakarta.persistence.Embeddable;
+
 import java.util.Objects;
 
+@Embeddable
 public class UserBonusId {
 
-    private final Integer userId;
-    private final Integer bonusId;
+    private Integer userId;
+    private Integer bonusId;
+
+    public UserBonusId() {
+    }
 
     public UserBonusId(Integer userId, Integer bonusId) {
         this.userId = userId;

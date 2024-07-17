@@ -1,19 +1,35 @@
 package dev.dubrovsky.service.product;
 
+import dev.dubrovsky.dao.category.ICategoryDao;
 import dev.dubrovsky.dao.product.IProductDao;
 import dev.dubrovsky.model.product.Product;
+
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 public class ProductService implements IProductService {
 
     private final IProductDao productDao;
+    private final ICategoryDao categoryDao;
 
-    public ProductService(IProductDao productDao) {
+    public ProductService(IProductDao productDao, ICategoryDao categoryDao) {
         this.productDao = productDao;
+        this.categoryDao = categoryDao;
     }
 
     @Override
-    public void create(Product entity) {
-        productDao.create(entity);
+    public void create(Product product) {
+        validateProduct(product);
+        checkCategoryPresent(product.getCategoryId());
+
+        productDao.create(product);
+    }
+
+    @Override
+    public void getById(Integer id) {
+        checkId(id);
+
+        System.out.println(productDao.getById(id));
     }
 
     @Override
@@ -26,16 +42,51 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public void update(Product entity) {
-        productDao.update(entity);
+    public void update(Product product, Integer id) {
+        validateProduct(product);
+        checkCategoryPresent(product.getCategoryId());
+        checkId(id);
+
+        product.setId(id);
+        productDao.update(product);
     }
 
     @Override
     public void delete(Integer id) {
-        if (id < 1) {
-            System.out.println("Id должен быть > 0");
+        checkId(id);
+
+        productDao.delete(id);
+    }
+
+    private void validateProduct(Product product) {
+        if (product == null) {
+            throw new IllegalArgumentException("Аналитика не может отсутствовать");
+        }
+        if (product.getName() == null || product.getName().isEmpty()) {
+            throw new IllegalArgumentException("Название не может отсутствовать");
+        }
+        if (product.getPrice() == null || product.getPrice() <= 0) {
+            throw new IllegalArgumentException("Цена не может отсутствовать");
+        }
+    }
+
+    private void checkCategoryPresent(Integer categoryId) {
+        if (categoryId > 0) {
+            Optional
+                    .ofNullable(categoryDao.getById(categoryId))
+                    .orElseThrow(() -> new NoSuchElementException("Ничего не найдено с id: " + categoryId));
         } else {
-            productDao.delete(id);
+            throw new IllegalArgumentException("Id должен быть больше 0");
+        }
+    }
+
+    private void checkId(Integer id) {
+        if (id > 0) {
+            Optional
+                    .ofNullable(productDao.getById(id))
+                    .orElseThrow(() -> new NoSuchElementException("Ничего не найдено с id: " + id));
+        } else {
+            throw new IllegalArgumentException("Id должен быть больше 0");
         }
     }
 

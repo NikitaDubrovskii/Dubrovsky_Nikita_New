@@ -3,87 +3,91 @@ package dev.dubrovsky.dao.order;
 import dev.dubrovsky.dao.connection.ConnectionDataBase;
 import dev.dubrovsky.exception.DbException;
 import dev.dubrovsky.model.order.OrderItem;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 
-import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 
 public class OrderItemDao implements IOrderItemDao {
 
-    private final Connection connection = ConnectionDataBase.getConnection();
+    private final EntityManagerFactory entityManagerFactory = ConnectionDataBase.getEntityManagerFactory();
 
     @Override
-    public void create(OrderItem entity) {
-        try (PreparedStatement pst = connection.prepareStatement("INSERT INTO order_items (quantity, order_id, product_id) VALUES (?, ?, ?)")) {
+    public void create(OrderItem orderItem) {
+        try (EntityManager em = entityManagerFactory.createEntityManager()) {
+            try {
+                em.getTransaction().begin();
 
-            pst.setInt(1, entity.getQuantity());
-            pst.setInt(2, entity.getOrderId());
-            pst.setInt(3, entity.getProductId());
+                em.persist(orderItem);
 
-            pst.executeUpdate();
+                em.getTransaction().commit();
+            } catch (Exception ex) {
+                if (em.getTransaction().isActive()) {
+                    em.getTransaction().rollback();
+                }
+                throw ex;
+            }
+        } catch (Exception e) {
+            throw new DbException(e.getMessage());
+        }
+    }
 
-        } catch (SQLException e) {
+    @Override
+    public OrderItem getById(Integer id) {
+        try (EntityManager em = entityManagerFactory.createEntityManager()) {
+            return em.find(OrderItem.class, id);
+        } catch (Exception e) {
             throw new DbException(e.getMessage());
         }
     }
 
     @Override
     public List<OrderItem> getAll() {
-        try (Statement st = connection.createStatement();
-             ResultSet rs = st.executeQuery("SELECT * FROM order_items")) {
-
-            final List<OrderItem> orderItems = new ArrayList<>();
-
-            while (rs.next()) {
-                orderItems.add(new OrderItem(
-                        rs.getInt("id"),
-                        rs.getInt("quantity"),
-                        rs.getInt("order_id"),
-                        rs.getInt("product_id")
-                ));
-            }
-
-            return orderItems;
-
-        } catch (SQLException e) {
+        try (EntityManager em = entityManagerFactory.createEntityManager()) {
+            return em.createQuery("SELECT oi FROM OrderItem oi", OrderItem.class).getResultList();
+        } catch (Exception e) {
             throw new DbException(e.getMessage());
         }
     }
 
     @Override
-    public void update(OrderItem entity) {
-        try (PreparedStatement pst = connection.prepareStatement("UPDATE order_items SET quantity = ?, order_id = ?, product_id = ? WHERE id = ?")) {
+    public void update(OrderItem orderItem) {
+        try (EntityManager em = entityManagerFactory.createEntityManager()) {
+            try {
+                em.getTransaction().begin();
 
-            pst.setInt(1, entity.getQuantity());
-            pst.setInt(2, entity.getOrderId());
-            pst.setInt(3, entity.getProductId());
-            pst.setInt(4, entity.getId());
+                em.merge(orderItem);
 
-            int i = pst.executeUpdate();
-
-            if (i == 0) {
-                throw new DbException("Id " + entity.getId() + " не существует");
+                em.getTransaction().commit();
+            } catch (Exception ex) {
+                if (em.getTransaction().isActive()) {
+                    em.getTransaction().rollback();
+                }
+                throw ex;
             }
-
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw new DbException(e.getMessage());
         }
     }
 
     @Override
     public void delete(Integer id) {
-        try (PreparedStatement pst = connection.prepareStatement("DELETE FROM order_items WHERE id = ?")){
+        try (EntityManager em = entityManagerFactory.createEntityManager()) {
+            try {
+                em.getTransaction().begin();
 
-            pst.setInt(1, id);
+                em.remove(em.find(OrderItem.class, id));
 
-            int i = pst.executeUpdate();
-
-            if (i == 0) {
-                throw new DbException("Id " + id + " не существует");
+                em.getTransaction().commit();
+            } catch (Exception ex) {
+                if (em.getTransaction().isActive()) {
+                    em.getTransaction().rollback();
+                }
+                throw ex;
             }
-
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw new DbException(e.getMessage());
         }
     }
+
 }

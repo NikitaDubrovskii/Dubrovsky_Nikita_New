@@ -3,68 +3,67 @@ package dev.dubrovsky.dao.loyalty_program;
 import dev.dubrovsky.dao.connection.ConnectionDataBase;
 import dev.dubrovsky.exception.DbException;
 import dev.dubrovsky.model.loyalty_program.UserLoyaltyProgram;
-import dev.dubrovsky.model.loyalty_program.UserLoyaltyProgramId;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Query;
 
-import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 
 public class UserLoyaltyProgramDao implements IUserLoyaltyProgramDao {
 
-    private final Connection connection = ConnectionDataBase.getConnection();
+    private final EntityManagerFactory entityManagerFactory = ConnectionDataBase.getEntityManagerFactory();
 
     @Override
-    public void create(UserLoyaltyProgram entity) {
-        try (PreparedStatement pst = connection.prepareStatement("INSERT INTO user_loyalty_programs (user_id, program_id) VALUES (?, ?)")) {
+    public void create(UserLoyaltyProgram userLoyaltyProgram) {
+        try (EntityManager em = entityManagerFactory.createEntityManager()) {
+            try {
+                em.getTransaction().begin();
 
-            pst.setInt(1, entity.getUserLoyaltyProgramId().getUserId());
-            pst.setInt(2, entity.getUserLoyaltyProgramId().getProgramId());
+                em.persist(userLoyaltyProgram);
 
-            pst.executeUpdate();
-
-        } catch (SQLException e) {
+                em.getTransaction().commit();
+            } catch (Exception ex) {
+                if (em.getTransaction().isActive()) {
+                    em.getTransaction().rollback();
+                }
+                throw ex;
+            }
+        } catch (Exception e) {
             throw new DbException(e.getMessage());
         }
     }
 
+    //getByUserId
+    //getByBonusId
+
     @Override
     public List<UserLoyaltyProgram> getAll() {
-        try (Statement st = connection.createStatement();
-             ResultSet rs = st.executeQuery("SELECT * FROM user_loyalty_programs")) {
-
-            final List<UserLoyaltyProgram> userLoyaltyPrograms = new ArrayList<>();
-
-            while (rs.next()) {
-                userLoyaltyPrograms.add(new UserLoyaltyProgram(
-                        new UserLoyaltyProgramId(
-                                rs.getInt("user_id"),
-                                rs.getInt("program_id")
-                        ),
-                        rs.getTimestamp("received_at")
-                ));
-            }
-
-            return userLoyaltyPrograms;
-
-        } catch (SQLException e) {
+        try (EntityManager em = entityManagerFactory.createEntityManager()) {
+            return em.createQuery("SELECT ulp FROM UserLoyaltyProgram ulp", UserLoyaltyProgram.class).getResultList();
+        } catch (Exception e) {
             throw new DbException(e.getMessage());
         }
     }
 
     @Override
     public void delete(Integer userId, Integer programId) {
-        try (PreparedStatement pst = connection.prepareStatement("DELETE FROM user_loyalty_programs WHERE user_id = ? AND program_id = ?")){
+        try (EntityManager em = entityManagerFactory.createEntityManager()) {
+            try {
+                em.getTransaction().begin();
 
-            pst.setInt(1, userId);
-            pst.setInt(2, programId);
+                Query query = em.createNativeQuery("DELETE FROM user_loyalty_programs WHERE user_id = :userId AND program_id = :programId");
+                query.setParameter("userId", userId);
+                query.setParameter("programId", programId);
+                query.executeUpdate();
 
-            int i = pst.executeUpdate();
-
-            if (i == 0) {
-                throw new DbException("Id " + userId + " или " + programId + " не существует");
+                em.getTransaction().commit();
+            } catch (Exception ex) {
+                if (em.getTransaction().isActive()) {
+                    em.getTransaction().rollback();
+                }
+                throw ex;
             }
-
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw new DbException(e.getMessage());
         }
     }

@@ -1,23 +1,36 @@
 package dev.dubrovsky.model.loyalty_program;
 
-import java.sql.Timestamp;
+import jakarta.persistence.Column;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+
+import java.time.LocalDateTime;
 import java.util.Objects;
 
+@Entity
+@Table(name = "user_loyalty_programs")
 public class UserLoyaltyProgram {
 
-    private final UserLoyaltyProgramId userLoyaltyProgramId;
-    private final Timestamp receivedAt;
+    @EmbeddedId
+    private UserLoyaltyProgramId userLoyaltyProgramId;
 
-    public UserLoyaltyProgram(UserLoyaltyProgramId userLoyaltyProgramId, Timestamp receivedAt) {
+    @Column(name = "received_at", updatable = false)
+    private LocalDateTime receivedAt;
+
+    public UserLoyaltyProgram() {
+    }
+
+    public UserLoyaltyProgram(UserLoyaltyProgramId userLoyaltyProgramId) {
         this.userLoyaltyProgramId = userLoyaltyProgramId;
-        this.receivedAt = receivedAt;
+        this.receivedAt = LocalDateTime.now();
     }
 
     public UserLoyaltyProgramId getUserLoyaltyProgramId() {
         return userLoyaltyProgramId;
     }
 
-    public Timestamp getReceivedAt() {
+    public LocalDateTime getReceivedAt() {
         return receivedAt;
     }
 

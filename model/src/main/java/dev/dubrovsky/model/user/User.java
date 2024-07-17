@@ -2,7 +2,7 @@ package dev.dubrovsky.model.user;
 
 import jakarta.persistence.*;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
@@ -23,18 +23,21 @@ public class User {
     @Column(name = "email")
     private String email;
 
-    @Column(name = "created_at")
-    private Timestamp createdAt;
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
 
     public User() {
     }
 
-    public User(Integer id, String username, String password, String email, Timestamp createdAt) {
-        this.id = id;
+    public User(String username, String password, String email) {
         this.username = username;
         this.password = password;
         this.email = email;
-        this.createdAt = createdAt;
+        this.createdAt = LocalDateTime.now();
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public Integer getId() {
@@ -53,7 +56,7 @@ public class User {
         return email;
     }
 
-    public Timestamp getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 

@@ -2,7 +2,7 @@ package dev.dubrovsky.model.analytics;
 
 import jakarta.persistence.*;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
@@ -17,8 +17,8 @@ public class Analytics {
     @Column(name = "activity")
     private String activity;
 
-    @Column(name = "timestamp")
-    private Timestamp timestamp;
+    @Column(name = "timestamp", updatable = false)
+    private LocalDateTime timestamp;
 
     @Column(name = "user_id")
     private Integer userId;
@@ -26,11 +26,14 @@ public class Analytics {
     public Analytics() {
     }
 
-    public Analytics(Integer id, String activity, Timestamp timestamp, Integer userId) {
-        this.id = id;
+    public Analytics(String activity, Integer userId) {
+        this.timestamp = LocalDateTime.now();
         this.activity = activity;
-        this.timestamp = timestamp;
         this.userId = userId;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public Integer getId() {
@@ -41,7 +44,7 @@ public class Analytics {
         return activity;
     }
 
-    public Timestamp getTimestamp() {
+    public LocalDateTime getTimestamp() {
         return timestamp;
     }
 

@@ -1,23 +1,36 @@
 package dev.dubrovsky.model.bonus;
 
-import java.sql.Timestamp;
+import jakarta.persistence.Column;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+
+import java.time.LocalDateTime;
 import java.util.Objects;
 
+@Entity
+@Table(name = "user_bonuses")
 public class UserBonus {
 
-    private final UserBonusId userBonusId;
-    private final Timestamp receivedAt;
+    @EmbeddedId
+    private UserBonusId userBonusId;
 
-    public UserBonus(UserBonusId userBonusId, Timestamp receivedAt) {
+    @Column(name = "received_at", updatable = false)
+    private LocalDateTime receivedAt;
+
+    public UserBonus() {
+    }
+
+    public UserBonus(UserBonusId userBonusId) {
         this.userBonusId = userBonusId;
-        this.receivedAt = receivedAt;
+        this.receivedAt = LocalDateTime.now();
     }
 
     public UserBonusId getUserBonusId() {
         return userBonusId;
     }
 
-    public Timestamp getReceivedAt() {
+    public LocalDateTime getReceivedAt() {
         return receivedAt;
     }
 

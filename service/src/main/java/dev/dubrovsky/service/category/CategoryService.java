@@ -3,6 +3,9 @@ package dev.dubrovsky.service.category;
 import dev.dubrovsky.dao.category.ICategoryDao;
 import dev.dubrovsky.model.category.Category;
 
+import java.util.NoSuchElementException;
+import java.util.Optional;
+
 public class CategoryService implements ICategoryService {
 
     private final ICategoryDao categoryDao;
@@ -12,8 +15,17 @@ public class CategoryService implements ICategoryService {
     }
 
     @Override
-    public void create(Category entity) {
-        categoryDao.create(entity);
+    public void create(Category category) {
+        validateCategory(category);
+
+        categoryDao.create(category);
+    }
+
+    @Override
+    public void getById(Integer id) {
+        checkId(id);
+
+        categoryDao.getById(id);
     }
 
     @Override
@@ -26,16 +38,36 @@ public class CategoryService implements ICategoryService {
     }
 
     @Override
-    public void update(Category entity) {
-        categoryDao.update(entity);
+    public void update(Category category, Integer id) {
+        validateCategory(category);
+        checkId(id);
+
+        categoryDao.update(category);
     }
 
     @Override
     public void delete(Integer id) {
-        if (id < 1) {
-            System.out.println("Id должен быть > 0");
+        checkId(id);
+
+        categoryDao.delete(id);
+    }
+
+    private void validateCategory(Category category) {
+        if (category == null) {
+            throw new IllegalArgumentException("Категория не может отсутствовать");
+        }
+        if (category.getName() == null || category.getName().isEmpty()) {
+            throw new IllegalArgumentException("Название должно быть");
+        }
+    }
+
+    private void checkId(Integer id) {
+        if (id > 0) {
+            Optional
+                    .ofNullable(categoryDao.getById(id))
+                    .orElseThrow(() -> new NoSuchElementException("Ничего не найдено с id: " + id));
         } else {
-            categoryDao.delete(id);
+            throw new IllegalArgumentException("Id должен быть больше 0");
         }
     }
 
