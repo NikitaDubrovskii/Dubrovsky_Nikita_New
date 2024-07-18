@@ -8,6 +8,11 @@ VALUES ('Action', 'Action games'),
        ('Card', 'Card games'),
        ('RPG', 'RPG games');
 
+INSERT INTO payment_method (method)
+VALUES ('Card'),
+       ('Cash'),
+       ('Crypto');
+
 INSERT INTO products (name, description, price, category_id)
 VALUES ('Game 1', 'Game 1 description', 59.99, 1),
        ('Game 2', 'Game 2 description', 49.99, 2),

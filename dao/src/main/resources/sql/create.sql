@@ -39,6 +39,12 @@ CREATE TABLE cart_items
     product_id BIGINT REFERENCES products (id)
 );
 
+CREATE TABLE payment_method
+(
+    id     BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    method VARCHAR(50)
+);
+
 CREATE TABLE orders
 (
     id                BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
@@ -96,10 +102,4 @@ CREATE TABLE analytics
     activity  TEXT,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     user_id   BIGINT REFERENCES users (id)
-);
-
-CREATE TABLE payment_method
-(
-    id     BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    method VARCHAR(50)
 );
