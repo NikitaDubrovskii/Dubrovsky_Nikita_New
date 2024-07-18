@@ -1,8 +1,8 @@
 package dev.dubrovsky.service.bonus;
 
-import dev.dubrovsky.dao.bonus.IBonusDao;
+import dev.dubrovsky.dao.bonus.BonusDao;
 import dev.dubrovsky.dao.bonus.IUserBonusDao;
-import dev.dubrovsky.dao.user.IUserDao;
+import dev.dubrovsky.dao.user.UserDao;
 import dev.dubrovsky.model.bonus.UserBonus;
 
 import java.util.NoSuchElementException;
@@ -11,10 +11,10 @@ import java.util.Optional;
 public class UserBonusService implements IUserBonusService {
 
     private final IUserBonusDao userBonusDao;
-    private final IUserDao userDao;
-    private final IBonusDao bonusDao;
+    private final UserDao userDao;
+    private final BonusDao bonusDao;
 
-    public UserBonusService(IUserBonusDao userBonusDao, IUserDao userDao, IBonusDao bonusDao) {
+    public UserBonusService(IUserBonusDao userBonusDao, UserDao userDao, BonusDao bonusDao) {
         this.userBonusDao = userBonusDao;
         this.userDao = userDao;
         this.bonusDao = bonusDao;

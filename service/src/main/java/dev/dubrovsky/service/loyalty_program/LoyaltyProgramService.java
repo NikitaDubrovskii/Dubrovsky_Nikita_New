@@ -1,6 +1,6 @@
 package dev.dubrovsky.service.loyalty_program;
 
-import dev.dubrovsky.dao.loyalty_program.ILoyaltyProgramDao;
+import dev.dubrovsky.dao.loyalty_program.LoyaltyProgramDao;
 import dev.dubrovsky.model.loyalty_program.LoyaltyProgram;
 
 import java.util.NoSuchElementException;
@@ -8,9 +8,9 @@ import java.util.Optional;
 
 public class LoyaltyProgramService implements ILoyaltyProgramService {
 
-    private final ILoyaltyProgramDao loyaltyProgramDao;
+    private final LoyaltyProgramDao loyaltyProgramDao;
 
-    public LoyaltyProgramService(ILoyaltyProgramDao loyaltyProgramDao) {
+    public LoyaltyProgramService(LoyaltyProgramDao loyaltyProgramDao) {
         this.loyaltyProgramDao = loyaltyProgramDao;
     }
 

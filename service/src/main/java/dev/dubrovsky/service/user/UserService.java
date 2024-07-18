@@ -1,6 +1,6 @@
 package dev.dubrovsky.service.user;
 
-import dev.dubrovsky.dao.user.IUserDao;
+import dev.dubrovsky.dao.user.UserDao;
 import dev.dubrovsky.model.user.User;
 import jakarta.persistence.NonUniqueResultException;
 
@@ -9,9 +9,9 @@ import java.util.Optional;
 
 public class UserService implements IUserService {
 
-    private final IUserDao userDao;
+    private final UserDao userDao;
 
-    public UserService(IUserDao userDao) {
+    public UserService(UserDao userDao) {
         this.userDao = userDao;
     }
 

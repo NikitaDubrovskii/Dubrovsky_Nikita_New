@@ -1,8 +1,8 @@
 package dev.dubrovsky.service.order;
 
-import dev.dubrovsky.dao.order.IOrderDao;
-import dev.dubrovsky.dao.payment_method.IPaymentMethodDao;
-import dev.dubrovsky.dao.user.IUserDao;
+import dev.dubrovsky.dao.order.OrderDao;
+import dev.dubrovsky.dao.payment_method.PaymentMethodDao;
+import dev.dubrovsky.dao.user.UserDao;
 import dev.dubrovsky.model.order.Order;
 
 import java.util.NoSuchElementException;
@@ -10,11 +10,11 @@ import java.util.Optional;
 
 public class OrderService implements IOrderService {
 
-    private final IOrderDao orderDao;
-    private final IPaymentMethodDao paymentMethodDao;
-    private final IUserDao userDao;
+    private final OrderDao orderDao;
+    private final PaymentMethodDao paymentMethodDao;
+    private final UserDao userDao;
 
-    public OrderService(IOrderDao orderDao, IPaymentMethodDao paymentMethodDao, IUserDao userDao) {
+    public OrderService(OrderDao orderDao, PaymentMethodDao paymentMethodDao, UserDao userDao) {
         this.orderDao = orderDao;
         this.paymentMethodDao = paymentMethodDao;
         this.userDao = userDao;

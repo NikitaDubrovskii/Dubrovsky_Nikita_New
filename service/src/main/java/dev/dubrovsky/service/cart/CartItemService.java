@@ -1,8 +1,8 @@
 package dev.dubrovsky.service.cart;
 
-import dev.dubrovsky.dao.cart.ICartDao;
-import dev.dubrovsky.dao.cart.ICartItemDao;
-import dev.dubrovsky.dao.product.IProductDao;
+import dev.dubrovsky.dao.cart.CartDao;
+import dev.dubrovsky.dao.cart.CartItemDao;
+import dev.dubrovsky.dao.product.ProductDao;
 import dev.dubrovsky.model.cart.CartItem;
 
 import java.util.NoSuchElementException;
@@ -10,11 +10,11 @@ import java.util.Optional;
 
 public class CartItemService implements ICartItemService {
 
-    private final ICartItemDao cartItemDao;
-    private final ICartDao cartDao;
-    private final IProductDao productDao;
+    private final CartItemDao cartItemDao;
+    private final CartDao cartDao;
+    private final ProductDao productDao;
 
-    public CartItemService(ICartItemDao cartItemDao, ICartDao cartDao, IProductDao productDao) {
+    public CartItemService(CartItemDao cartItemDao, CartDao cartDao, ProductDao productDao) {
         this.cartItemDao = cartItemDao;
         this.cartDao = cartDao;
         this.productDao = productDao;

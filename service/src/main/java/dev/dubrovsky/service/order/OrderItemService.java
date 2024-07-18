@@ -1,8 +1,8 @@
 package dev.dubrovsky.service.order;
 
-import dev.dubrovsky.dao.order.IOrderDao;
-import dev.dubrovsky.dao.order.IOrderItemDao;
-import dev.dubrovsky.dao.product.IProductDao;
+import dev.dubrovsky.dao.order.OrderDao;
+import dev.dubrovsky.dao.order.OrderItemDao;
+import dev.dubrovsky.dao.product.ProductDao;
 import dev.dubrovsky.model.order.OrderItem;
 
 import java.util.NoSuchElementException;
@@ -10,11 +10,11 @@ import java.util.Optional;
 
 public class OrderItemService implements IOrderItemService {
 
-    private final IOrderItemDao orderItemDao;
-    private final IOrderDao orderDao;
-    private final IProductDao productDao;
+    private final OrderItemDao orderItemDao;
+    private final OrderDao orderDao;
+    private final ProductDao productDao;
 
-    public OrderItemService(IOrderItemDao orderItemDao, IOrderDao orderDao, IProductDao productDao) {
+    public OrderItemService(OrderItemDao orderItemDao, OrderDao orderDao, ProductDao productDao) {
         this.orderItemDao = orderItemDao;
         this.orderDao = orderDao;
         this.productDao = productDao;

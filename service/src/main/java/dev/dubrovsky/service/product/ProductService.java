@@ -1,7 +1,7 @@
 package dev.dubrovsky.service.product;
 
-import dev.dubrovsky.dao.category.ICategoryDao;
-import dev.dubrovsky.dao.product.IProductDao;
+import dev.dubrovsky.dao.category.CategoryDao;
+import dev.dubrovsky.dao.product.ProductDao;
 import dev.dubrovsky.model.product.Product;
 
 import java.util.NoSuchElementException;
@@ -9,10 +9,10 @@ import java.util.Optional;
 
 public class ProductService implements IProductService {
 
-    private final IProductDao productDao;
-    private final ICategoryDao categoryDao;
+    private final ProductDao productDao;
+    private final CategoryDao categoryDao;
 
-    public ProductService(IProductDao productDao, ICategoryDao categoryDao) {
+    public ProductService(ProductDao productDao, CategoryDao categoryDao) {
         this.productDao = productDao;
         this.categoryDao = categoryDao;
     }

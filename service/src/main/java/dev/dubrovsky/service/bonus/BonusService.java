@@ -1,7 +1,7 @@
 package dev.dubrovsky.service.bonus;
 
-import dev.dubrovsky.dao.bonus.IBonusDao;
-import dev.dubrovsky.dao.loyalty_program.ILoyaltyProgramDao;
+import dev.dubrovsky.dao.bonus.BonusDao;
+import dev.dubrovsky.dao.loyalty_program.LoyaltyProgramDao;
 import dev.dubrovsky.model.bonus.Bonus;
 
 import java.util.NoSuchElementException;
@@ -9,10 +9,10 @@ import java.util.Optional;
 
 public class BonusService implements IBonusService {
 
-    private final IBonusDao bonusDao;
-    private final ILoyaltyProgramDao loyaltyProgramDao;
+    private final BonusDao bonusDao;
+    private final LoyaltyProgramDao loyaltyProgramDao;
 
-    public BonusService(IBonusDao bonusDao, ILoyaltyProgramDao loyaltyProgramDao) {
+    public BonusService(BonusDao bonusDao, LoyaltyProgramDao loyaltyProgramDao) {
         this.bonusDao = bonusDao;
         this.loyaltyProgramDao = loyaltyProgramDao;
     }

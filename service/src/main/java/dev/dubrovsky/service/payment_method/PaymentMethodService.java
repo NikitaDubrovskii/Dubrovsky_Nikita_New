@@ -1,6 +1,6 @@
 package dev.dubrovsky.service.payment_method;
 
-import dev.dubrovsky.dao.payment_method.IPaymentMethodDao;
+import dev.dubrovsky.dao.payment_method.PaymentMethodDao;
 import dev.dubrovsky.model.payment_method.PaymentMethod;
 
 import java.util.NoSuchElementException;
@@ -8,9 +8,9 @@ import java.util.Optional;
 
 public class PaymentMethodService implements IPaymentMethodService {
 
-    private final IPaymentMethodDao paymentMethodDao;
+    private final PaymentMethodDao paymentMethodDao;
 
-    public PaymentMethodService(IPaymentMethodDao paymentMethodDao) {
+    public PaymentMethodService(PaymentMethodDao paymentMethodDao) {
         this.paymentMethodDao = paymentMethodDao;
     }
 

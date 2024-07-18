@@ -1,7 +1,7 @@
 package dev.dubrovsky.service.analytics;
 
-import dev.dubrovsky.dao.analytics.IAnalyticsDao;
-import dev.dubrovsky.dao.user.IUserDao;
+import dev.dubrovsky.dao.analytics.AnalyticsDao;
+import dev.dubrovsky.dao.user.UserDao;
 import dev.dubrovsky.model.analytics.Analytics;
 
 import java.util.NoSuchElementException;
@@ -9,10 +9,10 @@ import java.util.Optional;
 
 public class AnalyticsService implements IAnalyticsService {
 
-    private final IAnalyticsDao analyticsDao;
-    private final IUserDao userDao;
+    private final AnalyticsDao analyticsDao;
+    private final UserDao userDao;
 
-    public AnalyticsService(IAnalyticsDao analyticsDao, IUserDao userDao) {
+    public AnalyticsService(AnalyticsDao analyticsDao, UserDao userDao) {
         this.analyticsDao = analyticsDao;
         this.userDao = userDao;
     }

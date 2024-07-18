@@ -1,6 +1,6 @@
 package dev.dubrovsky.service.category;
 
-import dev.dubrovsky.dao.category.ICategoryDao;
+import dev.dubrovsky.dao.category.CategoryDao;
 import dev.dubrovsky.model.category.Category;
 
 import java.util.NoSuchElementException;
@@ -8,9 +8,9 @@ import java.util.Optional;
 
 public class CategoryService implements ICategoryService {
 
-    private final ICategoryDao categoryDao;
+    private final CategoryDao categoryDao;
 
-    public CategoryService(ICategoryDao categoryDao) {
+    public CategoryService(CategoryDao categoryDao) {
         this.categoryDao = categoryDao;
     }
 
