@@ -1,7 +1,7 @@
-package dev.dubrovsky.dao.loyalty_program;
+package dev.dubrovsky.dao.loyalty.program;
 
 import dev.dubrovsky.dao.AbstractDao;
-import dev.dubrovsky.model.loyalty_program.LoyaltyProgram;
+import dev.dubrovsky.model.loyalty.program.LoyaltyProgram;
 
 public class LoyaltyProgramDao extends AbstractDao<LoyaltyProgram> implements ILoyaltyProgramDao {
 

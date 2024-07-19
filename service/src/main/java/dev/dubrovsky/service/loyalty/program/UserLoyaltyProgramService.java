@@ -1,9 +1,9 @@
-package dev.dubrovsky.service.loyalty_program;
+package dev.dubrovsky.service.loyalty.program;
 
-import dev.dubrovsky.dao.loyalty_program.IUserLoyaltyProgramDao;
-import dev.dubrovsky.dao.loyalty_program.LoyaltyProgramDao;
+import dev.dubrovsky.dao.loyalty.program.IUserLoyaltyProgramDao;
+import dev.dubrovsky.dao.loyalty.program.LoyaltyProgramDao;
 import dev.dubrovsky.dao.user.UserDao;
-import dev.dubrovsky.model.loyalty_program.UserLoyaltyProgram;
+import dev.dubrovsky.model.loyalty.program.UserLoyaltyProgram;
 
 import java.util.NoSuchElementException;
 import java.util.Optional;

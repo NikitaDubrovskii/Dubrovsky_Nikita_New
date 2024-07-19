@@ -1,6 +1,6 @@
-package dev.dubrovsky.dao.loyalty_program;
+package dev.dubrovsky.dao.loyalty.program;
 
-import dev.dubrovsky.model.loyalty_program.UserLoyaltyProgram;
+import dev.dubrovsky.model.loyalty.program.UserLoyaltyProgram;
 
 import java.util.List;
 

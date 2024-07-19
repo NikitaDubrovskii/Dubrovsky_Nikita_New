@@ -1,8 +1,8 @@
-package dev.dubrovsky.dao.loyalty_program;
+package dev.dubrovsky.dao.loyalty.program;
 
 import dev.dubrovsky.dao.connection.ConnectionDataBase;
 import dev.dubrovsky.exception.DbException;
-import dev.dubrovsky.model.loyalty_program.UserLoyaltyProgram;
+import dev.dubrovsky.model.loyalty.program.UserLoyaltyProgram;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Query;

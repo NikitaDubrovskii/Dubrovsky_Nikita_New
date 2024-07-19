@@ -4,9 +4,7 @@ import dev.dubrovsky.dao.cart.CartDao;
 import dev.dubrovsky.dao.cart.CartItemDao;
 import dev.dubrovsky.dao.product.ProductDao;
 import dev.dubrovsky.model.cart.CartItem;
-
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import dev.dubrovsky.util.validation.ValidationUtil;
 
 public class CartItemService implements ICartItemService {
 
@@ -23,15 +21,15 @@ public class CartItemService implements ICartItemService {
     @Override
     public void create(CartItem cartItem) {
         validateCartItem(cartItem);
-        checkCartPresent(cartItem.getCartId());
-        checkProductPresent(cartItem.getProductId());
+        ValidationUtil.checkEntityPresent(cartItem.getCartId(), cartDao);
+        ValidationUtil.checkEntityPresent(cartItem.getProductId(), productDao);
 
         cartItemDao.create(cartItem);
     }
 
     @Override
     public void getById(Integer id) {
-        checkId(id);
+        ValidationUtil.checkId(id, cartItemDao);
 
         System.out.println(cartItemDao.getById(id));
     }
@@ -48,9 +46,9 @@ public class CartItemService implements ICartItemService {
     @Override
     public void update(CartItem cartItem, Integer id) {
         validateCartItem(cartItem);
-        checkCartPresent(cartItem.getCartId());
-        checkProductPresent(cartItem.getProductId());
-        checkId(id);
+        ValidationUtil.checkEntityPresent(cartItem.getCartId(), cartDao);
+        ValidationUtil.checkEntityPresent(cartItem.getProductId(), productDao);
+        ValidationUtil.checkId(id, cartItemDao);
 
         cartItem.setId(id);
         cartItemDao.update(cartItem);
@@ -58,7 +56,7 @@ public class CartItemService implements ICartItemService {
 
     @Override
     public void delete(Integer id) {
-        checkId(id);
+        ValidationUtil.checkId(id, cartItemDao);
 
         cartItemDao.delete(id);
     }
@@ -69,36 +67,6 @@ public class CartItemService implements ICartItemService {
         }
         if (cartItem.getQuantity() == null || cartItem.getQuantity() <= 0) {
             throw new IllegalArgumentException("Количество не может отсутствовать");
-        }
-    }
-
-    private void checkCartPresent(Integer cartId) {
-        if (cartId > 0) {
-            Optional
-                    .ofNullable(cartDao.getById(cartId))
-                    .orElseThrow(() -> new NoSuchElementException("Ничего не найдено с id: " + cartId));
-        } else {
-            throw new IllegalArgumentException("Id должен быть больше 0");
-        }
-    }
-
-    private void checkProductPresent(Integer productId) {
-        if (productId > 0) {
-            Optional
-                    .ofNullable(productDao.getById(productId))
-                    .orElseThrow(() -> new NoSuchElementException("Ничего не найдено с id: " + productId));
-        } else {
-            throw new IllegalArgumentException("Id должен быть больше 0");
-        }
-    }
-
-    private void checkId(Integer id) {
-        if (id > 0) {
-            Optional
-                    .ofNullable(cartItemDao.getById(id))
-                    .orElseThrow(() -> new NoSuchElementException("Ничего не найдено с id: " + id));
-        } else {
-            throw new IllegalArgumentException("Id должен быть больше 0");
         }
     }
 

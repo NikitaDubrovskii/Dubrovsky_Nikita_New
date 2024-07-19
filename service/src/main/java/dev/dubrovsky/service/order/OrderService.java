@@ -1,12 +1,10 @@
 package dev.dubrovsky.service.order;
 
 import dev.dubrovsky.dao.order.OrderDao;
-import dev.dubrovsky.dao.payment_method.PaymentMethodDao;
+import dev.dubrovsky.dao.payment.method.PaymentMethodDao;
 import dev.dubrovsky.dao.user.UserDao;
 import dev.dubrovsky.model.order.Order;
-
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import dev.dubrovsky.util.validation.ValidationUtil;
 
 public class OrderService implements IOrderService {
 
@@ -23,15 +21,15 @@ public class OrderService implements IOrderService {
     @Override
     public void create(Order order) {
         validateOrder(order);
-        checkUserPresent(order.getUserId());
-        checkPaymentMethodPresent(order.getPaymentMethodId());
+        ValidationUtil.checkEntityPresent(order.getUserId(), userDao);
+        ValidationUtil.checkEntityPresent(order.getPaymentMethodId(), paymentMethodDao);
 
         orderDao.create(order);
     }
 
     @Override
     public void getById(Integer id) {
-        checkId(id);
+        ValidationUtil.checkId(id, orderDao);
 
         System.out.println(orderDao.getById(id));
     }
@@ -48,9 +46,9 @@ public class OrderService implements IOrderService {
     @Override
     public void update(Order order, Integer id) {
         validateOrder(order);
-        checkUserPresent(order.getUserId());
-        checkPaymentMethodPresent(order.getPaymentMethodId());
-        checkId(id);
+        ValidationUtil.checkEntityPresent(order.getUserId(), userDao);
+        ValidationUtil.checkEntityPresent(order.getPaymentMethodId(), paymentMethodDao);
+        ValidationUtil.checkId(id, orderDao);
 
         order.setId(id);
         orderDao.update(order);
@@ -58,7 +56,7 @@ public class OrderService implements IOrderService {
 
     @Override
     public void delete(Integer id) {
-        checkId(id);
+        ValidationUtil.checkId(id, orderDao);
 
         orderDao.delete(id);
     }
@@ -72,36 +70,6 @@ public class OrderService implements IOrderService {
         }
         if (order.getAddress() == null || order.getAddress().isEmpty()) {
             throw new IllegalArgumentException("Адрес не может быть пустой");
-        }
-    }
-
-    private void checkPaymentMethodPresent(Integer paymentMethodId) {
-        if (paymentMethodId > 0) {
-            Optional
-                    .ofNullable(paymentMethodDao.getById(paymentMethodId))
-                    .orElseThrow(() -> new NoSuchElementException("Ничего не найдено с id: " + paymentMethodId));
-        } else {
-            throw new IllegalArgumentException("Id должен быть больше 0");
-        }
-    }
-
-    private void checkUserPresent(Integer userId) {
-        if (userId > 0) {
-            Optional
-                    .ofNullable(userDao.getById(userId))
-                    .orElseThrow(() -> new NoSuchElementException("Ничего не найдено с id: " + userId));
-        } else {
-            throw new IllegalArgumentException("Id должен быть больше 0");
-        }
-    }
-
-    private void checkId(Integer id) {
-        if (id > 0) {
-            Optional
-                    .ofNullable(orderDao.getById(id))
-                    .orElseThrow(() -> new NoSuchElementException("Ничего не найдено с id: " + id));
-        } else {
-            throw new IllegalArgumentException("Id должен быть больше 0");
         }
     }
 

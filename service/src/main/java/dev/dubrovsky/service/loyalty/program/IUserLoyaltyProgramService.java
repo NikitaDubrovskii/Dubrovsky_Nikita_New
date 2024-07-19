@@ -1,6 +1,6 @@
-package dev.dubrovsky.service.loyalty_program;
+package dev.dubrovsky.service.loyalty.program;
 
-import dev.dubrovsky.model.loyalty_program.UserLoyaltyProgram;
+import dev.dubrovsky.model.loyalty.program.UserLoyaltyProgram;
 
 public interface IUserLoyaltyProgramService {
 

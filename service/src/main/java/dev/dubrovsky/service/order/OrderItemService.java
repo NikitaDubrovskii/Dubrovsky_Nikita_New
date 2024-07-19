@@ -4,9 +4,7 @@ import dev.dubrovsky.dao.order.OrderDao;
 import dev.dubrovsky.dao.order.OrderItemDao;
 import dev.dubrovsky.dao.product.ProductDao;
 import dev.dubrovsky.model.order.OrderItem;
-
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import dev.dubrovsky.util.validation.ValidationUtil;
 
 public class OrderItemService implements IOrderItemService {
 
@@ -23,15 +21,15 @@ public class OrderItemService implements IOrderItemService {
     @Override
     public void create(OrderItem orderItem) {
         validateOrderItem(orderItem);
-        checkOrderPresent(orderItem.getOrderId());
-        checkProductPresent(orderItem.getProductId());
+        ValidationUtil.checkEntityPresent(orderItem.getOrderId(), orderDao);
+        ValidationUtil.checkEntityPresent(orderItem.getProductId(), productDao);
 
         orderItemDao.create(orderItem);
     }
 
     @Override
     public void getById(Integer id) {
-        checkId(id);
+        ValidationUtil.checkId(id, orderItemDao);
 
         System.out.println(orderItemDao.getById(id));
     }
@@ -48,9 +46,9 @@ public class OrderItemService implements IOrderItemService {
     @Override
     public void update(OrderItem orderItem, Integer id) {
         validateOrderItem(orderItem);
-        checkOrderPresent(orderItem.getOrderId());
-        checkProductPresent(orderItem.getProductId());
-        checkId(id);
+        ValidationUtil.checkEntityPresent(orderItem.getOrderId(), orderDao);
+        ValidationUtil.checkEntityPresent(orderItem.getProductId(), productDao);
+        ValidationUtil.checkId(id, orderItemDao);
 
         orderItem.setId(id);
         orderItemDao.update(orderItem);
@@ -58,7 +56,7 @@ public class OrderItemService implements IOrderItemService {
 
     @Override
     public void delete(Integer id) {
-        checkId(id);
+        ValidationUtil.checkId(id, orderItemDao);
 
         orderItemDao.delete(id);
     }
@@ -69,36 +67,6 @@ public class OrderItemService implements IOrderItemService {
         }
         if (orderItem.getQuantity() == null || orderItem.getQuantity() <= 0) {
             throw new IllegalArgumentException("Количество не может отсутствовать");
-        }
-    }
-
-    private void checkOrderPresent(Integer orderId) {
-        if (orderId > 0) {
-            Optional
-                    .ofNullable(orderDao.getById(orderId))
-                    .orElseThrow(() -> new NoSuchElementException("Ничего не найдено с id: " + orderId));
-        } else {
-            throw new IllegalArgumentException("Id должен быть больше 0");
-        }
-    }
-
-    private void checkProductPresent(Integer productId) {
-        if (productId > 0) {
-            Optional
-                    .ofNullable(productDao.getById(productId))
-                    .orElseThrow(() -> new NoSuchElementException("Ничего не найдено с id: " + productId));
-        } else {
-            throw new IllegalArgumentException("Id должен быть больше 0");
-        }
-    }
-
-    private void checkId(Integer id) {
-        if (id > 0) {
-            Optional
-                    .ofNullable(orderItemDao.getById(id))
-                    .orElseThrow(() -> new NoSuchElementException("Ничего не найдено с id: " + id));
-        } else {
-            throw new IllegalArgumentException("Id должен быть больше 0");
         }
     }
 

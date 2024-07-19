@@ -2,6 +2,7 @@ package dev.dubrovsky.service.user;
 
 import dev.dubrovsky.dao.user.UserDao;
 import dev.dubrovsky.model.user.User;
+import dev.dubrovsky.util.validation.ValidationUtil;
 import jakarta.persistence.NonUniqueResultException;
 
 import java.util.NoSuchElementException;
@@ -26,7 +27,7 @@ public class UserService implements IUserService {
 
     @Override
     public void getById(Integer id) {
-        checkId(id);
+        ValidationUtil.checkId(id, userDao);
 
         System.out.println(userDao.getById(id));
     }
@@ -43,7 +44,8 @@ public class UserService implements IUserService {
     @Override
     public void update(User user, Integer id) {
         validateUser(user);
-        checkId(id);
+        ValidationUtil.checkId(id, userDao);
+
         User existingUser = userDao.getById(id);
         if (!existingUser.getUsername().equals(user.getUsername())) {
             checkUniqueUsername(user.getUsername());
@@ -58,7 +60,7 @@ public class UserService implements IUserService {
 
     @Override
     public void delete(Integer id) {
-        checkId(id);
+        ValidationUtil.checkId(id, userDao);
 
         userDao.delete(id);
     }
@@ -75,16 +77,6 @@ public class UserService implements IUserService {
         }
         if (user.getUsername() == null || user.getUsername().trim().isEmpty()) {
             throw new IllegalArgumentException("Имя не может отсутствовать");
-        }
-    }
-
-    private void checkId(Integer id) {
-        if (id > 0) {
-            Optional
-                    .ofNullable(userDao.getById(id))
-                    .orElseThrow(() -> new NoSuchElementException("Ничего не найдено с id: " + id));
-        } else {
-            throw new IllegalArgumentException("Id должен быть больше 0");
         }
     }
 

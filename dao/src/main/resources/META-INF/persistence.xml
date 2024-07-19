@@ -11,11 +11,11 @@
     <class>dev.dubrovsky.model.cart.Cart</class>
     <class>dev.dubrovsky.model.cart.CartItem</class>
     <class>dev.dubrovsky.model.category.Category</class>
-    <class>dev.dubrovsky.model.loyalty_program.LoyaltyProgram</class>
-    <class>dev.dubrovsky.model.loyalty_program.UserLoyaltyProgram</class>
+    <class>dev.dubrovsky.model.loyalty.program.LoyaltyProgram</class>
+    <class>dev.dubrovsky.model.loyalty.program.UserLoyaltyProgram</class>
     <class>dev.dubrovsky.model.order.Order</class>
     <class>dev.dubrovsky.model.order.OrderItem</class>
-    <class>dev.dubrovsky.model.payment_method.PaymentMethod</class>
+    <class>dev.dubrovsky.model.payment.method.PaymentMethod</class>
     <class>dev.dubrovsky.model.product.Product</class>
     <class>dev.dubrovsky.model.user.User</class>
 

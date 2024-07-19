@@ -2,9 +2,7 @@ package dev.dubrovsky.service.category;
 
 import dev.dubrovsky.dao.category.CategoryDao;
 import dev.dubrovsky.model.category.Category;
-
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import dev.dubrovsky.util.validation.ValidationUtil;
 
 public class CategoryService implements ICategoryService {
 
@@ -23,7 +21,7 @@ public class CategoryService implements ICategoryService {
 
     @Override
     public void getById(Integer id) {
-        checkId(id);
+        ValidationUtil.checkId(id, categoryDao);
 
         categoryDao.getById(id);
     }
@@ -40,14 +38,14 @@ public class CategoryService implements ICategoryService {
     @Override
     public void update(Category category, Integer id) {
         validateCategory(category);
-        checkId(id);
+        ValidationUtil.checkId(id, categoryDao);
 
         categoryDao.update(category);
     }
 
     @Override
     public void delete(Integer id) {
-        checkId(id);
+        ValidationUtil.checkId(id, categoryDao);
 
         categoryDao.delete(id);
     }
@@ -58,16 +56,6 @@ public class CategoryService implements ICategoryService {
         }
         if (category.getName() == null || category.getName().isEmpty()) {
             throw new IllegalArgumentException("Название должно быть");
-        }
-    }
-
-    private void checkId(Integer id) {
-        if (id > 0) {
-            Optional
-                    .ofNullable(categoryDao.getById(id))
-                    .orElseThrow(() -> new NoSuchElementException("Ничего не найдено с id: " + id));
-        } else {
-            throw new IllegalArgumentException("Id должен быть больше 0");
         }
     }
 

@@ -3,9 +3,7 @@ package dev.dubrovsky.service.analytics;
 import dev.dubrovsky.dao.analytics.AnalyticsDao;
 import dev.dubrovsky.dao.user.UserDao;
 import dev.dubrovsky.model.analytics.Analytics;
-
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import dev.dubrovsky.util.validation.ValidationUtil;
 
 public class AnalyticsService implements IAnalyticsService {
 
@@ -20,14 +18,14 @@ public class AnalyticsService implements IAnalyticsService {
     @Override
     public void create(Analytics analytics) {
         validateAnalytics(analytics);
-        checkUserPresent(analytics.getUserId());
+        ValidationUtil.checkEntityPresent(analytics.getUserId(), userDao);
 
         analyticsDao.create(analytics);
     }
 
     @Override
     public void getById(Integer id) {
-        checkId(id);
+        ValidationUtil.checkId(id, analyticsDao);
 
         System.out.println(analyticsDao.getById(id));
     }
@@ -44,8 +42,8 @@ public class AnalyticsService implements IAnalyticsService {
     @Override
     public void update(Analytics analytics, Integer id) {
         validateAnalytics(analytics);
-        checkUserPresent(analytics.getUserId());
-        checkId(id);
+        ValidationUtil.checkId(id, analyticsDao);
+        ValidationUtil.checkEntityPresent(analytics.getUserId(), userDao);
 
         analytics.setId(id);
         analyticsDao.update(analytics);
@@ -53,7 +51,7 @@ public class AnalyticsService implements IAnalyticsService {
 
     @Override
     public void delete(Integer id) {
-        checkId(id);
+        ValidationUtil.checkId(id, analyticsDao);
 
         analyticsDao.delete(id);
     }
@@ -61,26 +59,6 @@ public class AnalyticsService implements IAnalyticsService {
     private void validateAnalytics(Analytics analytics) {
         if (analytics == null) {
             throw new IllegalArgumentException("Аналитика не может отсутствовать");
-        }
-    }
-
-    private void checkUserPresent(Integer userId) {
-        if (userId > 0) {
-            Optional
-                    .ofNullable(userDao.getById(userId))
-                    .orElseThrow(() -> new NoSuchElementException("Ничего не найдено с id: " + userId));
-        } else {
-            throw new IllegalArgumentException("Id должен быть больше 0");
-        }
-    }
-
-    private void checkId(Integer id) {
-        if (id > 0) {
-            Optional
-                    .ofNullable(analyticsDao.getById(id))
-                    .orElseThrow(() -> new NoSuchElementException("Ничего не найдено с id: " + id));
-        } else {
-            throw new IllegalArgumentException("Id должен быть больше 0");
         }
     }
 

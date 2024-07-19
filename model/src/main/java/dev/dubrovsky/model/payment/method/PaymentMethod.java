@@ -1,4 +1,4 @@
-package dev.dubrovsky.model.payment_method;
+package dev.dubrovsky.model.payment.method;
 
 import jakarta.persistence.*;
 

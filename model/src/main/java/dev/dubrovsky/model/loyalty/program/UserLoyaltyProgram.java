@@ -1,4 +1,4 @@
-package dev.dubrovsky.model.loyalty_program;
+package dev.dubrovsky.model.loyalty.program;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;

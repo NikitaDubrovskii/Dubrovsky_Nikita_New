@@ -1,10 +1,8 @@
-package dev.dubrovsky.service.payment_method;
+package dev.dubrovsky.service.payment.method;
 
-import dev.dubrovsky.dao.payment_method.PaymentMethodDao;
-import dev.dubrovsky.model.payment_method.PaymentMethod;
-
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import dev.dubrovsky.dao.payment.method.PaymentMethodDao;
+import dev.dubrovsky.model.payment.method.PaymentMethod;
+import dev.dubrovsky.util.validation.ValidationUtil;
 
 public class PaymentMethodService implements IPaymentMethodService {
 
@@ -23,7 +21,7 @@ public class PaymentMethodService implements IPaymentMethodService {
 
     @Override
     public void getById(Integer id) {
-        checkId(id);
+        ValidationUtil.checkId(id, paymentMethodDao);
 
         System.out.println(paymentMethodDao.getById(id));
     }
@@ -40,7 +38,7 @@ public class PaymentMethodService implements IPaymentMethodService {
     @Override
     public void update(PaymentMethod paymentMethod, Integer id) {
         validatePaymentMethod(paymentMethod);
-        checkId(id);
+        ValidationUtil.checkId(id, paymentMethodDao);
 
         paymentMethod.setId(id);
         paymentMethodDao.update(paymentMethod);
@@ -48,7 +46,7 @@ public class PaymentMethodService implements IPaymentMethodService {
 
     @Override
     public void delete(Integer id) {
-        checkId(id);
+        ValidationUtil.checkId(id, paymentMethodDao);
 
         paymentMethodDao.delete(id);
     }
@@ -56,16 +54,6 @@ public class PaymentMethodService implements IPaymentMethodService {
     private void validatePaymentMethod(PaymentMethod paymentMethod) {
         if (paymentMethod == null) {
             throw new IllegalArgumentException("Способ оплаты не может отсутствовать");
-        }
-    }
-
-    private void checkId(Integer id) {
-        if (id > 0) {
-            Optional
-                    .ofNullable(paymentMethodDao.getById(id))
-                    .orElseThrow(() -> new NoSuchElementException("Ничего не найдено с id: " + id));
-        } else {
-            throw new IllegalArgumentException("Id должен быть больше 0");
         }
     }
 

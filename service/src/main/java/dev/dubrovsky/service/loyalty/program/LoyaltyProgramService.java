@@ -1,10 +1,8 @@
-package dev.dubrovsky.service.loyalty_program;
+package dev.dubrovsky.service.loyalty.program;
 
-import dev.dubrovsky.dao.loyalty_program.LoyaltyProgramDao;
-import dev.dubrovsky.model.loyalty_program.LoyaltyProgram;
-
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import dev.dubrovsky.dao.loyalty.program.LoyaltyProgramDao;
+import dev.dubrovsky.model.loyalty.program.LoyaltyProgram;
+import dev.dubrovsky.util.validation.ValidationUtil;
 
 public class LoyaltyProgramService implements ILoyaltyProgramService {
 
@@ -23,7 +21,7 @@ public class LoyaltyProgramService implements ILoyaltyProgramService {
 
     @Override
     public void getById(Integer id) {
-        checkId(id);
+        ValidationUtil.checkId(id, loyaltyProgramDao);
 
         System.out.println(loyaltyProgramDao.getById(id));
     }
@@ -40,7 +38,7 @@ public class LoyaltyProgramService implements ILoyaltyProgramService {
     @Override
     public void update(LoyaltyProgram loyaltyProgram, Integer id) {
         validateLoyaltyProgram(loyaltyProgram);
-        checkId(id);
+        ValidationUtil.checkId(id, loyaltyProgramDao);
 
         loyaltyProgram.setId(id);
         loyaltyProgramDao.update(loyaltyProgram);
@@ -48,7 +46,7 @@ public class LoyaltyProgramService implements ILoyaltyProgramService {
 
     @Override
     public void delete(Integer id) {
-        checkId(id);
+        ValidationUtil.checkId(id, loyaltyProgramDao);
 
         loyaltyProgramDao.delete(id);
     }
@@ -59,16 +57,6 @@ public class LoyaltyProgramService implements ILoyaltyProgramService {
         }
         if (loyaltyProgram.getName() == null || loyaltyProgram.getName().isEmpty()) {
             throw new IllegalArgumentException("Название должно быть");
-        }
-    }
-
-    private void checkId(Integer id) {
-        if (id > 0) {
-            Optional
-                    .ofNullable(loyaltyProgramDao.getById(id))
-                    .orElseThrow(() -> new NoSuchElementException("Ничего не найдено с id: " + id));
-        } else {
-            throw new IllegalArgumentException("Id должен быть больше 0");
         }
     }
 
