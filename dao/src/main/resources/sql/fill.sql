@@ -52,8 +52,3 @@ INSERT INTO analytics (activity, user_id)
 VALUES ('Subscribe', 1),
        ('Comment', 2),
        ('Purchase', 3);
-
-INSERT INTO payment_method (method)
-VALUES ('Card'),
-       ('Cash'),
-       ('Crypto');
