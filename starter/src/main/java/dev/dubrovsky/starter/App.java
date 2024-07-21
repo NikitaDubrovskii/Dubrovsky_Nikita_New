@@ -75,7 +75,7 @@ public class App {
         IUserService userService = new UserService(userDao);
         IAnalyticsService analyticsService = new AnalyticsService(analyticsDao, userDao);
         IBonusService bonusService = new BonusService(bonusDao, loyaltyProgramDao);
-        ICartService cartService = new CartService(cartDao, userDao);
+        ICartService cartService = new CartService(cartDao, userDao, cartItemDao, productDao);
         ICartItemService cartItemService = new CartItemService(cartItemDao, cartDao, productDao);
         ILoyaltyProgramService loyaltyProgramService = new LoyaltyProgramService(loyaltyProgramDao);
         IOrderService orderService = new OrderService(orderDao, paymentMethodDao, userDao);
@@ -88,6 +88,8 @@ public class App {
         //userService.loginUser("abrikos", "789");
         //analyticsService.getAll();
         //userService.recoverPassword("user1@example.com");
+
+        cartService.getTotalPrice(1);
     }
 
 }

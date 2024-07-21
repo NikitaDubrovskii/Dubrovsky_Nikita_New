@@ -21,7 +21,7 @@ public class Product {
     private String description;
 
     @Column(name = "price")
-    private Integer price;
+    private Float price;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -33,7 +33,7 @@ public class Product {
     }
 
     public Product(String name, String description,
-                   Integer price, Integer categoryId) {
+                   Float price, Integer categoryId) {
         this.name = name;
         this.description = description;
         this.price = price;
@@ -57,7 +57,7 @@ public class Product {
         return description;
     }
 
-    public Integer getPrice() {
+    public Float getPrice() {
         return price;
     }
 
