@@ -2,11 +2,11 @@ package dev.dubrovsky.service.user;
 
 import dev.dubrovsky.dao.user.UserDao;
 import dev.dubrovsky.model.user.User;
+import dev.dubrovsky.util.encoder.SimplePasswordEncoder;
 import dev.dubrovsky.util.validation.ValidationUtil;
 import jakarta.persistence.NonUniqueResultException;
 
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.UUID;
 
 public class UserService implements IUserService {
 
@@ -19,9 +19,10 @@ public class UserService implements IUserService {
     @Override
     public void create(User user) {
         validateUser(user);
-        checkUniqueEmail(user.getEmail());
         checkUniqueUsername(user.getUsername());
+        checkUniqueEmail(user.getEmail());
 
+        user.setPassword(SimplePasswordEncoder.encode(user.getPassword()));
         userDao.create(user);
     }
 
@@ -65,6 +66,44 @@ public class UserService implements IUserService {
         userDao.delete(id);
     }
 
+    @Override
+    public void loginUser(String usernameOrEmail, String password) {
+        User user = userDao.findByUsernameOrEmail(usernameOrEmail);
+        if (user == null) {
+            throw new IllegalArgumentException("Неверно имя пользователя или почта");
+        }
+        if (!SimplePasswordEncoder.matches(password, user.getPassword())) {
+            throw new IllegalArgumentException("Неверный пароль");
+        }
+
+        System.out.println("Вход выполнен");
+    }
+
+    @Override
+    public void recoverPassword(String email) {
+        User user = userDao.findByEmail(email);
+        if (user == null) {
+            throw new IllegalArgumentException("Неверная почта, пользователь не найден");
+        }
+        String tempPassword = generateTemporaryPassword();
+        user.setPassword(SimplePasswordEncoder.encode(tempPassword));
+        userDao.update(user);
+        System.out.println("Отправка временного пароля на почту " + email + ": " + tempPassword);
+    }
+
+    @Override
+    public void resetPassword(String usernameOrEmail, String oldPassword, String newPassword) {
+        User user = userDao.findByUsernameOrEmail(usernameOrEmail);
+        if (user == null) {
+            throw new IllegalArgumentException("Неверно имя пользователя или почта");
+        }
+        if (!SimplePasswordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new IllegalArgumentException("Неверный пароль");
+        }
+        user.setPassword(SimplePasswordEncoder.encode(newPassword));
+        userDao.update(user);
+    }
+
     private void validateUser(User user) {
         if (user == null) {
             throw new IllegalArgumentException("Пользователь не может отсутствовать");
@@ -100,6 +139,10 @@ public class UserService implements IUserService {
         } catch (NonUniqueResultException e) {
             throw new IllegalArgumentException("Почта не уникальна: " + email);
         }
+    }
+
+    private String generateTemporaryPassword() {
+        return UUID.randomUUID().toString().substring(0, 8);
     }
 
 }

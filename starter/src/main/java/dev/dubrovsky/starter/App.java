@@ -83,6 +83,11 @@ public class App {
         IUserBonusService userBonusService = new UserBonusService(userBonusDao, userDao, bonusDao);
         IPaymentMethodService paymentMethodService = new PaymentMethodService(paymentMethodDao);
         IUserLoyaltyProgramService userLoyaltyProgramService = new UserLoyaltyProgramService(userLoyaltyProgramDao, userDao, loyaltyProgramDao);
+
+        //userService.create(new User("abrikos", "789", "abr@mail.com"));
+        //userService.loginUser("abrikos", "789");
+        //analyticsService.getAll();
+        //userService.recoverPassword("user1@example.com");
     }
 
 }
