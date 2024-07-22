@@ -1,11 +1,17 @@
 package dev.dubrovsky.model.bonus;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Objects;
 
 @Entity
 @Table(name = "bonuses")
+@Getter
+@Setter
+@NoArgsConstructor
 public class Bonus {
 
     @Id
@@ -24,39 +30,11 @@ public class Bonus {
 
     @Column(name = "program_id")
     private Integer programId;
-
-    public Bonus() {
-    }
-
     public Bonus(String name, String description, Integer points, Integer programId) {
         this.name = name;
         this.description = description;
         this.points = points;
         this.programId = programId;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public Integer getPoints() {
-        return points;
-    }
-
-    public Integer getProgramId() {
-        return programId;
     }
 
     @Override

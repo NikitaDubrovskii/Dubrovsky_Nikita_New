@@ -1,11 +1,17 @@
 package dev.dubrovsky.model.cart;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Objects;
 
 @Entity
 @Table(name = "cart_items")
+@Getter
+@Setter
+@NoArgsConstructor
 public class CartItem {
 
     @Id
@@ -22,33 +28,10 @@ public class CartItem {
     @Column(name = "product_id")
     private Integer productId;
 
-    public CartItem() {
-    }
-
     public CartItem(Integer quantity, Integer cartId, Integer productId) {
         this.quantity = quantity;
         this.cartId = cartId;
         this.productId = productId;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public Integer getQuantity() {
-        return quantity;
-    }
-
-    public Integer getCartId() {
-        return cartId;
-    }
-
-    public Integer getProductId() {
-        return productId;
     }
 
     @Override

@@ -4,12 +4,18 @@ import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
 @Table(name = "user_bonuses")
+@Getter
+@Setter
+@NoArgsConstructor
 public class UserBonus {
 
     @EmbeddedId
@@ -18,20 +24,9 @@ public class UserBonus {
     @Column(name = "received_at", updatable = false)
     private LocalDateTime receivedAt;
 
-    public UserBonus() {
-    }
-
     public UserBonus(UserBonusId userBonusId) {
         this.userBonusId = userBonusId;
         this.receivedAt = LocalDateTime.now();
-    }
-
-    public UserBonusId getUserBonusId() {
-        return userBonusId;
-    }
-
-    public LocalDateTime getReceivedAt() {
-        return receivedAt;
     }
 
     @Override

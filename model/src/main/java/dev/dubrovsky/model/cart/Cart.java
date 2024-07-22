@@ -1,12 +1,18 @@
 package dev.dubrovsky.model.cart;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
 @Table(name = "carts")
+@Getter
+@Setter
+@NoArgsConstructor
 public class Cart {
 
     @Id
@@ -20,28 +26,9 @@ public class Cart {
     @Column(name = "user_id")
     private Integer userId;
 
-    public Cart() {
-    }
-
     public Cart(Integer userId) {
         this.createdAt = LocalDateTime.now();
         this.userId = userId;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public Integer getUserId() {
-        return userId;
     }
 
     @Override

@@ -1,12 +1,18 @@
 package dev.dubrovsky.model.loyalty.program;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
 @Table(name = "loyalty_programs")
+@Getter
+@Setter
+@NoArgsConstructor
 public class LoyaltyProgram {
 
     @Id
@@ -23,33 +29,10 @@ public class LoyaltyProgram {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    public LoyaltyProgram() {
-    }
-
     public LoyaltyProgram(String name, String description) {
         this.name = name;
         this.description = description;
         this.createdAt = LocalDateTime.now();
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
     }
 
     @Override

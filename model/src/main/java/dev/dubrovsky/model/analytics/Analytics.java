@@ -1,12 +1,18 @@
 package dev.dubrovsky.model.analytics;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
 @Table(name = "analytics")
+@Getter
+@Setter
+@NoArgsConstructor
 public class Analytics {
 
     @Id
@@ -23,33 +29,10 @@ public class Analytics {
     @Column(name = "user_id")
     private Integer userId;
 
-    public Analytics() {
-    }
-
     public Analytics(String activity, Integer userId) {
         this.timestamp = LocalDateTime.now();
         this.activity = activity;
         this.userId = userId;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public String getActivity() {
-        return activity;
-    }
-
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
-
-    public Integer getUserId() {
-        return userId;
     }
 
     @Override

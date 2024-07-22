@@ -1,11 +1,17 @@
 package dev.dubrovsky.model.order;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Objects;
 
 @Entity
 @Table(name = "order_items")
+@Getter
+@Setter
+@NoArgsConstructor
 public class OrderItem {
 
     @Id
@@ -22,33 +28,10 @@ public class OrderItem {
     @Column(name = "product_id")
     private Integer productId;
 
-    public OrderItem() {
-    }
-
     public OrderItem(Integer quantity, Integer orderId, Integer productId) {
         this.quantity = quantity;
         this.orderId = orderId;
         this.productId = productId;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public Integer getQuantity() {
-        return quantity;
-    }
-
-    public Integer getOrderId() {
-        return orderId;
-    }
-
-    public Integer getProductId() {
-        return productId;
     }
 
     @Override

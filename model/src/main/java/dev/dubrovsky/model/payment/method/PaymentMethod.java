@@ -1,11 +1,17 @@
 package dev.dubrovsky.model.payment.method;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Objects;
 
 @Entity
 @Table(name = "payment_method")
+@Getter
+@Setter
+@NoArgsConstructor
 public class PaymentMethod {
 
     @Id
@@ -16,23 +22,8 @@ public class PaymentMethod {
     @Column(name = "method")
     private String method;
 
-    public PaymentMethod() {
-    }
-
     public PaymentMethod(String method) {
         this.method = method;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public String getMethod() {
-        return method;
     }
 
     @Override

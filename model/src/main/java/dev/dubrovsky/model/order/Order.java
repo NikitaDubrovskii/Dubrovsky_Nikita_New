@@ -1,12 +1,18 @@
 package dev.dubrovsky.model.order;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
 @Table(name = "orders")
+@Getter
+@Setter
+@NoArgsConstructor
 public class Order {
 
     @Id
@@ -29,9 +35,6 @@ public class Order {
     @Column(name = "user_id")
     private Integer userId;
 
-    public Order() {
-    }
-
     public Order(Integer totalPrice, String address,
                  Integer paymentMethodId, Integer userId) {
         this.totalPrice = totalPrice;
@@ -39,34 +42,6 @@ public class Order {
         this.address = address;
         this.paymentMethodId = paymentMethodId;
         this.userId = userId;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public Integer getTotalPrice() {
-        return totalPrice;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public Integer getPaymentMethodId() {
-        return paymentMethodId;
-    }
-
-    public Integer getUserId() {
-        return userId;
     }
 
     @Override

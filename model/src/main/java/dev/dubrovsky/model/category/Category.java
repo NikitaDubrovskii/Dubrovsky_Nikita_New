@@ -1,11 +1,17 @@
 package dev.dubrovsky.model.category;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Objects;
 
 @Entity
 @Table(name = "categories")
+@Getter
+@Setter
+@NoArgsConstructor
 public class Category {
 
     @Id
@@ -19,28 +25,9 @@ public class Category {
     @Column(name = "description")
     private String description;
 
-    public Category() {
-    }
-
     public Category(String name, String description) {
         this.name = name;
         this.description = description;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getDescription() {
-        return description;
     }
 
     @Override

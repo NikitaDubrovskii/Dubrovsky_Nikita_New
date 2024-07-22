@@ -1,29 +1,24 @@
 package dev.dubrovsky.model.bonus;
 
 import jakarta.persistence.Embeddable;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Objects;
 
 @Embeddable
+@Getter
+@Setter
+@NoArgsConstructor
 public class UserBonusId {
 
     private Integer userId;
     private Integer bonusId;
 
-    public UserBonusId() {
-    }
-
     public UserBonusId(Integer userId, Integer bonusId) {
         this.userId = userId;
         this.bonusId = bonusId;
-    }
-
-    public Integer getUserId() {
-        return userId;
-    }
-
-    public Integer getBonusId() {
-        return bonusId;
     }
 
     @Override

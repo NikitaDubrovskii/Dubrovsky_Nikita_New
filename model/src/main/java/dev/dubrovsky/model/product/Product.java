@@ -1,12 +1,18 @@
 package dev.dubrovsky.model.product;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
 @Table(name = "products")
+@Getter
+@Setter
+@NoArgsConstructor
 public class Product {
 
     @Id
@@ -29,9 +35,6 @@ public class Product {
     @Column(name = "category_id")
     private Integer categoryId;
 
-    public Product() {
-    }
-
     public Product(String name, String description,
                    Float price, Integer categoryId) {
         this.name = name;
@@ -39,34 +42,6 @@ public class Product {
         this.price = price;
         this.createdAt = LocalDateTime.now();
         this.categoryId = categoryId;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public Float getPrice() {
-        return price;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public Integer getCategoryId() {
-        return categoryId;
     }
 
     @Override
