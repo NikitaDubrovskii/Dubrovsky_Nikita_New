@@ -65,10 +65,10 @@ public class OrderService implements IOrderService {
         if (order == null) {
             throw new IllegalArgumentException("Заказ не может отсутствовать");
         }
-        if (order.getTotalPrice() == null || order.getTotalPrice() < 0) {
+        if (order.getTotalPrice() == null || order.getTotalPrice() < 1) {
             throw new IllegalArgumentException("Цена не может быть пустой");
         }
-        if (order.getAddress() == null || order.getAddress().isEmpty()) {
+        if (order.getAddress() == null || order.getAddress().trim().isEmpty()) {
             throw new IllegalArgumentException("Адрес не может быть пустой");
         }
     }

@@ -54,7 +54,7 @@ public class CategoryService implements ICategoryService {
         if (category == null) {
             throw new IllegalArgumentException("Категория не может отсутствовать");
         }
-        if (category.getName() == null || category.getName().isEmpty()) {
+        if (category.getName() == null || category.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Название должно быть");
         }
     }

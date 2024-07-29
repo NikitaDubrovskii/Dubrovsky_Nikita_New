@@ -55,7 +55,7 @@ public class LoyaltyProgramService implements ILoyaltyProgramService {
         if (loyaltyProgram == null) {
             throw new IllegalArgumentException("Программа лояльности не может отсутствовать");
         }
-        if (loyaltyProgram.getName() == null || loyaltyProgram.getName().isEmpty()) {
+        if (loyaltyProgram.getName() == null || loyaltyProgram.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Название должно быть");
         }
     }

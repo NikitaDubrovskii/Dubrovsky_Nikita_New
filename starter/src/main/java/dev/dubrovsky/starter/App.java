@@ -2,12 +2,10 @@ package dev.dubrovsky.starter;
 
 import dev.dubrovsky.dao.analytics.AnalyticsDao;
 import dev.dubrovsky.dao.bonus.BonusDao;
-import dev.dubrovsky.dao.bonus.IUserBonusDao;
 import dev.dubrovsky.dao.bonus.UserBonusDao;
 import dev.dubrovsky.dao.cart.CartDao;
 import dev.dubrovsky.dao.cart.CartItemDao;
 import dev.dubrovsky.dao.category.CategoryDao;
-import dev.dubrovsky.dao.loyalty.program.IUserLoyaltyProgramDao;
 import dev.dubrovsky.dao.loyalty.program.LoyaltyProgramDao;
 import dev.dubrovsky.dao.loyalty.program.UserLoyaltyProgramDao;
 import dev.dubrovsky.dao.order.OrderDao;
@@ -66,9 +64,9 @@ public class App {
         LoyaltyProgramDao loyaltyProgramDao = new LoyaltyProgramDao(LoyaltyProgram.class);
         OrderItemDao orderItemDao = new OrderItemDao(OrderItem.class);
         OrderDao orderDao = new OrderDao(Order.class);
-        IUserBonusDao userBonusDao = new UserBonusDao();
+        UserBonusDao userBonusDao = new UserBonusDao();
         PaymentMethodDao paymentMethodDao = new PaymentMethodDao(PaymentMethod.class);
-        IUserLoyaltyProgramDao userLoyaltyProgramDao = new UserLoyaltyProgramDao();
+        UserLoyaltyProgramDao userLoyaltyProgramDao = new UserLoyaltyProgramDao();
 
         ICategoryService categoryService = new CategoryService(categoryDao);
         IProductService productService = new ProductService(productDao, categoryDao);
@@ -89,7 +87,7 @@ public class App {
         //analyticsService.getAll();
         //userService.recoverPassword("user1@example.com");
 
-        cartService.getTotalPrice(1);
+        //cartService.getTotalPrice(1);
     }
 
 }

@@ -1,29 +1,24 @@
 package dev.dubrovsky.model.loyalty.program;
 
 import jakarta.persistence.Embeddable;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Objects;
 
 @Embeddable
+@Getter
+@Setter
+@NoArgsConstructor
 public class UserLoyaltyProgramId {
 
     private Integer userId;
     private Integer programId;
 
-    public UserLoyaltyProgramId() {
-    }
-
     public UserLoyaltyProgramId(Integer userId, Integer programId) {
         this.userId = userId;
         this.programId = programId;
-    }
-
-    public Integer getUserId() {
-        return userId;
-    }
-
-    public Integer getProgramId() {
-        return programId;
     }
 
     @Override

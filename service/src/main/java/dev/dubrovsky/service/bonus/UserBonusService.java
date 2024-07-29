@@ -1,7 +1,7 @@
 package dev.dubrovsky.service.bonus;
 
 import dev.dubrovsky.dao.bonus.BonusDao;
-import dev.dubrovsky.dao.bonus.IUserBonusDao;
+import dev.dubrovsky.dao.bonus.UserBonusDao;
 import dev.dubrovsky.dao.user.UserDao;
 import dev.dubrovsky.model.bonus.UserBonus;
 
@@ -10,11 +10,11 @@ import java.util.Optional;
 
 public class UserBonusService implements IUserBonusService {
 
-    private final IUserBonusDao userBonusDao;
+    private final UserBonusDao userBonusDao;
     private final UserDao userDao;
     private final BonusDao bonusDao;
 
-    public UserBonusService(IUserBonusDao userBonusDao, UserDao userDao, BonusDao bonusDao) {
+    public UserBonusService(UserBonusDao userBonusDao, UserDao userDao, BonusDao bonusDao) {
         this.userBonusDao = userBonusDao;
         this.userDao = userDao;
         this.bonusDao = bonusDao;

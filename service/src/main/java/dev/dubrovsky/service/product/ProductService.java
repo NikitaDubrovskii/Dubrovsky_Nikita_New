@@ -5,9 +5,6 @@ import dev.dubrovsky.dao.product.ProductDao;
 import dev.dubrovsky.model.product.Product;
 import dev.dubrovsky.util.validation.ValidationUtil;
 
-import java.util.NoSuchElementException;
-import java.util.Optional;
-
 public class ProductService implements IProductService {
 
     private final ProductDao productDao;
@@ -61,9 +58,9 @@ public class ProductService implements IProductService {
 
     private void validateProduct(Product product) {
         if (product == null) {
-            throw new IllegalArgumentException("Аналитика не может отсутствовать");
+            throw new IllegalArgumentException("Товар не может отсутствовать");
         }
-        if (product.getName() == null || product.getName().isEmpty()) {
+        if (product.getName() == null || product.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Название не может отсутствовать");
         }
         if (product.getPrice() == null || product.getPrice() <= 0) {

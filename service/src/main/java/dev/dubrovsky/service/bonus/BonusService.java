@@ -42,8 +42,8 @@ public class BonusService implements IBonusService {
     @Override
     public void update(Bonus bonus, Integer id) {
         validateBonus(bonus);
-        ValidationUtil.checkEntityPresent(bonus.getProgramId(), loyaltyProgramDao);
         ValidationUtil.checkId(id, bonusDao);
+        ValidationUtil.checkEntityPresent(bonus.getProgramId(), loyaltyProgramDao);
 
         bonus.setId(id);
         bonusDao.update(bonus);
@@ -60,7 +60,7 @@ public class BonusService implements IBonusService {
         if (bonus == null) {
             throw new IllegalArgumentException("Бонус не может отсутствовать");
         }
-        if (bonus.getName() == null || bonus.getName().isEmpty()) {
+        if (bonus.getName() == null || bonus.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Название должно быть");
         }
         if (bonus.getPoints() == null) {
