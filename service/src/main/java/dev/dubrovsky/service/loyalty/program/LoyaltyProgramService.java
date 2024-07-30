@@ -3,7 +3,9 @@ package dev.dubrovsky.service.loyalty.program;
 import dev.dubrovsky.dao.loyalty.program.LoyaltyProgramDao;
 import dev.dubrovsky.model.loyalty.program.LoyaltyProgram;
 import dev.dubrovsky.util.validation.ValidationUtil;
+import org.springframework.stereotype.Service;
 
+@Service
 public class LoyaltyProgramService implements ILoyaltyProgramService {
 
     private final LoyaltyProgramDao loyaltyProgramDao;

@@ -1,21 +1,23 @@
 package dev.dubrovsky.dao.cart;
 
 import dev.dubrovsky.dao.AbstractDao;
-import dev.dubrovsky.dao.connection.ConnectionDataBase;
 import dev.dubrovsky.exception.DbException;
 import dev.dubrovsky.model.cart.CartItem;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.TypedQuery;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Component
 public class CartItemDao extends AbstractDao<CartItem> implements ICartItemDao {
 
-    EntityManagerFactory entityManagerFactory = ConnectionDataBase.getEntityManagerFactory();
+    private final EntityManagerFactory entityManagerFactory;
 
-    public CartItemDao(Class<CartItem> entityClass) {
-        super(entityClass);
+    public CartItemDao(EntityManagerFactory entityManagerFactory) {
+        super(entityManagerFactory, CartItem.class);
+        this.entityManagerFactory = entityManagerFactory;
     }
 
     @Override
@@ -28,4 +30,5 @@ public class CartItemDao extends AbstractDao<CartItem> implements ICartItemDao {
             throw new DbException(e.getMessage());
         }
     }
+
 }

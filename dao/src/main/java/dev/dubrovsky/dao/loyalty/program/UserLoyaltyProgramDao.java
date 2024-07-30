@@ -1,17 +1,22 @@
 package dev.dubrovsky.dao.loyalty.program;
 
-import dev.dubrovsky.dao.connection.ConnectionDataBase;
 import dev.dubrovsky.exception.DbException;
 import dev.dubrovsky.model.loyalty.program.UserLoyaltyProgram;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Query;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Component
 public class UserLoyaltyProgramDao implements IUserLoyaltyProgramDao {
 
-    private final EntityManagerFactory entityManagerFactory = ConnectionDataBase.getEntityManagerFactory();
+    private final EntityManagerFactory entityManagerFactory;
+
+    public UserLoyaltyProgramDao(EntityManagerFactory entityManagerFactory) {
+        this.entityManagerFactory = entityManagerFactory;
+    }
 
     @Override
     public void create(UserLoyaltyProgram userLoyaltyProgram) {

@@ -8,9 +8,11 @@ import dev.dubrovsky.model.cart.Cart;
 import dev.dubrovsky.model.cart.CartItem;
 import dev.dubrovsky.model.product.Product;
 import dev.dubrovsky.util.validation.ValidationUtil;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class CartService implements ICartService {
 
     private final CartDao cartDao;

@@ -4,7 +4,9 @@ import dev.dubrovsky.dao.bonus.BonusDao;
 import dev.dubrovsky.dao.loyalty.program.LoyaltyProgramDao;
 import dev.dubrovsky.model.bonus.Bonus;
 import dev.dubrovsky.util.validation.ValidationUtil;
+import org.springframework.stereotype.Service;
 
+@Service
 public class BonusService implements IBonusService {
 
     private final BonusDao bonusDao;

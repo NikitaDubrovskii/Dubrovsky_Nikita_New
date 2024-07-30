@@ -4,10 +4,12 @@ import dev.dubrovsky.dao.loyalty.program.LoyaltyProgramDao;
 import dev.dubrovsky.dao.loyalty.program.UserLoyaltyProgramDao;
 import dev.dubrovsky.dao.user.UserDao;
 import dev.dubrovsky.model.loyalty.program.UserLoyaltyProgram;
+import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+@Service
 public class UserLoyaltyProgramService implements IUserLoyaltyProgramService {
 
     private final UserLoyaltyProgramDao userLoyaltyProgramDao;

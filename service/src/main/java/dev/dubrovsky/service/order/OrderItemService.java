@@ -5,7 +5,9 @@ import dev.dubrovsky.dao.order.OrderItemDao;
 import dev.dubrovsky.dao.product.ProductDao;
 import dev.dubrovsky.model.order.OrderItem;
 import dev.dubrovsky.util.validation.ValidationUtil;
+import org.springframework.stereotype.Service;
 
+@Service
 public class OrderItemService implements IOrderItemService {
 
     private final OrderItemDao orderItemDao;

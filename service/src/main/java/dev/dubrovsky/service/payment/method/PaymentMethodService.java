@@ -3,7 +3,9 @@ package dev.dubrovsky.service.payment.method;
 import dev.dubrovsky.dao.payment.method.PaymentMethodDao;
 import dev.dubrovsky.model.payment.method.PaymentMethod;
 import dev.dubrovsky.util.validation.ValidationUtil;
+import org.springframework.stereotype.Service;
 
+@Service
 public class PaymentMethodService implements IPaymentMethodService {
 
     private final PaymentMethodDao paymentMethodDao;

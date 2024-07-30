@@ -5,9 +5,11 @@ import dev.dubrovsky.model.user.User;
 import dev.dubrovsky.util.encoder.SimplePasswordEncoder;
 import dev.dubrovsky.util.validation.ValidationUtil;
 import jakarta.persistence.NonUniqueResultException;
+import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
+@Service
 public class UserService implements IUserService {
 
     private final UserDao userDao;

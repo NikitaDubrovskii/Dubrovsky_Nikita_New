@@ -5,7 +5,9 @@ import dev.dubrovsky.dao.payment.method.PaymentMethodDao;
 import dev.dubrovsky.dao.user.UserDao;
 import dev.dubrovsky.model.order.Order;
 import dev.dubrovsky.util.validation.ValidationUtil;
+import org.springframework.stereotype.Service;
 
+@Service
 public class OrderService implements IOrderService {
 
     private final OrderDao orderDao;

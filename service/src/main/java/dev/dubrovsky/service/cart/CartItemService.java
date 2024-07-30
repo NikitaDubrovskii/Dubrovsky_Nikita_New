@@ -5,7 +5,9 @@ import dev.dubrovsky.dao.cart.CartItemDao;
 import dev.dubrovsky.dao.product.ProductDao;
 import dev.dubrovsky.model.cart.CartItem;
 import dev.dubrovsky.util.validation.ValidationUtil;
+import org.springframework.stereotype.Service;
 
+@Service
 public class CartItemService implements ICartItemService {
 
     private final CartItemDao cartItemDao;

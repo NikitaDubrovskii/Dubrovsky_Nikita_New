@@ -2,11 +2,16 @@ package dev.dubrovsky.dao.analytics;
 
 import dev.dubrovsky.dao.AbstractDao;
 import dev.dubrovsky.model.analytics.Analytics;
+import jakarta.persistence.EntityManagerFactory;
+import org.springframework.stereotype.Component;
 
+@Component
 public class AnalyticsDao extends AbstractDao<Analytics> implements IAnalyticsDao {
 
-    public AnalyticsDao(Class<Analytics> entityClass) {
-        super(entityClass);
+    private EntityManagerFactory entityManagerFactory;
+
+    public AnalyticsDao(EntityManagerFactory entityManagerFactory) {
+        super(entityManagerFactory, Analytics.class);
     }
 
     /*@Override

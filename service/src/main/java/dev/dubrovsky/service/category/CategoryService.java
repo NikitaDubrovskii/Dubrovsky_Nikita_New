@@ -3,7 +3,9 @@ package dev.dubrovsky.service.category;
 import dev.dubrovsky.dao.category.CategoryDao;
 import dev.dubrovsky.model.category.Category;
 import dev.dubrovsky.util.validation.ValidationUtil;
+import org.springframework.stereotype.Service;
 
+@Service
 public class CategoryService implements ICategoryService {
 
     private final CategoryDao categoryDao;

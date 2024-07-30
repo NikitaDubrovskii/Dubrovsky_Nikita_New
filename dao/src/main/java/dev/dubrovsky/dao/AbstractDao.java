@@ -1,6 +1,5 @@
 package dev.dubrovsky.dao;
 
-import dev.dubrovsky.dao.connection.ConnectionDataBase;
 import dev.dubrovsky.exception.DbException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -9,10 +8,11 @@ import java.util.List;
 
 public abstract class AbstractDao<T> {
 
-    private final EntityManagerFactory entityManagerFactory = ConnectionDataBase.getEntityManagerFactory();
+    private final EntityManagerFactory entityManagerFactory;
     private final Class<T> entityClass;
 
-    public AbstractDao(Class<T> entityClass) {
+    public AbstractDao(EntityManagerFactory entityManagerFactory, Class<T> entityClass) {
+        this.entityManagerFactory = entityManagerFactory;
         this.entityClass = entityClass;
     }
 
@@ -88,4 +88,5 @@ public abstract class AbstractDao<T> {
             throw new DbException(e.getMessage());
         }
     }
+
 }

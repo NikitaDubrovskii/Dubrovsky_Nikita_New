@@ -4,7 +4,9 @@ import dev.dubrovsky.dao.analytics.AnalyticsDao;
 import dev.dubrovsky.dao.user.UserDao;
 import dev.dubrovsky.model.analytics.Analytics;
 import dev.dubrovsky.util.validation.ValidationUtil;
+import org.springframework.stereotype.Service;
 
+@Service
 public class AnalyticsService implements IAnalyticsService {
 
     private final AnalyticsDao analyticsDao;

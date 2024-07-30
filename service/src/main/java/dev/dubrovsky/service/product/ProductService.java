@@ -4,7 +4,9 @@ import dev.dubrovsky.dao.category.CategoryDao;
 import dev.dubrovsky.dao.product.ProductDao;
 import dev.dubrovsky.model.product.Product;
 import dev.dubrovsky.util.validation.ValidationUtil;
+import org.springframework.stereotype.Service;
 
+@Service
 public class ProductService implements IProductService {
 
     private final ProductDao productDao;
