@@ -29,10 +29,10 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public void getById(Integer id) {
+    public User getById(Integer id) {
         ValidationUtil.checkId(id, userDao);
 
-        System.out.println(userDao.getById(id));
+        return userDao.getById(id);
     }
 
     @Override

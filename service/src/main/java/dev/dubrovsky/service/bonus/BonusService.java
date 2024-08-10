@@ -20,16 +20,16 @@ public class BonusService implements IBonusService {
     @Override
     public void create(Bonus bonus) {
         validateBonus(bonus);
-        ValidationUtil.checkEntityPresent(bonus.getProgramId(), loyaltyProgramDao);
+        ValidationUtil.checkEntityPresent(bonus.getProgram().getId(), loyaltyProgramDao);
 
         bonusDao.create(bonus);
     }
 
     @Override
-    public void getById(Integer id) {
+    public Bonus getById(Integer id) {
         ValidationUtil.checkId(id, bonusDao);
 
-        System.out.println(bonusDao.getById(id));
+        return bonusDao.getById(id);
     }
 
     @Override
@@ -45,7 +45,7 @@ public class BonusService implements IBonusService {
     public void update(Bonus bonus, Integer id) {
         validateBonus(bonus);
         ValidationUtil.checkId(id, bonusDao);
-        ValidationUtil.checkEntityPresent(bonus.getProgramId(), loyaltyProgramDao);
+        ValidationUtil.checkEntityPresent(bonus.getProgram().getId(), loyaltyProgramDao);
 
         bonus.setId(id);
         bonusDao.update(bonus);

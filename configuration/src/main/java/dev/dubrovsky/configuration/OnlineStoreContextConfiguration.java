@@ -5,8 +5,10 @@ import jakarta.persistence.EntityManagerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 @Configuration
+@EnableAspectJAutoProxy
 @ComponentScan(basePackages = "dev.dubrovsky")
 public class OnlineStoreContextConfiguration {
 
@@ -14,7 +16,5 @@ public class OnlineStoreContextConfiguration {
     public EntityManagerFactory entityManagerFactory() {
         return new ConnectionDataBase().getEntityManagerFactory();
     }
-
-
 
 }

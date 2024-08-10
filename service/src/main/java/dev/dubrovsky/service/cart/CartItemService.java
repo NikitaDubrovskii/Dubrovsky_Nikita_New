@@ -23,17 +23,17 @@ public class CartItemService implements ICartItemService {
     @Override
     public void create(CartItem cartItem) {
         validateCartItem(cartItem);
-        ValidationUtil.checkEntityPresent(cartItem.getCartId(), cartDao);
-        ValidationUtil.checkEntityPresent(cartItem.getProductId(), productDao);
+        ValidationUtil.checkEntityPresent(cartItem.getCart().getId(), cartDao);
+        ValidationUtil.checkEntityPresent(cartItem.getProduct().getId(), productDao);
 
         cartItemDao.create(cartItem);
     }
 
     @Override
-    public void getById(Integer id) {
+    public CartItem getById(Integer id) {
         ValidationUtil.checkId(id, cartItemDao);
 
-        System.out.println(cartItemDao.getById(id));
+        return cartItemDao.getById(id);
     }
 
     @Override
@@ -48,8 +48,8 @@ public class CartItemService implements ICartItemService {
     @Override
     public void update(CartItem cartItem, Integer id) {
         validateCartItem(cartItem);
-        ValidationUtil.checkEntityPresent(cartItem.getCartId(), cartDao);
-        ValidationUtil.checkEntityPresent(cartItem.getProductId(), productDao);
+        ValidationUtil.checkEntityPresent(cartItem.getCart().getId(), cartDao);
+        ValidationUtil.checkEntityPresent(cartItem.getProduct().getId(), productDao);
         ValidationUtil.checkId(id, cartItemDao);
 
         cartItem.setId(id);

@@ -23,17 +23,17 @@ public class OrderItemService implements IOrderItemService {
     @Override
     public void create(OrderItem orderItem) {
         validateOrderItem(orderItem);
-        ValidationUtil.checkEntityPresent(orderItem.getOrderId(), orderDao);
+        ValidationUtil.checkEntityPresent(orderItem.getOrder().getId(), orderDao);
         ValidationUtil.checkEntityPresent(orderItem.getProductId(), productDao);
 
         orderItemDao.create(orderItem);
     }
 
     @Override
-    public void getById(Integer id) {
+    public OrderItem getById(Integer id) {
         ValidationUtil.checkId(id, orderItemDao);
 
-        System.out.println(orderItemDao.getById(id));
+        return orderItemDao.getById(id);
     }
 
     @Override
@@ -48,7 +48,7 @@ public class OrderItemService implements IOrderItemService {
     @Override
     public void update(OrderItem orderItem, Integer id) {
         validateOrderItem(orderItem);
-        ValidationUtil.checkEntityPresent(orderItem.getOrderId(), orderDao);
+        ValidationUtil.checkEntityPresent(orderItem.getOrder().getId(), orderDao);
         ValidationUtil.checkEntityPresent(orderItem.getProductId(), productDao);
         ValidationUtil.checkId(id, orderItemDao);
 

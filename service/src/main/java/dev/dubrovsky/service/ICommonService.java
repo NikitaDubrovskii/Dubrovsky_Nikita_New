@@ -4,7 +4,7 @@ public interface ICommonService<T> {
 
     void create(T entity);
 
-    void getById(Integer id);
+    T getById(Integer id);
 
     void getAll();
 

@@ -22,10 +22,10 @@ public class CategoryService implements ICategoryService {
     }
 
     @Override
-    public void getById(Integer id) {
+    public Category getById(Integer id) {
         ValidationUtil.checkId(id, categoryDao);
 
-        categoryDao.getById(id);
+        return categoryDao.getById(id);
     }
 
     @Override

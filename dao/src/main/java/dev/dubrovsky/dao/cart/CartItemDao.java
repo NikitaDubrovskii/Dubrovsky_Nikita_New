@@ -23,7 +23,7 @@ public class CartItemDao extends AbstractDao<CartItem> implements ICartItemDao {
     @Override
     public List<CartItem> getAllByCartId(int cartId) {
         try (EntityManager em = entityManagerFactory.createEntityManager()) {
-            TypedQuery<CartItem> query = em.createQuery("SELECT c FROM CartItem c WHERE cartId = :cartId", CartItem.class);
+            TypedQuery<CartItem> query = em.createQuery("SELECT c FROM CartItem c WHERE cart = :cartId", CartItem.class);
             query.setParameter("cartId", cartId);
             return query.getResultList();
         } catch (Exception e) {

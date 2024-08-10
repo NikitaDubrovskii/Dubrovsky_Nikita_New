@@ -23,17 +23,17 @@ public class OrderService implements IOrderService {
     @Override
     public void create(Order order) {
         validateOrder(order);
-        ValidationUtil.checkEntityPresent(order.getUserId(), userDao);
-        ValidationUtil.checkEntityPresent(order.getPaymentMethodId(), paymentMethodDao);
+        ValidationUtil.checkEntityPresent(order.getUser().getId(), userDao);
+        ValidationUtil.checkEntityPresent(order.getPaymentMethod().getId(), paymentMethodDao);
 
         orderDao.create(order);
     }
 
     @Override
-    public void getById(Integer id) {
+    public Order getById(Integer id) {
         ValidationUtil.checkId(id, orderDao);
 
-        System.out.println(orderDao.getById(id));
+        return orderDao.getById(id);
     }
 
     @Override
@@ -48,8 +48,8 @@ public class OrderService implements IOrderService {
     @Override
     public void update(Order order, Integer id) {
         validateOrder(order);
-        ValidationUtil.checkEntityPresent(order.getUserId(), userDao);
-        ValidationUtil.checkEntityPresent(order.getPaymentMethodId(), paymentMethodDao);
+        ValidationUtil.checkEntityPresent(order.getUser().getId(), userDao);
+        ValidationUtil.checkEntityPresent(order.getPaymentMethod().getId(), paymentMethodDao);
         ValidationUtil.checkId(id, orderDao);
 
         order.setId(id);

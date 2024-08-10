@@ -1,18 +1,18 @@
 package dev.dubrovsky.model.cart;
 
+import dev.dubrovsky.model.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
 @Table(name = "carts")
 @Getter
 @Setter
-@NoArgsConstructor
 public class Cart {
 
     @Id
@@ -23,12 +23,15 @@ public class Cart {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "user_id")
-    private Integer userId;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
-    public Cart(Integer userId) {
+    @OneToMany(mappedBy = "cart")
+    private List<CartItem> items;
+
+    public Cart() {
         this.createdAt = LocalDateTime.now();
-        this.userId = userId;
     }
 
     @Override
@@ -36,12 +39,12 @@ public class Cart {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Cart cart = (Cart) o;
-        return Objects.equals(id, cart.id) && Objects.equals(createdAt, cart.createdAt) && Objects.equals(userId, cart.userId);
+        return Objects.equals(id, cart.id) && Objects.equals(createdAt, cart.createdAt) && Objects.equals(user, cart.user);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, createdAt, userId);
+        return Objects.hash(id, createdAt, user);
     }
 
     @Override
@@ -49,7 +52,7 @@ public class Cart {
         return "Cart{" +
                 "id=" + id +
                 ", timestamp=" + createdAt +
-                ", userId=" + userId +
+                ", userId=" + user +
                 '}';
     }
 

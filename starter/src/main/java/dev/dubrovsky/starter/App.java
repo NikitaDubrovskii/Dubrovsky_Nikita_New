@@ -1,6 +1,11 @@
 package dev.dubrovsky.starter;
 
 import dev.dubrovsky.configuration.OnlineStoreContextConfiguration;
+import dev.dubrovsky.model.analytics.Analytics;
+import dev.dubrovsky.model.bonus.Bonus;
+import dev.dubrovsky.model.category.Category;
+import dev.dubrovsky.model.loyalty.program.LoyaltyProgram;
+import dev.dubrovsky.model.user.User;
 import dev.dubrovsky.service.analytics.AnalyticsService;
 import dev.dubrovsky.service.analytics.IAnalyticsService;
 import dev.dubrovsky.service.bonus.BonusService;
@@ -30,50 +35,39 @@ import dev.dubrovsky.service.user.UserService;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
+import java.util.List;
+
 public class App {
 
     public static void main(String[] args) {
         ApplicationContext applicationContext = new AnnotationConfigApplicationContext(OnlineStoreContextConfiguration.class);
 
-        IAnalyticsService analyticsService = applicationContext.getBean(AnalyticsService.class);
-        analyticsService.getAll();
+        /*IAnalyticsService analyticsService = applicationContext.getBean(IAnalyticsService.class);
+        analyticsService.getById(1);*/
+        /*IBonusService bonusService = applicationContext.getBean(IBonusService.class);
+        bonusService.delete(2);*/
+        /*ILoyaltyProgramService loyaltyProgramService = applicationContext.getBean(ILoyaltyProgramService.class);
+        loyaltyProgramService.delete(1);*/
+        /*ICartService cartService = applicationContext.getBean(ICartService.class);
+        cartService.delete(1);*/
+        /*ICartItemService cartItemService = applicationContext.getBean(ICartItemService.class);
+        cartItemService.delete(1);*/
+        /*ICategoryService categoryService = applicationContext.getBean(ICategoryService.class);
+        categoryService.delete(2);*/
+        /*IOrderService orderService = applicationContext.getBean(IOrderService.class);
+        orderService.delete(2);*/
+        /*IOrderItemService orderItemService = applicationContext.getBean(IOrderItemService.class);
+        orderItemService.delete(1);*/
+        /*IPaymentMethodService paymentMethodService = applicationContext.getBean(IPaymentMethodService.class);
+        paymentMethodService.delete(1);*/
+        /*IUserService userService = applicationContext.getBean(IUserService.class);
+        userService.delete(1);*/
 
-        ICategoryService categoryService = applicationContext.getBean(CategoryService.class);
-        categoryService.getAll();
+        /*IUserBonusService userBonusService = applicationContext.getBean(IUserBonusService.class);
+        userBonusService.getAll();
 
-        IProductService productService = applicationContext.getBean(ProductService.class);
-        productService.getAll();
-
-        IUserService userService = applicationContext.getBean(UserService.class);
-        userService.getAll();
-
-        IUserBonusService userBonusService = applicationContext.getBean(UserBonusService.class);
-        //userBonusService.getAll();
-
-        IBonusService bonusService = applicationContext.getBean(BonusService.class);
-        bonusService.getAll();
-
-        ICartService cartService = applicationContext.getBean(CartService.class);
-        cartService.getAll();
-
-        ICartItemService cartItemService = applicationContext.getBean(CartItemService.class);
-        cartItemService.getAll();
-
-        ILoyaltyProgramService loyaltyProgramService = applicationContext.getBean(LoyaltyProgramService.class);
-        loyaltyProgramService.getAll();
-
-        IOrderService orderService = applicationContext.getBean(OrderService.class);
-        orderService.getAll();
-
-        IOrderItemService orderItemService = applicationContext.getBean(OrderItemService.class);
-        orderItemService.getAll();
-
-        IPaymentMethodService paymentMethodService = applicationContext.getBean(PaymentMethodService.class);
-        paymentMethodService.getAll();
-
-        IUserLoyaltyProgramService userLoyaltyProgramService = applicationContext.getBean(UserLoyaltyProgramService.class);
-        //userLoyaltyProgramService.getAll();
-
+        IUserLoyaltyProgramService userLoyaltyProgramService = applicationContext.getBean(IUserLoyaltyProgramService.class);
+        userLoyaltyProgramService.getAll();*/
     }
 
 }

@@ -20,16 +20,16 @@ public class AnalyticsService implements IAnalyticsService {
     @Override
     public void create(Analytics analytics) {
         validateAnalytics(analytics);
-        ValidationUtil.checkEntityPresent(analytics.getUserId(), userDao);
+        ValidationUtil.checkEntityPresent(analytics.getUser().getId(), userDao);
 
         analyticsDao.create(analytics);
     }
 
     @Override
-    public void getById(Integer id) {
+    public Analytics getById(Integer id) {
         ValidationUtil.checkId(id, analyticsDao);
 
-        System.out.println(analyticsDao.getById(id));
+        return analyticsDao.getById(id);
     }
 
     @Override
@@ -45,7 +45,7 @@ public class AnalyticsService implements IAnalyticsService {
     public void update(Analytics analytics, Integer id) {
         validateAnalytics(analytics);
         ValidationUtil.checkId(id, analyticsDao);
-        ValidationUtil.checkEntityPresent(analytics.getUserId(), userDao);
+        ValidationUtil.checkEntityPresent(analytics.getUser().getId(), userDao);
 
         analytics.setId(id);
         analyticsDao.update(analytics);

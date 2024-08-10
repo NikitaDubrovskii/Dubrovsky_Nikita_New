@@ -20,16 +20,16 @@ public class ProductService implements IProductService {
     @Override
     public void create(Product product) {
         validateProduct(product);
-        ValidationUtil.checkEntityPresent(product.getCategoryId(), categoryDao);
+        ValidationUtil.checkEntityPresent(product.getCategory().getId(), categoryDao);
 
         productDao.create(product);
     }
 
     @Override
-    public void getById(Integer id) {
+    public Product getById(Integer id) {
         ValidationUtil.checkId(id, productDao);
 
-        System.out.println(productDao.getById(id));
+        return productDao.getById(id);
     }
 
     @Override
@@ -44,7 +44,7 @@ public class ProductService implements IProductService {
     @Override
     public void update(Product product, Integer id) {
         validateProduct(product);
-        ValidationUtil.checkEntityPresent(product.getCategoryId(), categoryDao);
+        ValidationUtil.checkEntityPresent(product.getCategory().getId(), categoryDao);
         ValidationUtil.checkId(id, productDao);
 
         product.setId(id);

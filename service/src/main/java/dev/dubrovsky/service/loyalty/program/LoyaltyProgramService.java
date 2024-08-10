@@ -22,10 +22,10 @@ public class LoyaltyProgramService implements ILoyaltyProgramService {
     }
 
     @Override
-    public void getById(Integer id) {
+    public LoyaltyProgram getById(Integer id) {
         ValidationUtil.checkId(id, loyaltyProgramDao);
 
-        System.out.println(loyaltyProgramDao.getById(id));
+        return loyaltyProgramDao.getById(id);
     }
 
     @Override

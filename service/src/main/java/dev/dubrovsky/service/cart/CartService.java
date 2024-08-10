@@ -30,16 +30,16 @@ public class CartService implements ICartService {
     @Override
     public void create(Cart cart) {
         validateCart(cart);
-        ValidationUtil.checkEntityPresent(cart.getUserId(), userDao);
+        ValidationUtil.checkEntityPresent(cart.getUser().getId(), userDao);
 
         cartDao.create(cart);
     }
 
     @Override
-    public void getById(Integer id) {
+    public Cart getById(Integer id) {
         ValidationUtil.checkId(id, cartDao);
 
-        System.out.println(cartDao.getById(id));
+        return cartDao.getById(id);
     }
 
     @Override
@@ -54,7 +54,7 @@ public class CartService implements ICartService {
     @Override
     public void update(Cart cart, Integer id) {
         validateCart(cart);
-        ValidationUtil.checkEntityPresent(cart.getUserId(), userDao);
+        ValidationUtil.checkEntityPresent(cart.getUser().getId(), userDao);
         ValidationUtil.checkId(id, cartDao);
 
         cart.setId(id);
@@ -76,7 +76,7 @@ public class CartService implements ICartService {
             throw new IllegalArgumentException("Корзины не существует с id: " + id);
         }
         for (CartItem cartItem : allByCartId) {
-            Integer productId = cartItem.getProductId();
+            Integer productId = cartItem.getProduct().getId();
             Product product = productDao.getById(productId);
             float i = product.getPrice() * cartItem.getQuantity();
             totalPrice += i;

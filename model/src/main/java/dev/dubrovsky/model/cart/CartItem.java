@@ -1,5 +1,6 @@
 package dev.dubrovsky.model.cart;
 
+import dev.dubrovsky.model.product.Product;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,16 +23,18 @@ public class CartItem {
     @Column(name = "quantity")
     private Integer quantity;
 
-    @Column(name = "cart_id")
-    private Integer cartId;
+    @ManyToOne
+    @JoinColumn(name = "cart_id")
+    private Cart cart;
 
-    @Column(name = "product_id")
-    private Integer productId;
+    @OneToOne
+    @JoinColumn(name = "product_id")
+    private Product product;
 
-    public CartItem(Integer quantity, Integer cartId, Integer productId) {
+    public CartItem(Integer quantity, Cart cart, Product product) {
         this.quantity = quantity;
-        this.cartId = cartId;
-        this.productId = productId;
+        this.cart = cart;
+        this.product = product;
     }
 
     @Override
@@ -40,12 +43,12 @@ public class CartItem {
         if (o == null || getClass() != o.getClass()) return false;
         CartItem cartItem = (CartItem) o;
         return Objects.equals(id, cartItem.id) && Objects.equals(quantity, cartItem.quantity)
-                && Objects.equals(cartId, cartItem.cartId) && Objects.equals(productId, cartItem.productId);
+                && Objects.equals(cart, cartItem.cart) && Objects.equals(product, cartItem.product);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, quantity, cartId, productId);
+        return Objects.hash(id, quantity, cart, product);
     }
 
     @Override
@@ -53,8 +56,8 @@ public class CartItem {
         return "CartItem{" +
                 "id=" + id +
                 ", quantity=" + quantity +
-                ", cartId=" + cartId +
-                ", productId=" + productId +
+                ", cartId=" + cart +
+                ", productId=" + product +
                 '}';
     }
 

@@ -22,10 +22,10 @@ public class PaymentMethodService implements IPaymentMethodService {
     }
 
     @Override
-    public void getById(Integer id) {
+    public PaymentMethod getById(Integer id) {
         ValidationUtil.checkId(id, paymentMethodDao);
 
-        System.out.println(paymentMethodDao.getById(id));
+        return paymentMethodDao.getById(id);
     }
 
     @Override

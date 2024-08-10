@@ -22,15 +22,16 @@ public class OrderItem {
     @Column(name = "quantity")
     private Integer quantity;
 
-    @Column(name = "order_id")
-    private Integer orderId;
+    @ManyToOne
+    @JoinColumn(name = "order_id")
+    private Order order;
 
     @Column(name = "product_id")
     private Integer productId;
 
-    public OrderItem(Integer quantity, Integer orderId, Integer productId) {
+    public OrderItem(Integer quantity, Order order, Integer productId) {
         this.quantity = quantity;
-        this.orderId = orderId;
+        this.order = order;
         this.productId = productId;
     }
 
@@ -40,12 +41,12 @@ public class OrderItem {
         if (o == null || getClass() != o.getClass()) return false;
         OrderItem orderItem = (OrderItem) o;
         return Objects.equals(id, orderItem.id) && Objects.equals(quantity, orderItem.quantity)
-                && Objects.equals(orderId, orderItem.orderId) && Objects.equals(productId, orderItem.productId);
+                && Objects.equals(order, orderItem.order) && Objects.equals(productId, orderItem.productId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, quantity, orderId, productId);
+        return Objects.hash(id, quantity, order, productId);
     }
 
     @Override
@@ -53,7 +54,7 @@ public class OrderItem {
         return "OrderItem{" +
                 "id=" + id +
                 ", quantity=" + quantity +
-                ", orderId=" + orderId +
+                ", orderId=" + order +
                 ", productId=" + productId +
                 '}';
     }

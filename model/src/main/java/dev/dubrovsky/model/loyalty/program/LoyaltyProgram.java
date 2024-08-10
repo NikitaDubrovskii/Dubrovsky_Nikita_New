@@ -1,11 +1,14 @@
 package dev.dubrovsky.model.loyalty.program;
 
+import dev.dubrovsky.model.bonus.Bonus;
+import dev.dubrovsky.model.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -28,6 +31,17 @@ public class LoyaltyProgram {
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_loyalty_programs",
+            joinColumns = { @JoinColumn(name = "program_id") },
+            inverseJoinColumns = { @JoinColumn(name = "user_id") }
+    )
+    private List<User> users;
+
+    @OneToMany(mappedBy = "program")
+    private List<Bonus> bonuses;
 
     public LoyaltyProgram(String name, String description) {
         this.name = name;
