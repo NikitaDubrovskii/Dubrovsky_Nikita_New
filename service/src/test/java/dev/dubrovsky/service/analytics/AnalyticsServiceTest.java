@@ -33,19 +33,23 @@ class AnalyticsServiceTest {
 
     private Analytics analytics;
     private Analytics updAnalytics;
+    private User user;
 
     @BeforeEach
     void setUp() {
         analyticsService = new AnalyticsService(analyticsDao, userDao);
 
-        analytics = new Analytics("test", 1);
+        user = new User();
+        user.setId(1);
+
+        analytics = new Analytics("test", user);
         analytics.setId(1);
-        updAnalytics = new Analytics("upd", 1);
+        updAnalytics = new Analytics("upd", user);
     }
 
     @Test
     void create_Success() {
-        when(userDao.getById(analytics.getUserId())).thenReturn(new User());
+        when(userDao.getById(analytics.getUser().getId())).thenReturn(new User());
 
         analyticsService.create(analytics);
 
@@ -62,23 +66,24 @@ class AnalyticsServiceTest {
 
     @Test
     void create_UserIdIsNull_ThrowNullPointerException() {
-        analytics.setUserId(null);
+        analytics.setUser(null);
 
         NullPointerException exception = assertThrows(NullPointerException.class, () -> analyticsService.create(analytics));
-        assertEquals("Cannot invoke \"java.lang.Integer.intValue()\" because \"id\" is null", exception.getMessage());
+        assertEquals("Cannot invoke \"dev.dubrovsky.model.user.User.getId()\" because the return value of \"dev.dubrovsky.model.analytics.Analytics.getUser()\" is null", exception.getMessage());
     }
 
     @Test
     void create_UserNotFound_ThrowNoSuchElementException() {
-        when(userDao.getById(analytics.getUserId())).thenReturn(null);
+        when(userDao.getById(analytics.getUser().getId())).thenReturn(null);
 
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> analyticsService.create(analytics));
-        assertEquals("Ничего не найдено с id: " + analytics.getUserId(), exception.getMessage());
+        assertEquals("Ничего не найдено с id: " + analytics.getUser().getId(), exception.getMessage());
     }
 
     @Test
     void create_UserIdIsNegative_ThrowIllegalArgumentException() {
-        analytics.setUserId(-1);
+        user.setId(-1);
+        analytics.setUser(user);
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> analyticsService.create(analytics));
         assertEquals("Id должен быть больше 0", exception.getMessage());
@@ -86,7 +91,8 @@ class AnalyticsServiceTest {
 
     @Test
     void create_UserIdIsZero_ThrowIllegalArgumentException() {
-        analytics.setUserId(0);
+        user.setId(0);
+        analytics.setUser(user);
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> analyticsService.create(analytics));
         assertEquals("Id должен быть больше 0", exception.getMessage());
@@ -137,7 +143,7 @@ class AnalyticsServiceTest {
 
     @Test
     void getAll_Success() {
-        Analytics analytics2 = new Analytics("Test2", 2);
+        Analytics analytics2 = new Analytics("Test2", user);
         analytics2.setId(2);
         List<Analytics> analyticsList = List.of(
                 analytics,
@@ -163,7 +169,7 @@ class AnalyticsServiceTest {
     @Test
     void update_Success() {
         Integer id = 1;
-        when(userDao.getById(updAnalytics.getUserId())).thenReturn(new User());
+        when(userDao.getById(updAnalytics.getUser().getId())).thenReturn(new User());
         when(analyticsDao.getById(id)).thenReturn(analytics);
 
         analyticsService.update(updAnalytics, id);
@@ -216,27 +222,28 @@ class AnalyticsServiceTest {
     @Test
     void update_UserIdIsNull_ThrowNullPointerException() {
         Integer id = 1;
-        updAnalytics.setUserId(null);
+        updAnalytics.setUser(null);
         when(analyticsDao.getById(id)).thenReturn(new Analytics());
 
         NullPointerException exception = assertThrows(NullPointerException.class, () -> analyticsService.update(updAnalytics, id));
-        assertEquals("Cannot invoke \"java.lang.Integer.intValue()\" because \"id\" is null", exception.getMessage());
+        assertEquals("Cannot invoke \"dev.dubrovsky.model.user.User.getId()\" because the return value of \"dev.dubrovsky.model.analytics.Analytics.getUser()\" is null", exception.getMessage());
     }
 
     @Test
     void update_UserNotFound_ThrowNoSuchElementException() {
         Integer id = 1;
         when(analyticsDao.getById(id)).thenReturn(new Analytics());
-        when(userDao.getById(analytics.getUserId())).thenReturn(null);
+        when(userDao.getById(analytics.getUser().getId())).thenReturn(null);
 
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> analyticsService.update(updAnalytics, id));
-        assertEquals("Ничего не найдено с id: " + updAnalytics.getUserId(), exception.getMessage());
+        assertEquals("Ничего не найдено с id: " + updAnalytics.getUser().getId(), exception.getMessage());
     }
 
     @Test
     void update_UserIdIsZero_ThrowIllegalArgumentException() {
         Integer id = 1;
-        updAnalytics.setUserId(0);
+        user.setId(0);
+        updAnalytics.setUser(user);
         when(analyticsDao.getById(id)).thenReturn(new Analytics());
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> analyticsService.update(updAnalytics, id));
@@ -246,7 +253,8 @@ class AnalyticsServiceTest {
     @Test
     void update_UserIdIsNegative_ThrowIllegalArgumentException() {
         Integer id = 1;
-        updAnalytics.setUserId(-1);
+        user.setId(-1);
+        updAnalytics.setUser(user);
         when(analyticsDao.getById(id)).thenReturn(new Analytics());
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> analyticsService.update(updAnalytics, id));

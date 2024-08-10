@@ -33,19 +33,23 @@ class ProductServiceTest {
 
     private Product product;
     private Product updProduct;
+    private Category category;
 
     @BeforeEach
     void setUp() {
         productService = new ProductService(productDao, categoryDao);
 
-        product = new Product("test", "test", 10.00F, 1);
+        category = new Category();
+        category.setId(1);
+
+        product = new Product("test", "test", 10.00F, category);
         product.setId(1);
-        updProduct = new Product("upd", "upd", 55.00F, 1);
+        updProduct = new Product("upd", "upd", 55.00F, category);
     }
 
     @Test
     void create_Success() {
-        when(categoryDao.getById(product.getCategoryId())).thenReturn(new Category());
+        when(categoryDao.getById(product.getCategory().getId())).thenReturn(new Category());
 
         productService.create(product);
 
@@ -102,23 +106,24 @@ class ProductServiceTest {
 
     @Test
     void create_CategoryIdIsNull_ThrowNullPointerException() {
-        product.setCategoryId(null);
+        product.setCategory(null);
 
         NullPointerException exception = assertThrows(NullPointerException.class, () -> productService.create(product));
-        assertEquals("Cannot invoke \"java.lang.Integer.intValue()\" because \"id\" is null", exception.getMessage());
+        assertEquals("Cannot invoke \"dev.dubrovsky.model.category.Category.getId()\" because the return value of \"dev.dubrovsky.model.product.Product.getCategory()\" is null", exception.getMessage());
     }
 
     @Test
     void create_CategoryNotFound_ThrowNoSuchElementException() {
-        when(categoryDao.getById(product.getCategoryId())).thenReturn(null);
+        when(categoryDao.getById(product.getCategory().getId())).thenReturn(null);
 
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> productService.create(product));
-        assertEquals("Ничего не найдено с id: " + product.getCategoryId(), exception.getMessage());
+        assertEquals("Ничего не найдено с id: " + product.getCategory().getId(), exception.getMessage());
     }
 
     @Test
     void create_CategoryIdIsNegative_ThrowIllegalArgumentException() {
-        product.setCategoryId(-1);
+        category.setId(-1);
+        product.setCategory(category);
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> productService.create(product));
         assertEquals("Id должен быть больше 0", exception.getMessage());
@@ -126,7 +131,8 @@ class ProductServiceTest {
 
     @Test
     void create_LoyaltyProgramIdIsZero_ThrowIllegalArgumentException() {
-        product.setCategoryId(0);
+        category.setId(0);
+        product.setCategory(category);
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> productService.create(product));
         assertEquals("Id должен быть больше 0", exception.getMessage());
@@ -177,7 +183,7 @@ class ProductServiceTest {
 
     @Test
     void getAll_Success() {
-        Product product2 = new Product("upd", "upd", 22F, 2);
+        Product product2 = new Product("upd", "upd", 22F, category);
         product2.setId(2);
         List<Product> productList = List.of(
                 product,
@@ -203,7 +209,7 @@ class ProductServiceTest {
     @Test
     void update_Success() {
         Integer id = 1;
-        when(categoryDao.getById(updProduct.getCategoryId())).thenReturn(new Category());
+        when(categoryDao.getById(updProduct.getCategory().getId())).thenReturn(new Category());
         when(productDao.getById(id)).thenReturn(product);
 
         productService.update(updProduct, id);
@@ -268,7 +274,7 @@ class ProductServiceTest {
     @Test
     void update_IdIsNull_ThrowNullPointerException() {
         Integer id = null;
-        when(categoryDao.getById(updProduct.getCategoryId())).thenReturn(new Category());
+        when(categoryDao.getById(updProduct.getCategory().getId())).thenReturn(new Category());
 
         NullPointerException thrown = assertThrows(NullPointerException.class, () -> productService.update(updProduct, id));
         assertEquals("Cannot invoke \"java.lang.Integer.intValue()\" because \"id\" is null", thrown.getMessage());
@@ -277,7 +283,7 @@ class ProductServiceTest {
     @Test
     void update_IdIsZero_ThrowIllegalArgumentException() {
         Integer id = 0;
-        when(categoryDao.getById(updProduct.getCategoryId())).thenReturn(new Category());
+        when(categoryDao.getById(updProduct.getCategory().getId())).thenReturn(new Category());
 
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> productService.update(updProduct, id));
         assertEquals("Id должен быть больше 0", thrown.getMessage());
@@ -286,7 +292,7 @@ class ProductServiceTest {
     @Test
     void update_IdIsNegative_ThrowIllegalArgumentException() {
         Integer id = -44;
-        when(categoryDao.getById(updProduct.getCategoryId())).thenReturn(new Category());
+        when(categoryDao.getById(updProduct.getCategory().getId())).thenReturn(new Category());
 
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->  productService.update(updProduct, id));
         assertEquals("Id должен быть больше 0", thrown.getMessage());
@@ -295,7 +301,7 @@ class ProductServiceTest {
     @Test
     void update_IdNotFound_ThrowNoSuchElementException() {
         Integer id = 44;
-        when(categoryDao.getById(updProduct.getCategoryId())).thenReturn(new Category());
+        when(categoryDao.getById(updProduct.getCategory().getId())).thenReturn(new Category());
         when(productDao.getById(id)).thenReturn(null);
 
         NoSuchElementException thrown = assertThrows(NoSuchElementException.class, () -> productService.update(updProduct, id));
@@ -305,16 +311,17 @@ class ProductServiceTest {
     @Test
     void update_CategoryIdIsNull_ThrowNullPointerException() {
         Integer id = 1;
-        updProduct.setCategoryId(null);
+        updProduct.setCategory(null);
 
         NullPointerException exception = assertThrows(NullPointerException.class, () -> productService.update(updProduct, id));
-        assertEquals("Cannot invoke \"java.lang.Integer.intValue()\" because \"id\" is null", exception.getMessage());
+        assertEquals("Cannot invoke \"dev.dubrovsky.model.category.Category.getId()\" because the return value of \"dev.dubrovsky.model.product.Product.getCategory()\" is null", exception.getMessage());
     }
 
     @Test
     void update_CategoryIdIsZero_ThrowNullPointerException() {
         Integer id = 1;
-        updProduct.setCategoryId(0);
+        category.setId(0);
+        updProduct.setCategory(category);
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> productService.update(updProduct, id));
         assertEquals("Id должен быть больше 0", exception.getMessage());
@@ -323,16 +330,17 @@ class ProductServiceTest {
     @Test
     void update_CategoryNotFound_ThrowNoSuchElementException() {
         Integer id = 1;
-        when(categoryDao.getById(updProduct.getCategoryId())).thenReturn(null);
+        when(categoryDao.getById(updProduct.getCategory().getId())).thenReturn(null);
 
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> productService.update(updProduct, id));
-        assertEquals("Ничего не найдено с id: " + updProduct.getCategoryId(), exception.getMessage());
+        assertEquals("Ничего не найдено с id: " + updProduct.getCategory().getId(), exception.getMessage());
     }
 
     @Test
     void update_CategoryIdIsNegative_ThrowIllegalArgumentException() {
         Integer id = 1;
-        updProduct.setCategoryId(-1);
+        category.setId(-1);
+        updProduct.setCategory(category);
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> productService.update(updProduct, id));
         assertEquals("Id должен быть больше 0", exception.getMessage());
