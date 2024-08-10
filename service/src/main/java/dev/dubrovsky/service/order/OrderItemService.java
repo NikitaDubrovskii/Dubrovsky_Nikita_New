@@ -24,7 +24,7 @@ public class OrderItemService implements IOrderItemService {
     public void create(OrderItem orderItem) {
         validateOrderItem(orderItem);
         ValidationUtil.checkEntityPresent(orderItem.getOrder().getId(), orderDao);
-        ValidationUtil.checkEntityPresent(orderItem.getProductId(), productDao);
+        ValidationUtil.checkEntityPresent(orderItem.getProduct().getId(), productDao);
 
         orderItemDao.create(orderItem);
     }
@@ -49,7 +49,7 @@ public class OrderItemService implements IOrderItemService {
     public void update(OrderItem orderItem, Integer id) {
         validateOrderItem(orderItem);
         ValidationUtil.checkEntityPresent(orderItem.getOrder().getId(), orderDao);
-        ValidationUtil.checkEntityPresent(orderItem.getProductId(), productDao);
+        ValidationUtil.checkEntityPresent(orderItem.getProduct().getId(), productDao);
         ValidationUtil.checkId(id, orderItemDao);
 
         orderItem.setId(id);

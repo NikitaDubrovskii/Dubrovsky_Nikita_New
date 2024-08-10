@@ -1,5 +1,6 @@
 package dev.dubrovsky.model.order;
 
+import dev.dubrovsky.model.product.Product;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,12 +28,13 @@ public class OrderItem {
     private Order order;
 
     @Column(name = "product_id")
-    private Integer productId;
+    @OneToOne
+    private Product product;
 
-    public OrderItem(Integer quantity, Order order, Integer productId) {
+    public OrderItem(Integer quantity, Order order, Product product) {
         this.quantity = quantity;
         this.order = order;
-        this.productId = productId;
+        this.product = product;
     }
 
     @Override
@@ -41,12 +43,12 @@ public class OrderItem {
         if (o == null || getClass() != o.getClass()) return false;
         OrderItem orderItem = (OrderItem) o;
         return Objects.equals(id, orderItem.id) && Objects.equals(quantity, orderItem.quantity)
-                && Objects.equals(order, orderItem.order) && Objects.equals(productId, orderItem.productId);
+                && Objects.equals(order, orderItem.order) && Objects.equals(product, orderItem.product);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, quantity, order, productId);
+        return Objects.hash(id, quantity, order, product);
     }
 
     @Override
@@ -55,7 +57,7 @@ public class OrderItem {
                 "id=" + id +
                 ", quantity=" + quantity +
                 ", orderId=" + order +
-                ", productId=" + productId +
+                ", productId=" + product +
                 '}';
     }
 

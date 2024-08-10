@@ -2,13 +2,13 @@ package dev.dubrovsky.model.product;
 
 import dev.dubrovsky.model.cart.CartItem;
 import dev.dubrovsky.model.category.Category;
+import dev.dubrovsky.model.order.OrderItem;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -41,6 +41,9 @@ public class Product {
 
     @OneToOne(mappedBy = "product")
     private CartItem cartItem;
+
+    @OneToOne(mappedBy = "product")
+    private OrderItem orderItem;
 
     public Product(String name, String description,
                    Float price, Category category) {
