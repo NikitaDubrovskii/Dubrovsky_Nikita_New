@@ -28,11 +28,11 @@ public class CartService implements ICartService {
     }
 
     @Override
-    public void create(Cart cart) {
+    public Cart create(Cart cart) {
         validateCart(cart);
         ValidationUtil.checkEntityPresent(cart.getUser().getId(), userDao);
 
-        cartDao.create(cart);
+        return cartDao.create(cart);
     }
 
     @Override
@@ -43,29 +43,29 @@ public class CartService implements ICartService {
     }
 
     @Override
-    public void getAll() {
+    public List<Cart> getAll() {
         if (cartDao.getAll().isEmpty() && cartDao.getAll() == null) {
-            System.out.println("Таблица корзин пустая");
+            return null;
         } else {
-            cartDao.getAll().forEach(System.out::println);
+            return cartDao.getAll();
         }
     }
 
     @Override
-    public void update(Cart cart, Integer id) {
+    public Cart update(Cart cart, Integer id) {
         validateCart(cart);
         ValidationUtil.checkEntityPresent(cart.getUser().getId(), userDao);
         ValidationUtil.checkId(id, cartDao);
 
         cart.setId(id);
-        cartDao.update(cart);
+        return cartDao.update(cart);
     }
 
     @Override
-    public void delete(Integer id) {
+    public String delete(Integer id) {
         ValidationUtil.checkId(id, cartDao);
 
-        cartDao.delete(id);
+        return cartDao.delete(id);
     }
 
     @Override

@@ -6,6 +6,8 @@ import dev.dubrovsky.model.product.Product;
 import dev.dubrovsky.util.validation.ValidationUtil;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ProductService implements IProductService {
 
@@ -18,11 +20,11 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public void create(Product product) {
+    public Product create(Product product) {
         validateProduct(product);
         ValidationUtil.checkEntityPresent(product.getCategory().getId(), categoryDao);
 
-        productDao.create(product);
+        return productDao.create(product);
     }
 
     @Override
@@ -33,29 +35,29 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public void getAll() {
+    public List<Product> getAll() {
         if (productDao.getAll().isEmpty() && productDao.getAll() == null) {
-            System.out.println("Таблица товаров пустая");
+            return null;
         } else {
-            productDao.getAll().forEach(System.out::println);
+            return productDao.getAll();
         }
     }
 
     @Override
-    public void update(Product product, Integer id) {
+    public Product update(Product product, Integer id) {
         validateProduct(product);
         ValidationUtil.checkEntityPresent(product.getCategory().getId(), categoryDao);
         ValidationUtil.checkId(id, productDao);
 
         product.setId(id);
-        productDao.update(product);
+        return productDao.update(product);
     }
 
     @Override
-    public void delete(Integer id) {
+    public String delete(Integer id) {
         ValidationUtil.checkId(id, productDao);
 
-        productDao.delete(id);
+        return productDao.delete(id);
     }
 
     private void validateProduct(Product product) {

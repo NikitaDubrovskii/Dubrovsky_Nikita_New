@@ -5,6 +5,8 @@ import dev.dubrovsky.model.payment.method.PaymentMethod;
 import dev.dubrovsky.util.validation.ValidationUtil;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class PaymentMethodService implements IPaymentMethodService {
 
@@ -15,10 +17,10 @@ public class PaymentMethodService implements IPaymentMethodService {
     }
 
     @Override
-    public void create(PaymentMethod paymentMethod) {
+    public PaymentMethod create(PaymentMethod paymentMethod) {
         validatePaymentMethod(paymentMethod);
 
-        paymentMethodDao.create(paymentMethod);
+        return paymentMethodDao.create(paymentMethod);
     }
 
     @Override
@@ -29,28 +31,28 @@ public class PaymentMethodService implements IPaymentMethodService {
     }
 
     @Override
-    public void getAll() {
+    public List<PaymentMethod> getAll() {
         if (paymentMethodDao.getAll().isEmpty() && paymentMethodDao.getAll() == null) {
-            System.out.println("Таблица способов оплаты пустая");
+            return null;
         } else {
-            paymentMethodDao.getAll().forEach(System.out::println);
+            return paymentMethodDao.getAll();
         }
     }
 
     @Override
-    public void update(PaymentMethod paymentMethod, Integer id) {
+    public PaymentMethod update(PaymentMethod paymentMethod, Integer id) {
         validatePaymentMethod(paymentMethod);
         ValidationUtil.checkId(id, paymentMethodDao);
 
         paymentMethod.setId(id);
-        paymentMethodDao.update(paymentMethod);
+        return paymentMethodDao.update(paymentMethod);
     }
 
     @Override
-    public void delete(Integer id) {
+    public String delete(Integer id) {
         ValidationUtil.checkId(id, paymentMethodDao);
 
-        paymentMethodDao.delete(id);
+        return paymentMethodDao.delete(id);
     }
 
     private void validatePaymentMethod(PaymentMethod paymentMethod) {

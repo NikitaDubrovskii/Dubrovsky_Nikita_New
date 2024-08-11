@@ -7,6 +7,8 @@ import dev.dubrovsky.model.cart.CartItem;
 import dev.dubrovsky.util.validation.ValidationUtil;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class CartItemService implements ICartItemService {
 
@@ -21,12 +23,12 @@ public class CartItemService implements ICartItemService {
     }
 
     @Override
-    public void create(CartItem cartItem) {
+    public CartItem create(CartItem cartItem) {
         validateCartItem(cartItem);
         ValidationUtil.checkEntityPresent(cartItem.getCart().getId(), cartDao);
         ValidationUtil.checkEntityPresent(cartItem.getProduct().getId(), productDao);
 
-        cartItemDao.create(cartItem);
+        return cartItemDao.create(cartItem);
     }
 
     @Override
@@ -37,30 +39,30 @@ public class CartItemService implements ICartItemService {
     }
 
     @Override
-    public void getAll() {
+    public List<CartItem> getAll() {
         if (cartItemDao.getAll().isEmpty() && cartItemDao.getAll() == null) {
-            System.out.println("Таблица вещей корзины пустая");
+            return null;
         } else {
-            cartItemDao.getAll().forEach(System.out::println);
+            return cartItemDao.getAll();
         }
     }
 
     @Override
-    public void update(CartItem cartItem, Integer id) {
+    public CartItem update(CartItem cartItem, Integer id) {
         validateCartItem(cartItem);
         ValidationUtil.checkEntityPresent(cartItem.getCart().getId(), cartDao);
         ValidationUtil.checkEntityPresent(cartItem.getProduct().getId(), productDao);
         ValidationUtil.checkId(id, cartItemDao);
 
         cartItem.setId(id);
-        cartItemDao.update(cartItem);
+        return cartItemDao.update(cartItem);
     }
 
     @Override
-    public void delete(Integer id) {
+    public String delete(Integer id) {
         ValidationUtil.checkId(id, cartItemDao);
 
-        cartItemDao.delete(id);
+        return cartItemDao.delete(id);
     }
 
     private void validateCartItem(CartItem cartItem) {

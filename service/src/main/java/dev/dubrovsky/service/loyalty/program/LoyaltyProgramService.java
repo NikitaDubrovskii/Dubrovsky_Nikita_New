@@ -5,6 +5,8 @@ import dev.dubrovsky.model.loyalty.program.LoyaltyProgram;
 import dev.dubrovsky.util.validation.ValidationUtil;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class LoyaltyProgramService implements ILoyaltyProgramService {
 
@@ -15,10 +17,10 @@ public class LoyaltyProgramService implements ILoyaltyProgramService {
     }
 
     @Override
-    public void create(LoyaltyProgram loyaltyProgram) {
+    public LoyaltyProgram create(LoyaltyProgram loyaltyProgram) {
         validateLoyaltyProgram(loyaltyProgram);
 
-        loyaltyProgramDao.create(loyaltyProgram);
+        return loyaltyProgramDao.create(loyaltyProgram);
     }
 
     @Override
@@ -29,28 +31,28 @@ public class LoyaltyProgramService implements ILoyaltyProgramService {
     }
 
     @Override
-    public void getAll() {
+    public List<LoyaltyProgram> getAll() {
         if (loyaltyProgramDao.getAll().isEmpty() && loyaltyProgramDao.getAll() == null) {
-            System.out.println("Таблица программ лояльности пустая");
+            return null;
         } else {
-            loyaltyProgramDao.getAll().forEach(System.out::println);
+            return loyaltyProgramDao.getAll();
         }
     }
 
     @Override
-    public void update(LoyaltyProgram loyaltyProgram, Integer id) {
+    public LoyaltyProgram update(LoyaltyProgram loyaltyProgram, Integer id) {
         validateLoyaltyProgram(loyaltyProgram);
         ValidationUtil.checkId(id, loyaltyProgramDao);
 
         loyaltyProgram.setId(id);
-        loyaltyProgramDao.update(loyaltyProgram);
+        return loyaltyProgramDao.update(loyaltyProgram);
     }
 
     @Override
-    public void delete(Integer id) {
+    public String delete(Integer id) {
         ValidationUtil.checkId(id, loyaltyProgramDao);
 
-        loyaltyProgramDao.delete(id);
+        return loyaltyProgramDao.delete(id);
     }
 
     private void validateLoyaltyProgram(LoyaltyProgram loyaltyProgram) {

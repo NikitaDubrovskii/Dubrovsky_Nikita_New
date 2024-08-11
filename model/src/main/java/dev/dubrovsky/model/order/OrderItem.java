@@ -27,8 +27,8 @@ public class OrderItem {
     @JoinColumn(name = "order_id")
     private Order order;
 
-    @Column(name = "product_id")
     @OneToOne
+    @JoinColumn(name = "product_id")
     private Product product;
 
     public OrderItem(Integer quantity, Order order, Product product) {

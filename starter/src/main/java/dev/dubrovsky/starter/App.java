@@ -63,6 +63,18 @@ public class App {
         /*IUserService userService = applicationContext.getBean(IUserService.class);
         userService.delete(1);*/
 
+        IUserService userService = applicationContext.getBean(IUserService.class);
+        IAnalyticsService analyticsService = applicationContext.getBean(IAnalyticsService.class);
+//        analyticsService.getById(1);
+//        analyticsService.create(new Analytics("Unsubscribe", userService.getById(2)));
+//        analyticsService.getAll();
+        analyticsService.delete(99);
+
+        /*ILoyaltyProgramService loyaltyProgramService = applicationContext.getBean(ILoyaltyProgramService.class);
+        loyaltyProgramService.getById(1);
+        IPaymentMethodService paymentMethodService = applicationContext.getBean(IPaymentMethodService.class);
+        paymentMethodService.getById(2);*/
+
         /*IUserBonusService userBonusService = applicationContext.getBean(IUserBonusService.class);
         userBonusService.getAll();
 

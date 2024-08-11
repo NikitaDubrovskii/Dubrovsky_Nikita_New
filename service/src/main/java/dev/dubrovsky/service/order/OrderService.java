@@ -7,6 +7,8 @@ import dev.dubrovsky.model.order.Order;
 import dev.dubrovsky.util.validation.ValidationUtil;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class OrderService implements IOrderService {
 
@@ -21,12 +23,12 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public void create(Order order) {
+    public Order create(Order order) {
         validateOrder(order);
         ValidationUtil.checkEntityPresent(order.getUser().getId(), userDao);
         ValidationUtil.checkEntityPresent(order.getPaymentMethod().getId(), paymentMethodDao);
 
-        orderDao.create(order);
+        return orderDao.create(order);
     }
 
     @Override
@@ -37,30 +39,30 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public void getAll() {
+    public List<Order> getAll() {
         if (orderDao.getAll().isEmpty() && orderDao.getAll() == null) {
-            System.out.println("Таблица заказов пустая");
+            return null;
         } else {
-            orderDao.getAll().forEach(System.out::println);
+            return orderDao.getAll();
         }
     }
 
     @Override
-    public void update(Order order, Integer id) {
+    public Order update(Order order, Integer id) {
         validateOrder(order);
         ValidationUtil.checkEntityPresent(order.getUser().getId(), userDao);
         ValidationUtil.checkEntityPresent(order.getPaymentMethod().getId(), paymentMethodDao);
         ValidationUtil.checkId(id, orderDao);
 
         order.setId(id);
-        orderDao.update(order);
+        return orderDao.update(order);
     }
 
     @Override
-    public void delete(Integer id) {
+    public String delete(Integer id) {
         ValidationUtil.checkId(id, orderDao);
 
-        orderDao.delete(id);
+        return orderDao.delete(id);
     }
 
     private void validateOrder(Order order) {
