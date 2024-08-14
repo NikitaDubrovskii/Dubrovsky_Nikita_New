@@ -1,19 +1,37 @@
 package dev.dubrovsky.service.order;
 
-import dev.dubrovsky.dao.order.IOrderItemDao;
+import dev.dubrovsky.dao.order.OrderDao;
+import dev.dubrovsky.dao.order.OrderItemDao;
+import dev.dubrovsky.dao.product.ProductDao;
 import dev.dubrovsky.model.order.OrderItem;
+import dev.dubrovsky.util.validation.ValidationUtil;
 
 public class OrderItemService implements IOrderItemService {
 
-    private final IOrderItemDao orderItemDao;
+    private final OrderItemDao orderItemDao;
+    private final OrderDao orderDao;
+    private final ProductDao productDao;
 
-    public OrderItemService(IOrderItemDao orderItemDao) {
+    public OrderItemService(OrderItemDao orderItemDao, OrderDao orderDao, ProductDao productDao) {
         this.orderItemDao = orderItemDao;
+        this.orderDao = orderDao;
+        this.productDao = productDao;
     }
 
     @Override
-    public void create(OrderItem entity) {
-        orderItemDao.create(entity);
+    public void create(OrderItem orderItem) {
+        validateOrderItem(orderItem);
+        ValidationUtil.checkEntityPresent(orderItem.getOrderId(), orderDao);
+        ValidationUtil.checkEntityPresent(orderItem.getProductId(), productDao);
+
+        orderItemDao.create(orderItem);
+    }
+
+    @Override
+    public void getById(Integer id) {
+        ValidationUtil.checkId(id, orderItemDao);
+
+        System.out.println(orderItemDao.getById(id));
     }
 
     @Override
@@ -26,16 +44,29 @@ public class OrderItemService implements IOrderItemService {
     }
 
     @Override
-    public void update(OrderItem entity) {
-        orderItemDao.update(entity);
+    public void update(OrderItem orderItem, Integer id) {
+        validateOrderItem(orderItem);
+        ValidationUtil.checkEntityPresent(orderItem.getOrderId(), orderDao);
+        ValidationUtil.checkEntityPresent(orderItem.getProductId(), productDao);
+        ValidationUtil.checkId(id, orderItemDao);
+
+        orderItem.setId(id);
+        orderItemDao.update(orderItem);
     }
 
     @Override
     public void delete(Integer id) {
-        if (id < 1) {
-            System.out.println("Id должен быть > 0");
-        } else {
-            orderItemDao.delete(id);
+        ValidationUtil.checkId(id, orderItemDao);
+
+        orderItemDao.delete(id);
+    }
+
+    private void validateOrderItem(OrderItem orderItem) {
+        if (orderItem == null) {
+            throw new IllegalArgumentException("Предмет в заказе не может отсутствовать");
+        }
+        if (orderItem.getQuantity() == null || orderItem.getQuantity() <= 0) {
+            throw new IllegalArgumentException("Количество не может отсутствовать");
         }
     }
 

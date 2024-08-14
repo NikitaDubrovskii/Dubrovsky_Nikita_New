@@ -1,42 +1,42 @@
 package dev.dubrovsky.model.user;
 
-import java.sql.Timestamp;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
 import java.util.Objects;
 
+@Entity
+@Table(name = "users")
+@Getter
+@Setter
+@NoArgsConstructor
 public class User {
 
-    private final Integer id;
-    private final String username;
-    private final String password;
-    private final String email;
-    private final Timestamp createdAt;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Integer id;
 
-    public User(Integer id, String username, String password, String email, Timestamp createdAt) {
-        this.id = id;
+    @Column(name = "username")
+    private String username;
+
+    @Column(name = "password")
+    private String password;
+
+    @Column(name = "email")
+    private String email;
+
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    public User(String username, String password, String email) {
         this.username = username;
         this.password = password;
         this.email = email;
-        this.createdAt = createdAt;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public Timestamp getCreatedAt() {
-        return createdAt;
+        this.createdAt = LocalDateTime.now();
     }
 
     @Override

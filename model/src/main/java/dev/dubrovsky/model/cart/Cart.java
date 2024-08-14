@@ -1,30 +1,34 @@
 package dev.dubrovsky.model.cart;
 
-import java.sql.Timestamp;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
 import java.util.Objects;
 
+@Entity
+@Table(name = "carts")
+@Getter
+@Setter
+@NoArgsConstructor
 public class Cart {
 
-    private final Integer id;
-    private final Timestamp timestamp;
-    private final Integer userId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Integer id;
 
-    public Cart(Integer id, Timestamp timestamp, Integer userId) {
-        this.id = id;
-        this.timestamp = timestamp;
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "user_id")
+    private Integer userId;
+
+    public Cart(Integer userId) {
+        this.createdAt = LocalDateTime.now();
         this.userId = userId;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public Timestamp getTimestamp() {
-        return timestamp;
-    }
-
-    public Integer getUserId() {
-        return userId;
     }
 
     @Override
@@ -32,19 +36,19 @@ public class Cart {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Cart cart = (Cart) o;
-        return Objects.equals(id, cart.id) && Objects.equals(timestamp, cart.timestamp) && Objects.equals(userId, cart.userId);
+        return Objects.equals(id, cart.id) && Objects.equals(createdAt, cart.createdAt) && Objects.equals(userId, cart.userId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, timestamp, userId);
+        return Objects.hash(id, createdAt, userId);
     }
 
     @Override
     public String toString() {
         return "Cart{" +
                 "id=" + id +
-                ", timestamp=" + timestamp +
+                ", timestamp=" + createdAt +
                 ", userId=" + userId +
                 '}';
     }

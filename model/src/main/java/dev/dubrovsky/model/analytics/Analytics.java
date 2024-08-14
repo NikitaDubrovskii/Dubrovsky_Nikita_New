@@ -1,36 +1,38 @@
 package dev.dubrovsky.model.analytics;
 
-import java.sql.Timestamp;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
 import java.util.Objects;
 
+@Entity
+@Table(name = "analytics")
+@Getter
+@Setter
+@NoArgsConstructor
 public class Analytics {
 
-    private final Integer id;
-    private final String activity;
-    private final Timestamp timestamp;
-    private final Integer userId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Integer id;
 
-    public Analytics(Integer id, String activity, Timestamp timestamp, Integer userId) {
-        this.id = id;
+    @Column(name = "activity")
+    private String activity;
+
+    @Column(name = "timestamp", updatable = false)
+    private LocalDateTime timestamp;
+
+    @Column(name = "user_id")
+    private Integer userId;
+
+    public Analytics(String activity, Integer userId) {
+        this.timestamp = LocalDateTime.now();
         this.activity = activity;
-        this.timestamp = timestamp;
         this.userId = userId;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public String getActivity() {
-        return activity;
-    }
-
-    public Timestamp getTimestamp() {
-        return timestamp;
-    }
-
-    public Integer getUserId() {
-        return userId;
     }
 
     @Override

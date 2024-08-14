@@ -1,35 +1,37 @@
 package dev.dubrovsky.model.cart;
 
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.util.Objects;
 
+@Entity
+@Table(name = "cart_items")
+@Getter
+@Setter
+@NoArgsConstructor
 public class CartItem {
 
-    private final Integer id;
-    private final Integer quantity;
-    private final Integer cartId;
-    private final Integer productId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Integer id;
 
-    public CartItem(Integer id, Integer quantity, Integer cartId, Integer productId) {
-        this.id = id;
+    @Column(name = "quantity")
+    private Integer quantity;
+
+    @Column(name = "cart_id")
+    private Integer cartId;
+
+    @Column(name = "product_id")
+    private Integer productId;
+
+    public CartItem(Integer quantity, Integer cartId, Integer productId) {
         this.quantity = quantity;
         this.cartId = cartId;
         this.productId = productId;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public Integer getQuantity() {
-        return quantity;
-    }
-
-    public Integer getCartId() {
-        return cartId;
-    }
-
-    public Integer getProductId() {
-        return productId;
     }
 
     @Override

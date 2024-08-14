@@ -1,29 +1,33 @@
 package dev.dubrovsky.model.category;
 
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.util.Objects;
 
+@Entity
+@Table(name = "categories")
+@Getter
+@Setter
+@NoArgsConstructor
 public class Category {
 
-    private final Integer id;
-    private final String name;
-    private final String description;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Integer id;
 
-    public Category(Integer id, String name, String description) {
-        this.id = id;
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "description")
+    private String description;
+
+    public Category(String name, String description) {
         this.name = name;
         this.description = description;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getDescription() {
-        return description;
     }
 
     @Override

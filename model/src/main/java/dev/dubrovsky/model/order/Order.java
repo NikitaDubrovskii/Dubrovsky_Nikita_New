@@ -1,49 +1,47 @@
 package dev.dubrovsky.model.order;
 
-import java.sql.Timestamp;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
 import java.util.Objects;
 
+@Entity
+@Table(name = "orders")
+@Getter
+@Setter
+@NoArgsConstructor
 public class Order {
 
-    private final Integer id;
-    private final Integer totalPrice;
-    private final Timestamp createdAt;
-    private final String address;
-    private final Integer paymentMethodId;
-    private final Integer userId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Integer id;
 
-    public Order(Integer id, Integer totalPrice, Timestamp createdAt,
-                 String address, Integer paymentMethodId, Integer userId) {
-        this.id = id;
+    @Column(name = "total_price")
+    private Integer totalPrice;
+
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "address")
+    private String address;
+
+    @Column(name = "payment_method_id")
+    private Integer paymentMethodId;
+
+    @Column(name = "user_id")
+    private Integer userId;
+
+    public Order(Integer totalPrice, String address,
+                 Integer paymentMethodId, Integer userId) {
         this.totalPrice = totalPrice;
-        this.createdAt = createdAt;
+        this.createdAt = LocalDateTime.now();
         this.address = address;
         this.paymentMethodId = paymentMethodId;
         this.userId = userId;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public Integer getTotalPrice() {
-        return totalPrice;
-    }
-
-    public Timestamp getCreatedAt() {
-        return createdAt;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public Integer getPaymentMethodId() {
-        return paymentMethodId;
-    }
-
-    public Integer getUserId() {
-        return userId;
     }
 
     @Override

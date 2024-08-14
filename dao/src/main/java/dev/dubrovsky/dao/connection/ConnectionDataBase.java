@@ -1,36 +1,24 @@
 package dev.dubrovsky.dao.connection;
 
-import dev.dubrovsky.exception.DbException;
-
-import java.io.FileInputStream;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.util.Properties;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
 
 public class ConnectionDataBase {
 
-    private static final Properties properties = new Properties();
-    private static Connection connection;
+    private static EntityManagerFactory entityManagerFactory;
 
-    private ConnectionDataBase() {
+    private ConnectionDataBase() {}
 
-    }
-
-    public static Connection getConnection() {
-        try (FileInputStream inputStream = new FileInputStream("dao/src/main/resources/dao.properties")) {
-            if (connection == null) {
-                properties.load(inputStream);
-                connection = DriverManager.getConnection(
-                        properties.getProperty("db.url"),
-                        properties.getProperty("db.user"),
-                        properties.getProperty("db.password")
-                );
+    public static EntityManagerFactory getEntityManagerFactory() {
+        if (entityManagerFactory == null) {
+            try {
+                entityManagerFactory = Persistence.createEntityManagerFactory("default-persistence");
+            } catch (Exception e) {
+                System.out.println("Error in getEntityManager: " + e);
             }
-
-            return connection;
-        } catch (Exception e) {
-            throw new DbException("Ошибка подключения к базе данных: " + e.getMessage());
         }
+
+        return entityManagerFactory;
     }
 
 }

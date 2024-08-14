@@ -1,35 +1,37 @@
 package dev.dubrovsky.model.order;
 
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.util.Objects;
 
+@Entity
+@Table(name = "order_items")
+@Getter
+@Setter
+@NoArgsConstructor
 public class OrderItem {
 
-    private final Integer id;
-    private final Integer quantity;
-    private final Integer orderId;
-    private final Integer productId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Integer id;
 
-    public OrderItem(Integer id, Integer quantity, Integer orderId, Integer productId) {
-        this.id = id;
+    @Column(name = "quantity")
+    private Integer quantity;
+
+    @Column(name = "order_id")
+    private Integer orderId;
+
+    @Column(name = "product_id")
+    private Integer productId;
+
+    public OrderItem(Integer quantity, Integer orderId, Integer productId) {
         this.quantity = quantity;
         this.orderId = orderId;
         this.productId = productId;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public Integer getQuantity() {
-        return quantity;
-    }
-
-    public Integer getOrderId() {
-        return orderId;
-    }
-
-    public Integer getProductId() {
-        return productId;
     }
 
     @Override

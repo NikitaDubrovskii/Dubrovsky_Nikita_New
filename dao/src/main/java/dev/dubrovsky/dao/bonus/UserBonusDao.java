@@ -1,70 +1,69 @@
 package dev.dubrovsky.dao.bonus;
 
 import dev.dubrovsky.dao.connection.ConnectionDataBase;
-import dev.dubrovsky.model.bonus.UserBonus;
-import dev.dubrovsky.model.bonus.UserBonusId;
 import dev.dubrovsky.exception.DbException;
+import dev.dubrovsky.model.bonus.UserBonus;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Query;
 
-import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 
 public class UserBonusDao implements IUserBonusDao {
 
-    private final Connection connection = ConnectionDataBase.getConnection();
+    private final EntityManagerFactory entityManagerFactory = ConnectionDataBase.getEntityManagerFactory();
 
     @Override
-    public void create(UserBonus entity) {
-        try (PreparedStatement pst = connection.prepareStatement("INSERT INTO user_bonuses (user_id, bonus_id) VALUES (?, ?)")) {
+    public void create(UserBonus userBonus) {
+        try (EntityManager em = entityManagerFactory.createEntityManager()) {
+            try {
+                em.getTransaction().begin();
 
-            pst.setInt(1, entity.getUserBonusId().getUserId());
-            pst.setInt(2, entity.getUserBonusId().getBonusId());
+                em.persist(userBonus);
 
-            pst.executeUpdate();
-
-        } catch (SQLException e) {
+                em.getTransaction().commit();
+            } catch (Exception ex) {
+                if (em.getTransaction().isActive()) {
+                    em.getTransaction().rollback();
+                }
+                throw ex;
+            }
+        } catch (Exception e) {
             throw new DbException(e.getMessage());
         }
     }
 
+    //getByUserId
+    //getByBonusId
+
     @Override
     public List<UserBonus> getAll() {
-        try (Statement st = connection.createStatement();
-             ResultSet rs = st.executeQuery("SELECT * FROM user_bonuses")) {
-
-            final List<UserBonus> userBonuses = new ArrayList<>();
-
-            while (rs.next()) {
-                userBonuses.add(new UserBonus(
-                        new UserBonusId(
-                                rs.getInt("user_id"),
-                                rs.getInt("bonus_id")
-                        ),
-                        rs.getTimestamp("received_at")
-                ));
-            }
-
-            return userBonuses;
-
-        } catch (SQLException e) {
+        try (EntityManager em = entityManagerFactory.createEntityManager()) {
+            return em.createQuery("SELECT ub FROM UserBonus ub", UserBonus.class).getResultList();
+        } catch (Exception e) {
             throw new DbException(e.getMessage());
         }
     }
 
     @Override
     public void delete(Integer userId, Integer bonusId) {
-        try (PreparedStatement pst = connection.prepareStatement("DELETE FROM user_bonuses WHERE user_id = ? AND bonus_id = ?")){
+        try (EntityManager em = entityManagerFactory.createEntityManager()) {
+            try {
+                em.getTransaction().begin();
 
-            pst.setInt(1, userId);
-            pst.setInt(2, bonusId);
+                Query query = em.createNativeQuery("DELETE FROM user_bonuses WHERE user_id = :userId AND bonus_id = :bonusId");
+                query.setParameter("userId", userId);
+                query.setParameter("bonusId", bonusId);
+                query.executeUpdate();
 
-            int i = pst.executeUpdate();
-
-            if (i == 0) {
-                throw new DbException("Id " + userId + " или " + bonusId + " не существует");
+                em.getTransaction().commit();
+            } catch (Exception ex) {
+                if (em.getTransaction().isActive()) {
+                    em.getTransaction().rollback();
+                }
+                throw ex;
             }
-
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw new DbException(e.getMessage());
         }
     }

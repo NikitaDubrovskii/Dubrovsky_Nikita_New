@@ -1,19 +1,29 @@
 package dev.dubrovsky.service.category;
 
-import dev.dubrovsky.dao.category.ICategoryDao;
+import dev.dubrovsky.dao.category.CategoryDao;
 import dev.dubrovsky.model.category.Category;
+import dev.dubrovsky.util.validation.ValidationUtil;
 
 public class CategoryService implements ICategoryService {
 
-    private final ICategoryDao categoryDao;
+    private final CategoryDao categoryDao;
 
-    public CategoryService(ICategoryDao categoryDao) {
+    public CategoryService(CategoryDao categoryDao) {
         this.categoryDao = categoryDao;
     }
 
     @Override
-    public void create(Category entity) {
-        categoryDao.create(entity);
+    public void create(Category category) {
+        validateCategory(category);
+
+        categoryDao.create(category);
+    }
+
+    @Override
+    public void getById(Integer id) {
+        ValidationUtil.checkId(id, categoryDao);
+
+        categoryDao.getById(id);
     }
 
     @Override
@@ -26,16 +36,26 @@ public class CategoryService implements ICategoryService {
     }
 
     @Override
-    public void update(Category entity) {
-        categoryDao.update(entity);
+    public void update(Category category, Integer id) {
+        validateCategory(category);
+        ValidationUtil.checkId(id, categoryDao);
+
+        categoryDao.update(category);
     }
 
     @Override
     public void delete(Integer id) {
-        if (id < 1) {
-            System.out.println("Id должен быть > 0");
-        } else {
-            categoryDao.delete(id);
+        ValidationUtil.checkId(id, categoryDao);
+
+        categoryDao.delete(id);
+    }
+
+    private void validateCategory(Category category) {
+        if (category == null) {
+            throw new IllegalArgumentException("Категория не может отсутствовать");
+        }
+        if (category.getName() == null || category.getName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Название должно быть");
         }
     }
 
