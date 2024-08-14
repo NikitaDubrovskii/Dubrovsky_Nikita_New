@@ -1,10 +1,12 @@
 package dev.dubrovsky.model.payment.method;
 
+import dev.dubrovsky.model.order.Order;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -21,6 +23,9 @@ public class PaymentMethod {
 
     @Column(name = "method")
     private String method;
+
+    @OneToMany(mappedBy = "paymentMethod")
+    private List<Order> orders;
 
     public PaymentMethod(String method) {
         this.method = method;

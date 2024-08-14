@@ -3,7 +3,11 @@ package dev.dubrovsky.service.category;
 import dev.dubrovsky.dao.category.CategoryDao;
 import dev.dubrovsky.model.category.Category;
 import dev.dubrovsky.util.validation.ValidationUtil;
+import org.springframework.stereotype.Service;
 
+import java.util.List;
+
+@Service
 public class CategoryService implements ICategoryService {
 
     private final CategoryDao categoryDao;
@@ -13,41 +17,41 @@ public class CategoryService implements ICategoryService {
     }
 
     @Override
-    public void create(Category category) {
+    public Category create(Category category) {
         validateCategory(category);
 
-        categoryDao.create(category);
+        return categoryDao.create(category);
     }
 
     @Override
-    public void getById(Integer id) {
+    public Category getById(Integer id) {
         ValidationUtil.checkId(id, categoryDao);
 
-        categoryDao.getById(id);
+        return categoryDao.getById(id);
     }
 
     @Override
-    public void getAll() {
+    public List<Category> getAll() {
         if (categoryDao.getAll().isEmpty() && categoryDao.getAll() == null) {
-            System.out.println("Таблица категорий пустая");
+            return null;
         } else {
-            categoryDao.getAll().forEach(System.out::println);
+            return categoryDao.getAll();
         }
     }
 
     @Override
-    public void update(Category category, Integer id) {
+    public Category update(Category category, Integer id) {
         validateCategory(category);
         ValidationUtil.checkId(id, categoryDao);
 
-        categoryDao.update(category);
+        return categoryDao.update(category);
     }
 
     @Override
-    public void delete(Integer id) {
+    public String delete(Integer id) {
         ValidationUtil.checkId(id, categoryDao);
 
-        categoryDao.delete(id);
+        return categoryDao.delete(id);
     }
 
     private void validateCategory(Category category) {

@@ -1,11 +1,14 @@
 package dev.dubrovsky.model.order;
 
+import dev.dubrovsky.model.payment.method.PaymentMethod;
+import dev.dubrovsky.model.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -29,19 +32,24 @@ public class Order {
     @Column(name = "address")
     private String address;
 
-    @Column(name = "payment_method_id")
-    private Integer paymentMethodId;
+    @ManyToOne
+    @JoinColumn(name = "payment_method_id")
+    private PaymentMethod paymentMethod;
 
-    @Column(name = "user_id")
-    private Integer userId;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @OneToMany(mappedBy = "order")
+    private List<OrderItem> orderItems;
 
     public Order(Integer totalPrice, String address,
-                 Integer paymentMethodId, Integer userId) {
+                 PaymentMethod paymentMethod, User user) {
         this.totalPrice = totalPrice;
         this.createdAt = LocalDateTime.now();
         this.address = address;
-        this.paymentMethodId = paymentMethodId;
-        this.userId = userId;
+        this.paymentMethod = paymentMethod;
+        this.user = user;
     }
 
     @Override
@@ -51,12 +59,12 @@ public class Order {
         Order order = (Order) o;
         return Objects.equals(id, order.id) && Objects.equals(totalPrice, order.totalPrice)
                 && Objects.equals(createdAt, order.createdAt) && Objects.equals(address, order.address)
-                && Objects.equals(paymentMethodId, order.paymentMethodId) && Objects.equals(userId, order.userId);
+                && Objects.equals(paymentMethod, order.paymentMethod) && Objects.equals(user, order.user);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, totalPrice, createdAt, address, paymentMethodId, userId);
+        return Objects.hash(id, totalPrice, createdAt, address, paymentMethod, user);
     }
 
     @Override
@@ -66,8 +74,8 @@ public class Order {
                 ", totalPrice=" + totalPrice +
                 ", createdAt=" + createdAt +
                 ", address='" + address + '\'' +
-                ", paymentMethodId='" + paymentMethodId + '\'' +
-                ", userId=" + userId +
+                ", paymentMethodId='" + paymentMethod + '\'' +
+                ", userId=" + user +
                 '}';
     }
 

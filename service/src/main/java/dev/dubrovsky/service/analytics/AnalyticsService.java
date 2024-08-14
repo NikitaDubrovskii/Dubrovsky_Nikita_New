@@ -4,7 +4,11 @@ import dev.dubrovsky.dao.analytics.AnalyticsDao;
 import dev.dubrovsky.dao.user.UserDao;
 import dev.dubrovsky.model.analytics.Analytics;
 import dev.dubrovsky.util.validation.ValidationUtil;
+import org.springframework.stereotype.Service;
 
+import java.util.List;
+
+@Service
 public class AnalyticsService implements IAnalyticsService {
 
     private final AnalyticsDao analyticsDao;
@@ -16,44 +20,44 @@ public class AnalyticsService implements IAnalyticsService {
     }
 
     @Override
-    public void create(Analytics analytics) {
+    public Analytics create(Analytics analytics) {
         validateAnalytics(analytics);
-        ValidationUtil.checkEntityPresent(analytics.getUserId(), userDao);
+        ValidationUtil.checkEntityPresent(analytics.getUser().getId(), userDao);
 
-        analyticsDao.create(analytics);
+        return analyticsDao.create(analytics);
     }
 
     @Override
-    public void getById(Integer id) {
+    public Analytics getById(Integer id) {
         ValidationUtil.checkId(id, analyticsDao);
 
-        System.out.println(analyticsDao.getById(id));
+        return analyticsDao.getById(id);
     }
 
     @Override
-    public void getAll() {
+    public List<Analytics> getAll() {
         if (analyticsDao.getAll().isEmpty() && analyticsDao.getAll() == null) {
-            System.out.println("Таблица аналитики пустая");
+            return null;
         } else {
-            analyticsDao.getAll().forEach(System.out::println);
+            return analyticsDao.getAll();
         }
     }
 
     @Override
-    public void update(Analytics analytics, Integer id) {
+    public Analytics update(Analytics analytics, Integer id) {
         validateAnalytics(analytics);
         ValidationUtil.checkId(id, analyticsDao);
-        ValidationUtil.checkEntityPresent(analytics.getUserId(), userDao);
+        ValidationUtil.checkEntityPresent(analytics.getUser().getId(), userDao);
 
         analytics.setId(id);
-        analyticsDao.update(analytics);
+        return analyticsDao.update(analytics);
     }
 
     @Override
-    public void delete(Integer id) {
+    public String delete(Integer id) {
         ValidationUtil.checkId(id, analyticsDao);
 
-        analyticsDao.delete(id);
+        return analyticsDao.delete(id);
     }
 
     private void validateAnalytics(Analytics analytics) {

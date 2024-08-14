@@ -5,7 +5,11 @@ import dev.dubrovsky.dao.order.OrderItemDao;
 import dev.dubrovsky.dao.product.ProductDao;
 import dev.dubrovsky.model.order.OrderItem;
 import dev.dubrovsky.util.validation.ValidationUtil;
+import org.springframework.stereotype.Service;
 
+import java.util.List;
+
+@Service
 public class OrderItemService implements IOrderItemService {
 
     private final OrderItemDao orderItemDao;
@@ -19,46 +23,46 @@ public class OrderItemService implements IOrderItemService {
     }
 
     @Override
-    public void create(OrderItem orderItem) {
+    public OrderItem create(OrderItem orderItem) {
         validateOrderItem(orderItem);
-        ValidationUtil.checkEntityPresent(orderItem.getOrderId(), orderDao);
-        ValidationUtil.checkEntityPresent(orderItem.getProductId(), productDao);
+        ValidationUtil.checkEntityPresent(orderItem.getOrder().getId(), orderDao);
+        ValidationUtil.checkEntityPresent(orderItem.getProduct().getId(), productDao);
 
-        orderItemDao.create(orderItem);
+        return orderItemDao.create(orderItem);
     }
 
     @Override
-    public void getById(Integer id) {
+    public OrderItem getById(Integer id) {
         ValidationUtil.checkId(id, orderItemDao);
 
-        System.out.println(orderItemDao.getById(id));
+        return orderItemDao.getById(id);
     }
 
     @Override
-    public void getAll() {
+    public List<OrderItem> getAll() {
         if (orderItemDao.getAll().isEmpty() && orderItemDao.getAll() == null) {
-            System.out.println("Таблица вещей в заказе пустая");
+            return null;
         } else {
-            orderItemDao.getAll().forEach(System.out::println);
+            return orderItemDao.getAll();
         }
     }
 
     @Override
-    public void update(OrderItem orderItem, Integer id) {
+    public OrderItem update(OrderItem orderItem, Integer id) {
         validateOrderItem(orderItem);
-        ValidationUtil.checkEntityPresent(orderItem.getOrderId(), orderDao);
-        ValidationUtil.checkEntityPresent(orderItem.getProductId(), productDao);
+        ValidationUtil.checkEntityPresent(orderItem.getOrder().getId(), orderDao);
+        ValidationUtil.checkEntityPresent(orderItem.getProduct().getId(), productDao);
         ValidationUtil.checkId(id, orderItemDao);
 
         orderItem.setId(id);
-        orderItemDao.update(orderItem);
+        return orderItemDao.update(orderItem);
     }
 
     @Override
-    public void delete(Integer id) {
+    public String delete(Integer id) {
         ValidationUtil.checkId(id, orderItemDao);
 
-        orderItemDao.delete(id);
+        return orderItemDao.delete(id);
     }
 
     private void validateOrderItem(OrderItem orderItem) {

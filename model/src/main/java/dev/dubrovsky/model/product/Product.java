@@ -1,5 +1,8 @@
 package dev.dubrovsky.model.product;
 
+import dev.dubrovsky.model.cart.CartItem;
+import dev.dubrovsky.model.category.Category;
+import dev.dubrovsky.model.order.OrderItem;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,16 +35,23 @@ public class Product {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "category_id")
-    private Integer categoryId;
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
+
+    @OneToOne(mappedBy = "product")
+    private CartItem cartItem;
+
+    @OneToOne(mappedBy = "product")
+    private OrderItem orderItem;
 
     public Product(String name, String description,
-                   Float price, Integer categoryId) {
+                   Float price, Category category) {
         this.name = name;
         this.description = description;
         this.price = price;
         this.createdAt = LocalDateTime.now();
-        this.categoryId = categoryId;
+        this.category = category;
     }
 
     @Override
@@ -51,12 +61,12 @@ public class Product {
         Product product = (Product) o;
         return Objects.equals(id, product.id) && Objects.equals(name, product.name)
                 && Objects.equals(description, product.description) && Objects.equals(price, product.price)
-                && Objects.equals(createdAt, product.createdAt) && Objects.equals(categoryId, product.categoryId);
+                && Objects.equals(createdAt, product.createdAt) && Objects.equals(category, product.category);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, description, price, createdAt, categoryId);
+        return Objects.hash(id, name, description, price, createdAt, category);
     }
 
     @Override
@@ -67,7 +77,7 @@ public class Product {
                 ", description='" + description + '\'' +
                 ", price=" + price +
                 ", createdAt=" + createdAt +
-                ", categoryId=" + categoryId +
+                ", categoryId=" + category +
                 '}';
     }
 

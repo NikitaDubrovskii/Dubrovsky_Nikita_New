@@ -1,11 +1,17 @@
 package dev.dubrovsky.model.user;
 
+import dev.dubrovsky.model.analytics.Analytics;
+import dev.dubrovsky.model.bonus.Bonus;
+import dev.dubrovsky.model.cart.Cart;
+import dev.dubrovsky.model.loyalty.program.LoyaltyProgram;
+import dev.dubrovsky.model.order.Order;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -31,6 +37,21 @@ public class User {
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+
+    @OneToMany(mappedBy = "user")
+    private List<Cart> carts;
+
+    @OneToMany(mappedBy = "user")
+    private List<Order> orders;
+
+    @ManyToMany(mappedBy = "users")
+    private List<LoyaltyProgram> loyaltyPrograms;
+
+    @ManyToMany(mappedBy = "users")
+    private List<Bonus> bonuses;
+
+    @OneToMany(mappedBy = "user")
+    private List<Analytics> analytics;
 
     public User(String username, String password, String email) {
         this.username = username;

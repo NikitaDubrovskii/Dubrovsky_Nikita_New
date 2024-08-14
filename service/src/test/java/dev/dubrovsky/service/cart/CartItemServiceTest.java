@@ -38,20 +38,33 @@ class CartItemServiceTest {
 
     private CartItem cartItem;
     private CartItem updCartItem;
+    private Cart cart1;
+    private Cart cart2;
+    private Product product1;
+    private Product product2;
 
     @BeforeEach
     void setUp() {
         cartItemService = new CartItemService(cartItemDao, cartDao, productDao);
 
-        cartItem = new CartItem(2, 1, 1);
+        cart1 = new Cart();
+        cart1.setId(1);
+        cart2 = new Cart();
+        cart2.setId(2);
+        product1 = new Product();
+        product1.setId(1);
+        product2 = new Product();
+        product2.setId(2);
+
+        cartItem = new CartItem(2, cart1, product1);
         cartItem.setId(1);
-        updCartItem = new CartItem(1, 2, 2);
+        updCartItem = new CartItem(1, cart2, product2);
     }
 
     @Test
     void create_Success() {
-        when(cartDao.getById(cartItem.getCartId())).thenReturn(new Cart());
-        when(productDao.getById(cartItem.getProductId())).thenReturn(new Product());
+        when(cartDao.getById(cartItem.getCart().getId())).thenReturn(new Cart());
+        when(productDao.getById(cartItem.getProduct().getId())).thenReturn(new Product());
 
         cartItemService.create(cartItem);
 
@@ -84,23 +97,24 @@ class CartItemServiceTest {
 
     @Test
     void create_CartIdIsNull_ThrowIllegalArgumentException() {
-        cartItem.setCartId(null);
+        cartItem.setCart(null);
 
         NullPointerException exception = assertThrows(NullPointerException.class, () -> cartItemService.create(cartItem));
-        assertEquals("Cannot invoke \"java.lang.Integer.intValue()\" because \"id\" is null", exception.getMessage());
+        assertEquals("Cannot invoke \"dev.dubrovsky.model.cart.Cart.getId()\" because the return value of \"dev.dubrovsky.model.cart.CartItem.getCart()\" is null", exception.getMessage());
     }
 
     @Test
     void create_CartNotFound_ThrowNoSuchElementException() {
-        when(cartDao.getById(cartItem.getCartId())).thenReturn(null);
+        when(cartDao.getById(cartItem.getCart().getId())).thenReturn(null);
 
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> cartItemService.create(cartItem));
-        assertEquals("Ничего не найдено с id: " + cartItem.getCartId(), exception.getMessage());
+        assertEquals("Ничего не найдено с id: " + cartItem.getCart().getId(), exception.getMessage());
     }
 
     @Test
     void create_CartIdIsNegative_ThrowIllegalArgumentException() {
-        cartItem.setCartId(-1);
+        cart1.setId(-1);
+        cartItem.setCart(cart1);
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> cartItemService.create(cartItem));
         assertEquals("Id должен быть больше 0", exception.getMessage());
@@ -108,7 +122,8 @@ class CartItemServiceTest {
 
     @Test
     void create_CartIdIsZero_ThrowIllegalArgumentException() {
-        cartItem.setCartId(0);
+        cart1.setId(0);
+        cartItem.setCart(cart1);
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> cartItemService.create(cartItem));
         assertEquals("Id должен быть больше 0", exception.getMessage());
@@ -116,26 +131,27 @@ class CartItemServiceTest {
 
     @Test
     void create_ProductIdIsNull_ThrowIllegalArgumentException() {
-        when(cartDao.getById(cartItem.getCartId())).thenReturn(new Cart());
-        cartItem.setProductId(null);
+        when(cartDao.getById(cartItem.getCart().getId())).thenReturn(new Cart());
+        cartItem.setProduct(null);
 
         NullPointerException exception = assertThrows(NullPointerException.class, () -> cartItemService.create(cartItem));
-        assertEquals("Cannot invoke \"java.lang.Integer.intValue()\" because \"id\" is null", exception.getMessage());
+        assertEquals("Cannot invoke \"dev.dubrovsky.model.product.Product.getId()\" because the return value of \"dev.dubrovsky.model.cart.CartItem.getProduct()\" is null", exception.getMessage());
     }
 
     @Test
     void create_ProductNotFound_ThrowNoSuchElementException() {
-        when(cartDao.getById(cartItem.getCartId())).thenReturn(new Cart());
-        when(productDao.getById(cartItem.getProductId())).thenReturn(null);
+        when(cartDao.getById(cartItem.getCart().getId())).thenReturn(new Cart());
+        when(productDao.getById(cartItem.getProduct().getId())).thenReturn(null);
 
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> cartItemService.create(cartItem));
-        assertEquals("Ничего не найдено с id: " + cartItem.getProductId(), exception.getMessage());
+        assertEquals("Ничего не найдено с id: " + cartItem.getProduct().getId(), exception.getMessage());
     }
 
     @Test
     void create_ProductIdIsNegative_ThrowIllegalArgumentException() {
-        when(cartDao.getById(cartItem.getCartId())).thenReturn(new Cart());
-        cartItem.setProductId(-1);
+        when(cartDao.getById(cartItem.getCart().getId())).thenReturn(new Cart());
+        product1.setId(-1);
+        cartItem.setProduct(product1);
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> cartItemService.create(cartItem));
         assertEquals("Id должен быть больше 0", exception.getMessage());
@@ -143,8 +159,9 @@ class CartItemServiceTest {
 
     @Test
     void create_ProductIdIsZero_ThrowIllegalArgumentException() {
-        when(cartDao.getById(cartItem.getCartId())).thenReturn(new Cart());
-        cartItem.setProductId(0);
+        when(cartDao.getById(cartItem.getCart().getId())).thenReturn(new Cart());
+        product1.setId(0);
+        cartItem.setProduct(product1);
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> cartItemService.create(cartItem));
         assertEquals("Id должен быть больше 0", exception.getMessage());
@@ -195,7 +212,8 @@ class CartItemServiceTest {
 
     @Test
     void getAll_Success() {
-        CartItem cartItem2 = new CartItem(2, 1, 1);
+
+        CartItem cartItem2 = new CartItem(2, cart2, product1);
         cartItem2.setId(2);
         List<CartItem> cartItemList = List.of(
                 cartItem,
@@ -221,8 +239,8 @@ class CartItemServiceTest {
     @Test
     void update_Success() {
         Integer id = 1;
-        when(cartDao.getById(updCartItem.getCartId())).thenReturn(new Cart());
-        when(productDao.getById(updCartItem.getProductId())).thenReturn(new Product());
+        when(cartDao.getById(updCartItem.getCart().getId())).thenReturn(new Cart());
+        when(productDao.getById(updCartItem.getProduct().getId())).thenReturn(new Product());
         when(cartItemDao.getById(id)).thenReturn(cartItem);
 
         cartItemService.update(updCartItem, id);
@@ -260,25 +278,26 @@ class CartItemServiceTest {
     @Test
     void update_CartIdIsNull_ThrowNullPointerException() {
         Integer id = 1;
-        updCartItem.setCartId(null);
+        updCartItem.setCart(null);
 
         NullPointerException exception = assertThrows(NullPointerException.class, () -> cartItemService.update(updCartItem, id));
-        assertEquals("Cannot invoke \"java.lang.Integer.intValue()\" because \"id\" is null", exception.getMessage());
+        assertEquals("Cannot invoke \"dev.dubrovsky.model.cart.Cart.getId()\" because the return value of \"dev.dubrovsky.model.cart.CartItem.getCart()\" is null", exception.getMessage());
     }
 
     @Test
     void update_CartNotFound_ThrowNoSuchElementException() {
         Integer id = 1;
-        when(cartDao.getById(updCartItem.getCartId())).thenReturn(null);
+        when(cartDao.getById(updCartItem.getCart().getId())).thenReturn(null);
 
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> cartItemService.update(updCartItem, id));
-        assertEquals("Ничего не найдено с id: " + updCartItem.getCartId(), exception.getMessage());
+        assertEquals("Ничего не найдено с id: " + updCartItem.getCart().getId(), exception.getMessage());
     }
 
     @Test
     void update_CartIdIsZero_ThrowIllegalArgumentException() {
         Integer id = 1;
-        updCartItem.setCartId(0);
+        cart1.setId(0);
+        updCartItem.setCart(cart1);
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> cartItemService.update(updCartItem, id));
         assertEquals("Id должен быть больше 0", exception.getMessage());
@@ -287,7 +306,8 @@ class CartItemServiceTest {
     @Test
     void update_CartIdIsNegative_ThrowIllegalArgumentException() {
         Integer id = 1;
-        updCartItem.setCartId(-1);
+        cart1.setId(-1);
+        updCartItem.setCart(cart1);
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> cartItemService.update(updCartItem, id));
         assertEquals("Id должен быть больше 0", exception.getMessage());
@@ -296,28 +316,29 @@ class CartItemServiceTest {
     @Test
     void update_ProductIdIsNull_ThrowNullPointerException() {
         Integer id = 1;
-        when(cartDao.getById(updCartItem.getCartId())).thenReturn(new Cart());
-        updCartItem.setProductId(null);
+        when(cartDao.getById(updCartItem.getCart().getId())).thenReturn(new Cart());
+        updCartItem.setProduct(null);
 
         NullPointerException exception = assertThrows(NullPointerException.class, () -> cartItemService.update(updCartItem, id));
-        assertEquals("Cannot invoke \"java.lang.Integer.intValue()\" because \"id\" is null", exception.getMessage());
+        assertEquals("Cannot invoke \"dev.dubrovsky.model.product.Product.getId()\" because the return value of \"dev.dubrovsky.model.cart.CartItem.getProduct()\" is null", exception.getMessage());
     }
 
     @Test
     void update_ProductNotFound_ThrowNoSuchElementException() {
         Integer id = 1;
-        when(cartDao.getById(updCartItem.getCartId())).thenReturn(new Cart());
-        when(productDao.getById(updCartItem.getProductId())).thenReturn(null);
+        when(cartDao.getById(updCartItem.getCart().getId())).thenReturn(new Cart());
+        when(productDao.getById(updCartItem.getProduct().getId())).thenReturn(null);
 
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> cartItemService.update(updCartItem, id));
-        assertEquals("Ничего не найдено с id: " + updCartItem.getProductId(), exception.getMessage());
+        assertEquals("Ничего не найдено с id: " + updCartItem.getProduct().getId(), exception.getMessage());
     }
 
     @Test
     void update_ProductIdIsZero_ThrowIllegalArgumentException() {
         Integer id = 1;
-        when(cartDao.getById(updCartItem.getCartId())).thenReturn(new Cart());
-        updCartItem.setProductId(0);
+        when(cartDao.getById(updCartItem.getCart().getId())).thenReturn(new Cart());
+        product1.setId(0);
+        updCartItem.setProduct(product1);
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> cartItemService.update(updCartItem, id));
         assertEquals("Id должен быть больше 0", exception.getMessage());
@@ -326,8 +347,9 @@ class CartItemServiceTest {
     @Test
     void update_ProductIdIsNegative_ThrowIllegalArgumentException() {
         Integer id = 1;
-        when(cartDao.getById(updCartItem.getCartId())).thenReturn(new Cart());
-        updCartItem.setProductId(-1);
+        when(cartDao.getById(updCartItem.getCart().getId())).thenReturn(new Cart());
+        product1.setId(-1);
+        updCartItem.setProduct(product1);
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> cartItemService.update(updCartItem, id));
         assertEquals("Id должен быть больше 0", exception.getMessage());
@@ -336,8 +358,8 @@ class CartItemServiceTest {
     @Test
     void update_IdIsNull_ThrowNullPointerException() {
         Integer id = null;
-        when(cartDao.getById(updCartItem.getCartId())).thenReturn(new Cart());
-        when(productDao.getById(updCartItem.getProductId())).thenReturn(new Product());
+        when(cartDao.getById(updCartItem.getCart().getId())).thenReturn(new Cart());
+        when(productDao.getById(updCartItem.getProduct().getId())).thenReturn(new Product());
 
         NullPointerException thrown = assertThrows(NullPointerException.class, () -> cartItemService.update(updCartItem, id));
         assertEquals("Cannot invoke \"java.lang.Integer.intValue()\" because \"id\" is null", thrown.getMessage());
@@ -346,8 +368,8 @@ class CartItemServiceTest {
     @Test
     void update_IdIsZero_ThrowIllegalArgumentException() {
         Integer id = 0;
-        when(cartDao.getById(updCartItem.getCartId())).thenReturn(new Cart());
-        when(productDao.getById(updCartItem.getProductId())).thenReturn(new Product());
+        when(cartDao.getById(updCartItem.getCart().getId())).thenReturn(new Cart());
+        when(productDao.getById(updCartItem.getProduct().getId())).thenReturn(new Product());
 
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> cartItemService.update(updCartItem, id));
         assertEquals("Id должен быть больше 0", thrown.getMessage());
@@ -356,8 +378,8 @@ class CartItemServiceTest {
     @Test
     void update_IdIsNegative_ThrowIllegalArgumentException() {
         Integer id = -44;
-        when(cartDao.getById(updCartItem.getCartId())).thenReturn(new Cart());
-        when(productDao.getById(updCartItem.getProductId())).thenReturn(new Product());
+        when(cartDao.getById(updCartItem.getCart().getId())).thenReturn(new Cart());
+        when(productDao.getById(updCartItem.getProduct().getId())).thenReturn(new Product());
 
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> cartItemService.update(updCartItem, id));
         assertEquals("Id должен быть больше 0", thrown.getMessage());
@@ -366,8 +388,8 @@ class CartItemServiceTest {
     @Test
     void update_IdNotFound_ThrowNoSuchElementException() {
         Integer id = 44;
-        when(cartDao.getById(updCartItem.getCartId())).thenReturn(new Cart());
-        when(productDao.getById(updCartItem.getProductId())).thenReturn(new Product());
+        when(cartDao.getById(updCartItem.getCart().getId())).thenReturn(new Cart());
+        when(productDao.getById(updCartItem.getProduct().getId())).thenReturn(new Product());
         when(cartItemDao.getById(id)).thenReturn(null);
 
         NoSuchElementException thrown = assertThrows(NoSuchElementException.class, () -> cartItemService.update(updCartItem, id));

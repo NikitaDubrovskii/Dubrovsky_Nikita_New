@@ -1,10 +1,13 @@
 package dev.dubrovsky.model.bonus;
 
+import dev.dubrovsky.model.loyalty.program.LoyaltyProgram;
+import dev.dubrovsky.model.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -28,13 +31,23 @@ public class Bonus {
     @Column(name = "points")
     private Integer points;
 
-    @Column(name = "program_id")
-    private Integer programId;
-    public Bonus(String name, String description, Integer points, Integer programId) {
+    @ManyToOne
+    @JoinColumn(name = "program_id")
+    private LoyaltyProgram program;
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_bonuses",
+            joinColumns = {@JoinColumn(name = "bonus_id")},
+            inverseJoinColumns = {@JoinColumn(name = "user_id")}
+    )
+    private List<User> users;
+
+    public Bonus(String name, String description, Integer points, LoyaltyProgram program) {
         this.name = name;
         this.description = description;
         this.points = points;
-        this.programId = programId;
+        this.program = program;
     }
 
     @Override
@@ -44,12 +57,12 @@ public class Bonus {
         Bonus bonus = (Bonus) o;
         return Objects.equals(id, bonus.id) && Objects.equals(name, bonus.name)
                 && Objects.equals(description, bonus.description) && Objects.equals(points, bonus.points)
-                && Objects.equals(programId, bonus.programId);
+                && Objects.equals(program, bonus.program);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, description, points, programId);
+        return Objects.hash(id, name, description, points, program);
     }
 
     @Override
@@ -59,7 +72,7 @@ public class Bonus {
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", points=" + points +
-                ", programId=" + programId +
+                ", programId=" + program +
                 '}';
     }
 

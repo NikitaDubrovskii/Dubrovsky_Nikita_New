@@ -1,5 +1,6 @@
 package dev.dubrovsky.model.analytics;
 
+import dev.dubrovsky.model.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,13 +27,14 @@ public class Analytics {
     @Column(name = "timestamp", updatable = false)
     private LocalDateTime timestamp;
 
-    @Column(name = "user_id")
-    private Integer userId;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
-    public Analytics(String activity, Integer userId) {
+    public Analytics(String activity, User user) {
         this.timestamp = LocalDateTime.now();
         this.activity = activity;
-        this.userId = userId;
+        this.user = user;
     }
 
     @Override
@@ -41,12 +43,12 @@ public class Analytics {
         if (o == null || getClass() != o.getClass()) return false;
         Analytics analytics = (Analytics) o;
         return Objects.equals(id, analytics.id) && Objects.equals(activity, analytics.activity)
-                && Objects.equals(timestamp, analytics.timestamp) && Objects.equals(userId, analytics.userId);
+                && Objects.equals(timestamp, analytics.timestamp) && Objects.equals(user, analytics.user);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, activity, timestamp, userId);
+        return Objects.hash(id, activity, timestamp, user);
     }
 
     @Override
@@ -55,7 +57,7 @@ public class Analytics {
                 "id=" + id +
                 ", activity='" + activity + '\'' +
                 ", timestamp=" + timestamp +
-                ", userId=" + userId +
+                ", userId=" + user +
                 '}';
     }
 

@@ -5,9 +5,12 @@ import dev.dubrovsky.model.user.User;
 import dev.dubrovsky.util.encoder.SimplePasswordEncoder;
 import dev.dubrovsky.util.validation.ValidationUtil;
 import jakarta.persistence.NonUniqueResultException;
+import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
+@Service
 public class UserService implements IUserService {
 
     private final UserDao userDao;
@@ -17,33 +20,33 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public void create(User user) {
+    public User create(User user) {
         validateUser(user);
         checkUniqueUsername(user.getUsername());
         checkUniqueEmail(user.getEmail());
 
         user.setPassword(SimplePasswordEncoder.encode(user.getPassword()));
-        userDao.create(user);
+        return userDao.create(user);
     }
 
     @Override
-    public void getById(Integer id) {
+    public User getById(Integer id) {
         ValidationUtil.checkId(id, userDao);
 
-        System.out.println(userDao.getById(id));
+        return userDao.getById(id);
     }
 
     @Override
-    public void getAll() {
+    public List<User> getAll() {
         if (userDao.getAll().isEmpty() && userDao.getAll() == null) {
-            System.out.println("Таблица пользователей пустая");
+            return null;
         } else {
-            userDao.getAll().forEach(System.out::println);
+            return userDao.getAll();
         }
     }
 
     @Override
-    public void update(User user, Integer id) {
+    public User update(User user, Integer id) {
         validateUser(user);
         ValidationUtil.checkId(id, userDao);
 
@@ -56,14 +59,14 @@ public class UserService implements IUserService {
         }
 
         user.setId(id);
-        userDao.update(user);
+        return userDao.update(user);
     }
 
     @Override
-    public void delete(Integer id) {
+    public String delete(Integer id) {
         ValidationUtil.checkId(id, userDao);
 
-        userDao.delete(id);
+        return userDao.delete(id);
     }
 
     @Override

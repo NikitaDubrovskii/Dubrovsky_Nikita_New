@@ -1,20 +1,22 @@
 package dev.dubrovsky.dao.user;
 
 import dev.dubrovsky.dao.AbstractDao;
-import dev.dubrovsky.dao.connection.ConnectionDataBase;
 import dev.dubrovsky.exception.DbException;
 import dev.dubrovsky.model.user.User;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
+import org.springframework.stereotype.Component;
 
+@Component
 public class UserDao extends AbstractDao<User> implements IUserDao {
 
-    EntityManagerFactory entityManagerFactory = ConnectionDataBase.getEntityManagerFactory();
+    private final EntityManagerFactory entityManagerFactory;
 
-    public UserDao(Class<User> entityClass) {
-        super(entityClass);
+    public UserDao(EntityManagerFactory entityManagerFactory) {
+        super(entityManagerFactory, User.class);
+        this.entityManagerFactory = entityManagerFactory;
     }
 
     @Override

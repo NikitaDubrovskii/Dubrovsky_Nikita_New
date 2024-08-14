@@ -1,28 +1,10 @@
 package dev.dubrovsky.starter;
 
-import dev.dubrovsky.dao.analytics.AnalyticsDao;
-import dev.dubrovsky.dao.bonus.BonusDao;
-import dev.dubrovsky.dao.bonus.UserBonusDao;
-import dev.dubrovsky.dao.cart.CartDao;
-import dev.dubrovsky.dao.cart.CartItemDao;
-import dev.dubrovsky.dao.category.CategoryDao;
-import dev.dubrovsky.dao.loyalty.program.LoyaltyProgramDao;
-import dev.dubrovsky.dao.loyalty.program.UserLoyaltyProgramDao;
-import dev.dubrovsky.dao.order.OrderDao;
-import dev.dubrovsky.dao.order.OrderItemDao;
-import dev.dubrovsky.dao.payment.method.PaymentMethodDao;
-import dev.dubrovsky.dao.product.ProductDao;
-import dev.dubrovsky.dao.user.UserDao;
+import dev.dubrovsky.configuration.OnlineStoreContextConfiguration;
 import dev.dubrovsky.model.analytics.Analytics;
 import dev.dubrovsky.model.bonus.Bonus;
-import dev.dubrovsky.model.cart.Cart;
-import dev.dubrovsky.model.cart.CartItem;
 import dev.dubrovsky.model.category.Category;
 import dev.dubrovsky.model.loyalty.program.LoyaltyProgram;
-import dev.dubrovsky.model.order.Order;
-import dev.dubrovsky.model.order.OrderItem;
-import dev.dubrovsky.model.payment.method.PaymentMethod;
-import dev.dubrovsky.model.product.Product;
 import dev.dubrovsky.model.user.User;
 import dev.dubrovsky.service.analytics.AnalyticsService;
 import dev.dubrovsky.service.analytics.IAnalyticsService;
@@ -50,44 +32,54 @@ import dev.dubrovsky.service.product.IProductService;
 import dev.dubrovsky.service.product.ProductService;
 import dev.dubrovsky.service.user.IUserService;
 import dev.dubrovsky.service.user.UserService;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+import java.util.List;
 
 public class App {
 
     public static void main(String[] args) {
-        CategoryDao categoryDao = new CategoryDao(Category.class);
-        ProductDao productDao = new ProductDao(Product.class);
-        UserDao userDao = new UserDao(User.class);
-        AnalyticsDao analyticsDao = new AnalyticsDao(Analytics.class);
-        BonusDao bonusDao = new BonusDao(Bonus.class);
-        CartItemDao cartItemDao = new CartItemDao(CartItem.class);
-        CartDao cartDao = new CartDao(Cart.class);
-        LoyaltyProgramDao loyaltyProgramDao = new LoyaltyProgramDao(LoyaltyProgram.class);
-        OrderItemDao orderItemDao = new OrderItemDao(OrderItem.class);
-        OrderDao orderDao = new OrderDao(Order.class);
-        UserBonusDao userBonusDao = new UserBonusDao();
-        PaymentMethodDao paymentMethodDao = new PaymentMethodDao(PaymentMethod.class);
-        UserLoyaltyProgramDao userLoyaltyProgramDao = new UserLoyaltyProgramDao();
+        ApplicationContext applicationContext = new AnnotationConfigApplicationContext(OnlineStoreContextConfiguration.class);
 
-        ICategoryService categoryService = new CategoryService(categoryDao);
-        IProductService productService = new ProductService(productDao, categoryDao);
-        IUserService userService = new UserService(userDao);
-        IAnalyticsService analyticsService = new AnalyticsService(analyticsDao, userDao);
-        IBonusService bonusService = new BonusService(bonusDao, loyaltyProgramDao);
-        ICartService cartService = new CartService(cartDao, userDao, cartItemDao, productDao);
-        ICartItemService cartItemService = new CartItemService(cartItemDao, cartDao, productDao);
-        ILoyaltyProgramService loyaltyProgramService = new LoyaltyProgramService(loyaltyProgramDao);
-        IOrderService orderService = new OrderService(orderDao, paymentMethodDao, userDao);
-        IOrderItemService orderItemService = new OrderItemService(orderItemDao, orderDao, productDao);
-        IUserBonusService userBonusService = new UserBonusService(userBonusDao, userDao, bonusDao);
-        IPaymentMethodService paymentMethodService = new PaymentMethodService(paymentMethodDao);
-        IUserLoyaltyProgramService userLoyaltyProgramService = new UserLoyaltyProgramService(userLoyaltyProgramDao, userDao, loyaltyProgramDao);
+        /*IAnalyticsService analyticsService = applicationContext.getBean(IAnalyticsService.class);
+        analyticsService.getById(1);*/
+        /*IBonusService bonusService = applicationContext.getBean(IBonusService.class);
+        bonusService.delete(2);*/
+        /*ILoyaltyProgramService loyaltyProgramService = applicationContext.getBean(ILoyaltyProgramService.class);
+        loyaltyProgramService.delete(1);*/
+        /*ICartService cartService = applicationContext.getBean(ICartService.class);
+        cartService.delete(1);*/
+        /*ICartItemService cartItemService = applicationContext.getBean(ICartItemService.class);
+        cartItemService.delete(1);*/
+        /*ICategoryService categoryService = applicationContext.getBean(ICategoryService.class);
+        categoryService.delete(2);*/
+        /*IOrderService orderService = applicationContext.getBean(IOrderService.class);
+        orderService.delete(2);*/
+        /*IOrderItemService orderItemService = applicationContext.getBean(IOrderItemService.class);
+        orderItemService.delete(1);*/
+        /*IPaymentMethodService paymentMethodService = applicationContext.getBean(IPaymentMethodService.class);
+        paymentMethodService.delete(1);*/
+        /*IUserService userService = applicationContext.getBean(IUserService.class);
+        userService.delete(1);*/
 
-        //userService.create(new User("abrikos", "789", "abr@mail.com"));
-        //userService.loginUser("abrikos", "789");
-        //analyticsService.getAll();
-        //userService.recoverPassword("user1@example.com");
+        IUserService userService = applicationContext.getBean(IUserService.class);
+        IAnalyticsService analyticsService = applicationContext.getBean(IAnalyticsService.class);
+//        analyticsService.getById(1);
+//        analyticsService.create(new Analytics("Unsubscribe", userService.getById(2)));
+//        analyticsService.getAll();
+        analyticsService.delete(99);
 
-        //cartService.getTotalPrice(1);
+        /*ILoyaltyProgramService loyaltyProgramService = applicationContext.getBean(ILoyaltyProgramService.class);
+        loyaltyProgramService.getById(1);
+        IPaymentMethodService paymentMethodService = applicationContext.getBean(IPaymentMethodService.class);
+        paymentMethodService.getById(2);*/
+
+        /*IUserBonusService userBonusService = applicationContext.getBean(IUserBonusService.class);
+        userBonusService.getAll();
+
+        IUserLoyaltyProgramService userLoyaltyProgramService = applicationContext.getBean(IUserLoyaltyProgramService.class);
+        userLoyaltyProgramService.getAll();*/
     }
 
 }

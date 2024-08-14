@@ -4,10 +4,12 @@ import dev.dubrovsky.dao.bonus.BonusDao;
 import dev.dubrovsky.dao.bonus.UserBonusDao;
 import dev.dubrovsky.dao.user.UserDao;
 import dev.dubrovsky.model.bonus.UserBonus;
+import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+@Service
 public class UserBonusService implements IUserBonusService {
 
     private final UserBonusDao userBonusDao;

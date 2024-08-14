@@ -4,7 +4,11 @@ import dev.dubrovsky.dao.bonus.BonusDao;
 import dev.dubrovsky.dao.loyalty.program.LoyaltyProgramDao;
 import dev.dubrovsky.model.bonus.Bonus;
 import dev.dubrovsky.util.validation.ValidationUtil;
+import org.springframework.stereotype.Service;
 
+import java.util.List;
+
+@Service
 public class BonusService implements IBonusService {
 
     private final BonusDao bonusDao;
@@ -16,44 +20,44 @@ public class BonusService implements IBonusService {
     }
 
     @Override
-    public void create(Bonus bonus) {
+    public Bonus create(Bonus bonus) {
         validateBonus(bonus);
-        ValidationUtil.checkEntityPresent(bonus.getProgramId(), loyaltyProgramDao);
+        ValidationUtil.checkEntityPresent(bonus.getProgram().getId(), loyaltyProgramDao);
 
-        bonusDao.create(bonus);
+        return bonusDao.create(bonus);
     }
 
     @Override
-    public void getById(Integer id) {
+    public Bonus getById(Integer id) {
         ValidationUtil.checkId(id, bonusDao);
 
-        System.out.println(bonusDao.getById(id));
+        return bonusDao.getById(id);
     }
 
     @Override
-    public void getAll() {
+    public List<Bonus> getAll() {
         if (bonusDao.getAll().isEmpty() && bonusDao.getAll() == null) {
-            System.out.println("Таблица бонусов пустая");
+            return null;
         } else {
-            bonusDao.getAll().forEach(System.out::println);
+            return bonusDao.getAll();
         }
     }
 
     @Override
-    public void update(Bonus bonus, Integer id) {
+    public Bonus update(Bonus bonus, Integer id) {
         validateBonus(bonus);
         ValidationUtil.checkId(id, bonusDao);
-        ValidationUtil.checkEntityPresent(bonus.getProgramId(), loyaltyProgramDao);
+        ValidationUtil.checkEntityPresent(bonus.getProgram().getId(), loyaltyProgramDao);
 
         bonus.setId(id);
-        bonusDao.update(bonus);
+        return bonusDao.update(bonus);
     }
 
     @Override
-    public void delete(Integer id) {
+    public String delete(Integer id) {
         ValidationUtil.checkId(id, bonusDao);
 
-        bonusDao.delete(id);
+        return bonusDao.delete(id);
     }
 
     private void validateBonus(Bonus bonus) {

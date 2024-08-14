@@ -32,19 +32,23 @@ class BonusServiceTest {
 
     private Bonus bonus;
     private Bonus updBonus;
+    private LoyaltyProgram program;
 
     @BeforeEach
     void setUp() {
         bonusService = new BonusService(bonusDao, loyaltyProgramDao);
 
-        bonus = new Bonus("test", "test", 10, 1);
+        program = new LoyaltyProgram();
+        program.setId(1);
+
+        bonus = new Bonus("test", "test", 10, program);
         bonus.setId(1);
-        updBonus = new Bonus("upd", "upd", 100, 1);
+        updBonus = new Bonus("upd", "upd", 100, program);
     }
 
     @Test
     void create_Success() {
-        when(loyaltyProgramDao.getById(bonus.getProgramId())).thenReturn(new LoyaltyProgram());
+        when(loyaltyProgramDao.getById(bonus.getProgram().getId())).thenReturn(new LoyaltyProgram());
 
         bonusService.create(bonus);
 
@@ -85,23 +89,24 @@ class BonusServiceTest {
 
     @Test
     void create_LoyaltyProgramIdIsNull_ThrowNullPointerException() {
-        bonus.setProgramId(null);
+        bonus.setProgram(null);
 
         NullPointerException exception = assertThrows(NullPointerException.class, () -> bonusService.create(bonus));
-        assertEquals("Cannot invoke \"java.lang.Integer.intValue()\" because \"id\" is null", exception.getMessage());
+        assertEquals("Cannot invoke \"dev.dubrovsky.model.loyalty.program.LoyaltyProgram.getId()\" because the return value of \"dev.dubrovsky.model.bonus.Bonus.getProgram()\" is null", exception.getMessage());
     }
 
     @Test
     void create_LoyaltyProgramNotFound_ThrowNoSuchElementException() {
-        when(loyaltyProgramDao.getById(bonus.getProgramId())).thenReturn(null);
+        when(loyaltyProgramDao.getById(bonus.getProgram().getId())).thenReturn(null);
 
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> bonusService.create(bonus));
-        assertEquals("Ничего не найдено с id: " + bonus.getProgramId(), exception.getMessage());
+        assertEquals("Ничего не найдено с id: " + bonus.getProgram().getId(), exception.getMessage());
     }
 
     @Test
     void create_LoyaltyProgramIdIsNegative_ThrowIllegalArgumentException() {
-        bonus.setProgramId(-1);
+        program.setId(-1);
+        bonus.setProgram(program);
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> bonusService.create(bonus));
         assertEquals("Id должен быть больше 0", exception.getMessage());
@@ -109,7 +114,8 @@ class BonusServiceTest {
 
     @Test
     void create_LoyaltyProgramIdIsZero_ThrowIllegalArgumentException() {
-        bonus.setProgramId(0);
+        program.setId(0);
+        bonus.setProgram(program);
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> bonusService.create(bonus));
         assertEquals("Id должен быть больше 0", exception.getMessage());
@@ -161,7 +167,7 @@ class BonusServiceTest {
 
     @Test
     void getAll_Success() {
-        Bonus bonus2 = new Bonus("test2", "test2", 12, 2);
+        Bonus bonus2 = new Bonus("test2", "test2", 12, program);
         bonus2.setId(2);
         List<Bonus> bonuses = List.of(
                 bonus,
@@ -187,7 +193,7 @@ class BonusServiceTest {
     @Test
     void update_Success() {
         Integer id = 1;
-        when(loyaltyProgramDao.getById(updBonus.getProgramId())).thenReturn(new LoyaltyProgram());
+        when(loyaltyProgramDao.getById(updBonus.getProgram().getId())).thenReturn(new LoyaltyProgram());
         when(bonusDao.getById(id)).thenReturn(bonus);
 
         bonusService.update(updBonus, id);
@@ -267,17 +273,18 @@ class BonusServiceTest {
     @Test
     void update_ProgramLoyaltyIdIsNull_ThrowNullPointerException() {
         Integer id = 1;
-        updBonus.setProgramId(null);
+        updBonus.setProgram(null);
         when(bonusDao.getById(id)).thenReturn(new Bonus());
 
         NullPointerException exception = assertThrows(NullPointerException.class, () -> bonusService.update(updBonus, id));
-        assertEquals("Cannot invoke \"java.lang.Integer.intValue()\" because \"id\" is null", exception.getMessage());
+        assertEquals("Cannot invoke \"dev.dubrovsky.model.loyalty.program.LoyaltyProgram.getId()\" because the return value of \"dev.dubrovsky.model.bonus.Bonus.getProgram()\" is null", exception.getMessage());
     }
 
     @Test
     void update_ProgramLoyaltyIdIsZero_ThrowIllegalArgumentException() {
         Integer id = 1;
-        updBonus.setProgramId(0);
+        program.setId(0);
+        updBonus.setProgram(program);
         when(bonusDao.getById(id)).thenReturn(new Bonus());
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> bonusService.update(updBonus, id));
@@ -288,16 +295,17 @@ class BonusServiceTest {
     void update_ProgramLoyaltyNotFound_ThrowNoSuchElementException() {
         Integer id = 1;
         when(bonusDao.getById(id)).thenReturn(new Bonus());
-        when(loyaltyProgramDao.getById(bonus.getProgramId())).thenReturn(null);
+        when(loyaltyProgramDao.getById(bonus.getProgram().getId())).thenReturn(null);
 
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> bonusService.update(updBonus, id));
-        assertEquals("Ничего не найдено с id: " + updBonus.getProgramId(), exception.getMessage());
+        assertEquals("Ничего не найдено с id: " + updBonus.getProgram().getId(), exception.getMessage());
     }
 
     @Test
     void update_ProgramLoyaltyIdIsNegative_ThrowIllegalArgumentException() {
         Integer id = 1;
-        updBonus.setProgramId(-1);
+        program.setId(-1);
+        updBonus.setProgram(program);
         when(bonusDao.getById(id)).thenReturn(new Bonus());
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> bonusService.update(updBonus, id));

@@ -40,19 +40,25 @@ class CartServiceTest {
 
     private Cart cart;
     private Cart updCart;
+    private User user;
 
     @BeforeEach
     void setUp() {
         cartService = new CartService(cartDao, userDao, cartItemDao, productDao);
 
-        cart = new Cart(1);
+        user = new User();
+        user.setId(1);
+
+        cart = new Cart();
         cart.setId(1);
-        updCart = new Cart(2);
+        cart.setUser(user);
+        updCart = new Cart();
+        updCart.setUser(user);
     }
 
     @Test
     void create() {
-        when(userDao.getById(cart.getUserId())).thenReturn(new User());
+        when(userDao.getById(cart.getUser().getId())).thenReturn(new User());
 
         cartService.create(cart);
 
@@ -69,23 +75,24 @@ class CartServiceTest {
 
     @Test
     void create_UserIdIsNull_ThrowNullPointerException() {
-        cart.setUserId(null);
+        cart.setUser(null);
 
         NullPointerException exception = assertThrows(NullPointerException.class, () -> cartService.create(cart));
-        assertEquals("Cannot invoke \"java.lang.Integer.intValue()\" because \"id\" is null", exception.getMessage());
+        assertEquals("Cannot invoke \"dev.dubrovsky.model.user.User.getId()\" because the return value of \"dev.dubrovsky.model.cart.Cart.getUser()\" is null", exception.getMessage());
     }
 
     @Test
     void create_UserNotFound_ThrowNoSuchElementException() {
-        when(userDao.getById(cart.getUserId())).thenReturn(null);
+        when(userDao.getById(cart.getUser().getId())).thenReturn(null);
 
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> cartService.create(cart));
-        assertEquals("Ничего не найдено с id: " + cart.getUserId(), exception.getMessage());
+        assertEquals("Ничего не найдено с id: " + cart.getUser().getId(), exception.getMessage());
     }
 
     @Test
     void create_UserIdIsNegative_ThrowIllegalArgumentException() {
-        cart.setUserId(-1);
+        user.setId(-1);
+        cart.setUser(user);
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> cartService.create(cart));
         assertEquals("Id должен быть больше 0", exception.getMessage());
@@ -93,7 +100,8 @@ class CartServiceTest {
 
     @Test
     void create_UserIdIsZero_ThrowIllegalArgumentException() {
-        cart.setUserId(0);
+        user.setId(0);
+        cart.setUser(user);
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> cartService.create(cart));
         assertEquals("Id должен быть больше 0", exception.getMessage());
@@ -145,7 +153,7 @@ class CartServiceTest {
 
     @Test
     void getAll_Success() {
-        Cart cart2 = new Cart(2);
+        Cart cart2 = new Cart();
         cart2.setId(2);
         List<Cart> cartList = List.of(
                 cart,
@@ -171,7 +179,7 @@ class CartServiceTest {
     @Test
     void update_Success() {
         Integer id = 1;
-        when(userDao.getById(updCart.getUserId())).thenReturn(new User());
+        when(userDao.getById(updCart.getUser().getId())).thenReturn(new User());
         when(cartDao.getById(id)).thenReturn(cart);
 
         cartService.update(updCart, id);
@@ -191,16 +199,17 @@ class CartServiceTest {
     @Test
     void update_UserIdIsNull_ThrowNullPointerException() {
         Integer id = 1;
-        updCart.setUserId(null);
+        updCart.setUser(null);
 
         NullPointerException exception = assertThrows(NullPointerException.class, () -> cartService.update(updCart, id));
-        assertEquals("Cannot invoke \"java.lang.Integer.intValue()\" because \"id\" is null", exception.getMessage());
+        assertEquals("Cannot invoke \"dev.dubrovsky.model.user.User.getId()\" because the return value of \"dev.dubrovsky.model.cart.Cart.getUser()\" is null", exception.getMessage());
     }
 
     @Test
     void update_UserIdIsZero_ThrowIllegalArgumentException() {
         Integer id = 1;
-        updCart.setUserId(0);
+        user.setId(0);
+        updCart.setUser(user);
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> cartService.update(updCart, id));
         assertEquals("Id должен быть больше 0", exception.getMessage());
@@ -209,16 +218,17 @@ class CartServiceTest {
     @Test
     void update_UserNotFound_ThrowNoSuchElementException() {
         Integer id = 1;
-        when(userDao.getById(updCart.getUserId())).thenReturn(null);
+        when(userDao.getById(updCart.getUser().getId())).thenReturn(null);
 
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> cartService.update(updCart, id));
-        assertEquals("Ничего не найдено с id: " + updCart.getUserId(), exception.getMessage());
+        assertEquals("Ничего не найдено с id: " + updCart.getUser().getId(), exception.getMessage());
     }
 
     @Test
     void update_UserIdIsNegative_ThrowIllegalArgumentException() {
         Integer id = 1;
-        updCart.setUserId(-1);
+        user.setId(-1);
+        updCart.setUser(user);
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> cartService.update(updCart, id));
         assertEquals("Id должен быть больше 0", exception.getMessage());
@@ -227,7 +237,7 @@ class CartServiceTest {
     @Test
     void update_IdIsNull_ThrowNullPointerException() {
         Integer id = null;
-        when(userDao.getById(updCart.getUserId())).thenReturn(new User());
+        when(userDao.getById(updCart.getUser().getId())).thenReturn(new User());
 
         NullPointerException thrown = assertThrows(NullPointerException.class, () -> cartService.update(updCart, id));
         assertEquals("Cannot invoke \"java.lang.Integer.intValue()\" because \"id\" is null", thrown.getMessage());
@@ -236,7 +246,7 @@ class CartServiceTest {
     @Test
     void update_IdIsZero_ThrowIllegalArgumentException() {
         Integer id = 0;
-        when(userDao.getById(updCart.getUserId())).thenReturn(new User());
+        when(userDao.getById(updCart.getUser().getId())).thenReturn(new User());
 
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> cartService.update(updCart, id));
         assertEquals("Id должен быть больше 0", thrown.getMessage());
@@ -245,7 +255,7 @@ class CartServiceTest {
     @Test
     void update_IdIsNegative_ThrowIllegalArgumentException() {
         Integer id = -44;
-        when(userDao.getById(updCart.getUserId())).thenReturn(new User());
+        when(userDao.getById(updCart.getUser().getId())).thenReturn(new User());
 
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> cartService.update(updCart, id));
         assertEquals("Id должен быть больше 0", thrown.getMessage());
@@ -255,7 +265,7 @@ class CartServiceTest {
     void update_IdNotFound_ThrowNoSuchElementException() {
         Integer id = 44;
         when(cartDao.getById(id)).thenReturn(null);
-        when(userDao.getById(updCart.getUserId())).thenReturn(new User());
+        when(userDao.getById(updCart.getUser().getId())).thenReturn(new User());
 
         NoSuchElementException thrown = assertThrows(NoSuchElementException.class, () -> cartService.update(updCart, id));
         assertEquals("Ничего не найдено с id: " + id, thrown.getMessage());

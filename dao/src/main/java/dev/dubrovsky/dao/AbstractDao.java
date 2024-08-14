@@ -1,6 +1,5 @@
 package dev.dubrovsky.dao;
 
-import dev.dubrovsky.dao.connection.ConnectionDataBase;
 import dev.dubrovsky.exception.DbException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -9,14 +8,15 @@ import java.util.List;
 
 public abstract class AbstractDao<T> {
 
-    private final EntityManagerFactory entityManagerFactory = ConnectionDataBase.getEntityManagerFactory();
+    private final EntityManagerFactory entityManagerFactory;
     private final Class<T> entityClass;
 
-    public AbstractDao(Class<T> entityClass) {
+    public AbstractDao(EntityManagerFactory entityManagerFactory, Class<T> entityClass) {
+        this.entityManagerFactory = entityManagerFactory;
         this.entityClass = entityClass;
     }
 
-    public void create(T entity) {
+    public T create(T entity) {
         try (EntityManager em = entityManagerFactory.createEntityManager()) {
             try {
                 em.getTransaction().begin();
@@ -24,6 +24,8 @@ public abstract class AbstractDao<T> {
                 em.persist(entity);
 
                 em.getTransaction().commit();
+
+                return entity;
             } catch (Exception ex) {
                 if (em.getTransaction().isActive()) {
                     em.getTransaction().rollback();
@@ -51,7 +53,7 @@ public abstract class AbstractDao<T> {
         }
     }
 
-    public void update(T entity) {
+    public T update(T entity) {
         try (EntityManager em = entityManagerFactory.createEntityManager()) {
             try {
                 em.getTransaction().begin();
@@ -59,6 +61,8 @@ public abstract class AbstractDao<T> {
                 em.merge(entity);
 
                 em.getTransaction().commit();
+
+                return entity;
             } catch (Exception ex) {
                 if (em.getTransaction().isActive()) {
                     em.getTransaction().rollback();
@@ -70,7 +74,7 @@ public abstract class AbstractDao<T> {
         }
     }
 
-    public void delete(Integer id) {
+    public String delete(Integer id) {
         try (EntityManager em = entityManagerFactory.createEntityManager()) {
             try {
                 em.getTransaction().begin();
@@ -78,6 +82,8 @@ public abstract class AbstractDao<T> {
                 em.remove(em.find(entityClass, id));
 
                 em.getTransaction().commit();
+
+                return "Удалено успешно!";
             } catch (Exception ex) {
                 if (em.getTransaction().isActive()) {
                     em.getTransaction().rollback();
@@ -88,4 +94,5 @@ public abstract class AbstractDao<T> {
             throw new DbException(e.getMessage());
         }
     }
+
 }

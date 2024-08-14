@@ -1,17 +1,22 @@
 package dev.dubrovsky.dao.bonus;
 
-import dev.dubrovsky.dao.connection.ConnectionDataBase;
 import dev.dubrovsky.exception.DbException;
 import dev.dubrovsky.model.bonus.UserBonus;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Query;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Component
 public class UserBonusDao implements IUserBonusDao {
 
-    private final EntityManagerFactory entityManagerFactory = ConnectionDataBase.getEntityManagerFactory();
+    private final EntityManagerFactory entityManagerFactory;
+
+    public UserBonusDao(EntityManagerFactory entityManagerFactory) {
+        this.entityManagerFactory = entityManagerFactory;
+    }
 
     @Override
     public void create(UserBonus userBonus) {

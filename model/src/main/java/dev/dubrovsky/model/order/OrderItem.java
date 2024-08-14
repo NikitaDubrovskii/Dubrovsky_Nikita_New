@@ -1,5 +1,6 @@
 package dev.dubrovsky.model.order;
 
+import dev.dubrovsky.model.product.Product;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,16 +23,18 @@ public class OrderItem {
     @Column(name = "quantity")
     private Integer quantity;
 
-    @Column(name = "order_id")
-    private Integer orderId;
+    @ManyToOne
+    @JoinColumn(name = "order_id")
+    private Order order;
 
-    @Column(name = "product_id")
-    private Integer productId;
+    @OneToOne
+    @JoinColumn(name = "product_id")
+    private Product product;
 
-    public OrderItem(Integer quantity, Integer orderId, Integer productId) {
+    public OrderItem(Integer quantity, Order order, Product product) {
         this.quantity = quantity;
-        this.orderId = orderId;
-        this.productId = productId;
+        this.order = order;
+        this.product = product;
     }
 
     @Override
@@ -40,12 +43,12 @@ public class OrderItem {
         if (o == null || getClass() != o.getClass()) return false;
         OrderItem orderItem = (OrderItem) o;
         return Objects.equals(id, orderItem.id) && Objects.equals(quantity, orderItem.quantity)
-                && Objects.equals(orderId, orderItem.orderId) && Objects.equals(productId, orderItem.productId);
+                && Objects.equals(order, orderItem.order) && Objects.equals(product, orderItem.product);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, quantity, orderId, productId);
+        return Objects.hash(id, quantity, order, product);
     }
 
     @Override
@@ -53,8 +56,8 @@ public class OrderItem {
         return "OrderItem{" +
                 "id=" + id +
                 ", quantity=" + quantity +
-                ", orderId=" + orderId +
-                ", productId=" + productId +
+                ", orderId=" + order +
+                ", productId=" + product +
                 '}';
     }
 

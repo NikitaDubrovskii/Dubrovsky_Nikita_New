@@ -37,20 +37,30 @@ class OrderServiceTest {
 
     private Order order;
     private Order updOrder;
+    private PaymentMethod paymentMethod1;
+    private PaymentMethod paymentMethod2;
+    private User user;
 
     @BeforeEach
     void setUp() {
         orderService = new OrderService(orderDao, paymentMethodDao, userDao);
 
-        order = new Order(100, "test", 1, 1);
+        paymentMethod1 = new PaymentMethod();
+        paymentMethod1.setId(1);
+        paymentMethod2 = new PaymentMethod();
+        paymentMethod2.setId(2);
+        user = new User();
+        user.setId(1);
+
+        order = new Order(100, "test", paymentMethod1, user);
         order.setId(1);
-        updOrder = new Order(200, "upd", 2, 1);
+        updOrder = new Order(200, "upd", paymentMethod2, user);
     }
 
     @Test
     void create_Success() {
-        when(userDao.getById(order.getUserId())).thenReturn(new User());
-        when(paymentMethodDao.getById(order.getPaymentMethodId())).thenReturn(new PaymentMethod());
+        when(userDao.getById(order.getUser().getId())).thenReturn(new User());
+        when(paymentMethodDao.getById(order.getPaymentMethod().getId())).thenReturn(new PaymentMethod());
 
         orderService.create(order);
 
@@ -99,23 +109,24 @@ class OrderServiceTest {
 
     @Test
     void create_UserIdIsNull_ThrowIllegalArgumentException() {
-        order.setUserId(null);
+        order.setUser(null);
 
         NullPointerException exception = assertThrows(NullPointerException.class, () -> orderService.create(order));
-        assertEquals("Cannot invoke \"java.lang.Integer.intValue()\" because \"id\" is null", exception.getMessage());
+        assertEquals("Cannot invoke \"dev.dubrovsky.model.user.User.getId()\" because the return value of \"dev.dubrovsky.model.order.Order.getUser()\" is null", exception.getMessage());
     }
 
     @Test
     void create_UserNotFound_ThrowNoSuchElementException() {
-        when(userDao.getById(order.getUserId())).thenReturn(null);
+        when(userDao.getById(order.getUser().getId())).thenReturn(null);
 
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> orderService.create(order));
-        assertEquals("Ничего не найдено с id: " + order.getUserId(), exception.getMessage());
+        assertEquals("Ничего не найдено с id: " + order.getUser().getId(), exception.getMessage());
     }
 
     @Test
     void create_UserIdIsNegative_ThrowIllegalArgumentException() {
-        order.setUserId(-1);
+        user.setId(-1);
+        order.setUser(user);
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> orderService.create(order));
         assertEquals("Id должен быть больше 0", exception.getMessage());
@@ -123,7 +134,8 @@ class OrderServiceTest {
 
     @Test
     void create_UserIdIsZero_ThrowIllegalArgumentException() {
-        order.setUserId(0);
+        user.setId(0);
+        order.setUser(user);
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> orderService.create(order));
         assertEquals("Id должен быть больше 0", exception.getMessage());
@@ -131,26 +143,27 @@ class OrderServiceTest {
 
     @Test
     void create_PaymentMethodIdIsNull_ThrowIllegalArgumentException() {
-        when(userDao.getById(order.getUserId())).thenReturn(new User());
-        order.setPaymentMethodId(null);
+        when(userDao.getById(order.getUser().getId())).thenReturn(new User());
+        order.setPaymentMethod(null);
 
         NullPointerException exception = assertThrows(NullPointerException.class, () -> orderService.create(order));
-        assertEquals("Cannot invoke \"java.lang.Integer.intValue()\" because \"id\" is null", exception.getMessage());
+        assertEquals("Cannot invoke \"dev.dubrovsky.model.payment.method.PaymentMethod.getId()\" because the return value of \"dev.dubrovsky.model.order.Order.getPaymentMethod()\" is null", exception.getMessage());
     }
 
     @Test
     void create_PaymentMethodNotFound_ThrowNoSuchElementException() {
-        when(userDao.getById(order.getUserId())).thenReturn(new User());
-        when(paymentMethodDao.getById(order.getPaymentMethodId())).thenReturn(null);
+        when(userDao.getById(order.getUser().getId())).thenReturn(new User());
+        when(paymentMethodDao.getById(order.getPaymentMethod().getId())).thenReturn(null);
 
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> orderService.create(order));
-        assertEquals("Ничего не найдено с id: " + order.getPaymentMethodId(), exception.getMessage());
+        assertEquals("Ничего не найдено с id: " + order.getPaymentMethod().getId(), exception.getMessage());
     }
 
     @Test
     void create_PaymentMethodIdIsNegative_ThrowIllegalArgumentException() {
-        when(userDao.getById(order.getUserId())).thenReturn(new User());
-        order.setPaymentMethodId(-1);
+        when(userDao.getById(order.getUser().getId())).thenReturn(new User());
+        paymentMethod1.setId(-1);
+        order.setPaymentMethod(paymentMethod1);
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> orderService.create(order));
         assertEquals("Id должен быть больше 0", exception.getMessage());
@@ -158,8 +171,9 @@ class OrderServiceTest {
 
     @Test
     void create_PaymentMethodIdIsZero_ThrowIllegalArgumentException() {
-        when(userDao.getById(order.getUserId())).thenReturn(new User());
-        order.setPaymentMethodId(0);
+        when(userDao.getById(order.getUser().getId())).thenReturn(new User());
+        paymentMethod1.setId(0);
+        order.setPaymentMethod(paymentMethod1);
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> orderService.create(order));
         assertEquals("Id должен быть больше 0", exception.getMessage());
@@ -210,7 +224,7 @@ class OrderServiceTest {
 
     @Test
     void getAll_Success() {
-        Order order2 = new Order(100, "test", 2, 1);
+        Order order2 = new Order(100, "test", paymentMethod2, user);
         order2.setId(2);
         List<Order> orderList = List.of(
                 order,
@@ -236,8 +250,8 @@ class OrderServiceTest {
     @Test
     void update_Success() {
         Integer id = 1;
-        when(userDao.getById(updOrder.getUserId())).thenReturn(new User());
-        when(paymentMethodDao.getById(updOrder.getPaymentMethodId())).thenReturn(new PaymentMethod());
+        when(userDao.getById(updOrder.getUser().getId())).thenReturn(new User());
+        when(paymentMethodDao.getById(updOrder.getPaymentMethod().getId())).thenReturn(new PaymentMethod());
         when(orderDao.getById(id)).thenReturn(order);
 
         orderService.update(updOrder, id);
@@ -293,25 +307,26 @@ class OrderServiceTest {
     @Test
     void update_UserIdIsNull_ThrowNullPointerException() {
         Integer id = 1;
-        updOrder.setUserId(null);
+        updOrder.setUser(null);
 
         NullPointerException exception = assertThrows(NullPointerException.class, () -> orderService.update(updOrder, id));
-        assertEquals("Cannot invoke \"java.lang.Integer.intValue()\" because \"id\" is null", exception.getMessage());
+        assertEquals("Cannot invoke \"dev.dubrovsky.model.user.User.getId()\" because the return value of \"dev.dubrovsky.model.order.Order.getUser()\" is null", exception.getMessage());
     }
 
     @Test
     void update_UserNotFound_ThrowNoSuchElementException() {
         Integer id = 1;
-        when(userDao.getById(updOrder.getUserId())).thenReturn(null);
+        when(userDao.getById(updOrder.getUser().getId())).thenReturn(null);
 
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> orderService.update(updOrder, id));
-        assertEquals("Ничего не найдено с id: " + updOrder.getUserId(), exception.getMessage());
+        assertEquals("Ничего не найдено с id: " + updOrder.getUser().getId(), exception.getMessage());
     }
 
     @Test
     void update_UserIdIsNegative_ThrowIllegalArgumentException() {
         Integer id = 1;
-        updOrder.setUserId(-1);
+        user.setId(-1);
+        updOrder.setUser(user);
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> orderService.update(updOrder, id));
         assertEquals("Id должен быть больше 0", exception.getMessage());
@@ -320,7 +335,8 @@ class OrderServiceTest {
     @Test
     void update_UserIdIsZero_ThrowIllegalArgumentException() {
         Integer id = 1;
-        updOrder.setUserId(0);
+        user.setId(0);
+        updOrder.setUser(user);
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> orderService.update(updOrder, id));
         assertEquals("Id должен быть больше 0", exception.getMessage());
@@ -329,28 +345,29 @@ class OrderServiceTest {
     @Test
     void update_PaymentMethodIdIsNull_ThrowNullPointerException() {
         Integer id = 1;
-        when(userDao.getById(updOrder.getUserId())).thenReturn(new User());
-        updOrder.setPaymentMethodId(null);
+        when(userDao.getById(updOrder.getUser().getId())).thenReturn(new User());
+        updOrder.setPaymentMethod(null);
 
         NullPointerException exception = assertThrows(NullPointerException.class, () -> orderService.update(updOrder, id));
-        assertEquals("Cannot invoke \"java.lang.Integer.intValue()\" because \"id\" is null", exception.getMessage());
+        assertEquals("Cannot invoke \"dev.dubrovsky.model.payment.method.PaymentMethod.getId()\" because the return value of \"dev.dubrovsky.model.order.Order.getPaymentMethod()\" is null", exception.getMessage());
     }
 
     @Test
     void update_PaymentMethodNotFound_ThrowNoSuchElementException() {
         Integer id = 1;
-        when(userDao.getById(updOrder.getUserId())).thenReturn(new User());
-        when(paymentMethodDao.getById(updOrder.getPaymentMethodId())).thenReturn(null);
+        when(userDao.getById(updOrder.getUser().getId())).thenReturn(new User());
+        when(paymentMethodDao.getById(updOrder.getPaymentMethod().getId())).thenReturn(null);
 
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> orderService.update(updOrder, id));
-        assertEquals("Ничего не найдено с id: " + updOrder.getPaymentMethodId(), exception.getMessage());
+        assertEquals("Ничего не найдено с id: " + updOrder.getPaymentMethod().getId(), exception.getMessage());
     }
 
     @Test
     void update_PaymentMethodIdIsZero_ThrowIllegalArgumentException() {
         Integer id = 1;
-        when(userDao.getById(updOrder.getUserId())).thenReturn(new User());
-        updOrder.setPaymentMethodId(0);
+        when(userDao.getById(updOrder.getUser().getId())).thenReturn(new User());
+        paymentMethod1.setId(0);
+        updOrder.setPaymentMethod(paymentMethod1);
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> orderService.update(updOrder, id));
         assertEquals("Id должен быть больше 0", exception.getMessage());
@@ -359,8 +376,9 @@ class OrderServiceTest {
     @Test
     void update_ProductIdIsNegative_ThrowIllegalArgumentException() {
         Integer id = 1;
-        when(userDao.getById(updOrder.getUserId())).thenReturn(new User());
-        updOrder.setPaymentMethodId(-1);
+        when(userDao.getById(updOrder.getUser().getId())).thenReturn(new User());
+        paymentMethod1.setId(-1);
+        updOrder.setPaymentMethod(paymentMethod1);
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> orderService.update(updOrder, id));
         assertEquals("Id должен быть больше 0", exception.getMessage());
@@ -369,8 +387,8 @@ class OrderServiceTest {
     @Test
     void update_IdIsNull_ThrowNullPointerException() {
         Integer id = null;
-        when(userDao.getById(updOrder.getUserId())).thenReturn(new User());
-        when(paymentMethodDao.getById(updOrder.getPaymentMethodId())).thenReturn(new PaymentMethod());
+        when(userDao.getById(updOrder.getUser().getId())).thenReturn(new User());
+        when(paymentMethodDao.getById(updOrder.getPaymentMethod().getId())).thenReturn(new PaymentMethod());
 
         NullPointerException thrown = assertThrows(NullPointerException.class, () -> orderService.update(updOrder, id));
         assertEquals("Cannot invoke \"java.lang.Integer.intValue()\" because \"id\" is null", thrown.getMessage());
@@ -379,8 +397,8 @@ class OrderServiceTest {
     @Test
     void update_IdIsZero_ThrowIllegalArgumentException() {
         Integer id = 0;
-        when(userDao.getById(updOrder.getUserId())).thenReturn(new User());
-        when(paymentMethodDao.getById(updOrder.getPaymentMethodId())).thenReturn(new PaymentMethod());
+        when(userDao.getById(updOrder.getUser().getId())).thenReturn(new User());
+        when(paymentMethodDao.getById(updOrder.getPaymentMethod().getId())).thenReturn(new PaymentMethod());
 
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> orderService.update(updOrder, id));
         assertEquals("Id должен быть больше 0", thrown.getMessage());
@@ -389,8 +407,8 @@ class OrderServiceTest {
     @Test
     void update_IdIsNegative_ThrowIllegalArgumentException() {
         Integer id = -44;
-        when(userDao.getById(updOrder.getUserId())).thenReturn(new User());
-        when(paymentMethodDao.getById(updOrder.getPaymentMethodId())).thenReturn(new PaymentMethod());
+        when(userDao.getById(updOrder.getUser().getId())).thenReturn(new User());
+        when(paymentMethodDao.getById(updOrder.getPaymentMethod().getId())).thenReturn(new PaymentMethod());
 
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> orderService.update(updOrder, id));
         assertEquals("Id должен быть больше 0", thrown.getMessage());
@@ -399,8 +417,8 @@ class OrderServiceTest {
     @Test
     void update_IdNotFound_ThrowNoSuchElementException() {
         Integer id = 44;
-        when(userDao.getById(updOrder.getUserId())).thenReturn(new User());
-        when(paymentMethodDao.getById(updOrder.getPaymentMethodId())).thenReturn(new PaymentMethod());
+        when(userDao.getById(updOrder.getUser().getId())).thenReturn(new User());
+        when(paymentMethodDao.getById(updOrder.getPaymentMethod().getId())).thenReturn(new PaymentMethod());
         when(orderDao.getById(id)).thenReturn(null);
 
         NoSuchElementException thrown = assertThrows(NoSuchElementException.class, () -> orderService.update(updOrder, id));
