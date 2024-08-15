@@ -3,18 +3,16 @@ package dev.dubrovsky.service.loyalty.program;
 import dev.dubrovsky.dao.loyalty.program.LoyaltyProgramDao;
 import dev.dubrovsky.model.loyalty.program.LoyaltyProgram;
 import dev.dubrovsky.util.validation.ValidationUtil;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class LoyaltyProgramService implements ILoyaltyProgramService {
 
     private final LoyaltyProgramDao loyaltyProgramDao;
-
-    public LoyaltyProgramService(LoyaltyProgramDao loyaltyProgramDao) {
-        this.loyaltyProgramDao = loyaltyProgramDao;
-    }
 
     @Override
     public LoyaltyProgram create(LoyaltyProgram loyaltyProgram) {

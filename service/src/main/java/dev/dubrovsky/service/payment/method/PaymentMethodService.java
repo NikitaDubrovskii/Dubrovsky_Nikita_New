@@ -3,18 +3,16 @@ package dev.dubrovsky.service.payment.method;
 import dev.dubrovsky.dao.payment.method.PaymentMethodDao;
 import dev.dubrovsky.model.payment.method.PaymentMethod;
 import dev.dubrovsky.util.validation.ValidationUtil;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class PaymentMethodService implements IPaymentMethodService {
 
     private final PaymentMethodDao paymentMethodDao;
-
-    public PaymentMethodService(PaymentMethodDao paymentMethodDao) {
-        this.paymentMethodDao = paymentMethodDao;
-    }
 
     @Override
     public PaymentMethod create(PaymentMethod paymentMethod) {

@@ -4,23 +4,19 @@ import dev.dubrovsky.dao.loyalty.program.LoyaltyProgramDao;
 import dev.dubrovsky.dao.loyalty.program.UserLoyaltyProgramDao;
 import dev.dubrovsky.dao.user.UserDao;
 import dev.dubrovsky.model.loyalty.program.UserLoyaltyProgram;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
+@AllArgsConstructor
 public class UserLoyaltyProgramService implements IUserLoyaltyProgramService {
 
     private final UserLoyaltyProgramDao userLoyaltyProgramDao;
     private final UserDao userDao;
     private final LoyaltyProgramDao loyaltyProgramDao;
-
-    public UserLoyaltyProgramService(UserLoyaltyProgramDao userLoyaltyProgramDao, UserDao userDao, LoyaltyProgramDao loyaltyProgramDao) {
-        this.userLoyaltyProgramDao = userLoyaltyProgramDao;
-        this.userDao = userDao;
-        this.loyaltyProgramDao = loyaltyProgramDao;
-    }
 
     @Override
     public void create(UserLoyaltyProgram userLoyaltyProgram) {

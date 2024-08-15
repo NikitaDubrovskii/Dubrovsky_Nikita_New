@@ -5,22 +5,18 @@ import dev.dubrovsky.dao.order.OrderItemDao;
 import dev.dubrovsky.dao.product.ProductDao;
 import dev.dubrovsky.model.order.OrderItem;
 import dev.dubrovsky.util.validation.ValidationUtil;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class OrderItemService implements IOrderItemService {
 
     private final OrderItemDao orderItemDao;
     private final OrderDao orderDao;
     private final ProductDao productDao;
-
-    public OrderItemService(OrderItemDao orderItemDao, OrderDao orderDao, ProductDao productDao) {
-        this.orderItemDao = orderItemDao;
-        this.orderDao = orderDao;
-        this.productDao = productDao;
-    }
 
     @Override
     public OrderItem create(OrderItem orderItem) {

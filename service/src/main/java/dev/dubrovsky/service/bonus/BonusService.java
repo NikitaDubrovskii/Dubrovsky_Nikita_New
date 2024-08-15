@@ -4,20 +4,17 @@ import dev.dubrovsky.dao.bonus.BonusDao;
 import dev.dubrovsky.dao.loyalty.program.LoyaltyProgramDao;
 import dev.dubrovsky.model.bonus.Bonus;
 import dev.dubrovsky.util.validation.ValidationUtil;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class BonusService implements IBonusService {
 
     private final BonusDao bonusDao;
     private final LoyaltyProgramDao loyaltyProgramDao;
-
-    public BonusService(BonusDao bonusDao, LoyaltyProgramDao loyaltyProgramDao) {
-        this.bonusDao = bonusDao;
-        this.loyaltyProgramDao = loyaltyProgramDao;
-    }
 
     @Override
     public Bonus create(Bonus bonus) {
