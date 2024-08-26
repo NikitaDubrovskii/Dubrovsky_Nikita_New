@@ -1,45 +1,46 @@
 package dev.dubrovsky.service.bonus;
 
-import dev.dubrovsky.dao.bonus.BonusDao;
-import dev.dubrovsky.dao.bonus.UserBonusDao;
-import dev.dubrovsky.dao.user.UserDao;
 import dev.dubrovsky.model.bonus.UserBonus;
+import dev.dubrovsky.model.bonus.UserBonusId;
+import dev.dubrovsky.repository.bonus.BonusRepository;
+import dev.dubrovsky.repository.bonus.UserBonusRepository;
+import dev.dubrovsky.repository.user.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 @Service
 @AllArgsConstructor
 public class UserBonusService implements IUserBonusService {
 
-    private final UserBonusDao userBonusDao;
-    private final UserDao userDao;
-    private final BonusDao bonusDao;
+    private final UserBonusRepository userBonusRepository;
+    private final UserRepository userRepository;
+    private final BonusRepository bonusRepository;
 
     @Override
     public void create(UserBonus userBonus) {
         validateUserBonus(userBonus);
         checkId(userBonus.getUserBonusId().getUserId(), userBonus.getUserBonusId().getBonusId());
 
-        userBonusDao.create(userBonus);
+        userBonusRepository.save(userBonus);
     }
 
     @Override
     public void getAll() {
-        if (userBonusDao.getAll().isEmpty() && userBonusDao.getAll() == null) {
+        if (userBonusRepository.findAll().isEmpty()) {
             System.out.println("Таблица бонусов пользователей пустая");
         } else {
-            userBonusDao.getAll().forEach(System.out::println);
+            userBonusRepository.findAll().forEach(System.out::println);
         }
     }
 
     @Override
     public void delete(Integer userId, Integer bonusId) {
         checkId(userId, bonusId);
+        UserBonusId userBonusId = new UserBonusId(userId, bonusId);
 
-        userBonusDao.delete(userId, bonusId);
+        userBonusRepository.deleteById(userBonusId);
     }
 
     private void validateUserBonus(UserBonus userBonus) {
@@ -50,14 +51,20 @@ public class UserBonusService implements IUserBonusService {
 
     private void checkId(Integer userId, Integer bonusId) {
         if (userId > 0) {
-            Optional
-                    .ofNullable(userDao.getById(userId))
+            userRepository
+                    .findById(userId)
                     .orElseThrow(() -> new NoSuchElementException("Пользователь не найден с id: " + userId));
+            /*Optional
+                    .of(userRepository.getById(userId))
+                    .orElseThrow(() -> new NoSuchElementException("Пользователь не найден с id: " + userId));*/
         }
         if (bonusId > 0) {
-            Optional
-                    .ofNullable(bonusDao.getById(bonusId))
+            bonusRepository
+                    .findById(bonusId)
                     .orElseThrow(() -> new NoSuchElementException("Бонус не найден с id: " + userId));
+            /*Optional
+                    .ofNullable(bonusRepository.getById(bonusId))
+                    .orElseThrow(() -> new NoSuchElementException("Бонус не найден с id: " + userId));*/
         }
         if (userId < 1 || bonusId < 1) {
             throw new IllegalArgumentException("Id должен быть больше 0");

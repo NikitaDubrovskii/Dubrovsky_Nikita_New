@@ -1,9 +1,10 @@
 package dev.dubrovsky.service.loyalty.program;
 
-import dev.dubrovsky.dao.loyalty.program.LoyaltyProgramDao;
-import dev.dubrovsky.dao.loyalty.program.UserLoyaltyProgramDao;
-import dev.dubrovsky.dao.user.UserDao;
 import dev.dubrovsky.model.loyalty.program.UserLoyaltyProgram;
+import dev.dubrovsky.model.loyalty.program.UserLoyaltyProgramId;
+import dev.dubrovsky.repository.loyalty.program.LoyaltyProgramRepository;
+import dev.dubrovsky.repository.loyalty.program.UserLoyaltyProgramRepository;
+import dev.dubrovsky.repository.user.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,32 +15,33 @@ import java.util.Optional;
 @AllArgsConstructor
 public class UserLoyaltyProgramService implements IUserLoyaltyProgramService {
 
-    private final UserLoyaltyProgramDao userLoyaltyProgramDao;
-    private final UserDao userDao;
-    private final LoyaltyProgramDao loyaltyProgramDao;
+    private final UserLoyaltyProgramRepository userLoyaltyProgramRepository;
+    private final UserRepository userRepository;
+    private final LoyaltyProgramRepository loyaltyProgramRepository;
 
     @Override
     public void create(UserLoyaltyProgram userLoyaltyProgram) {
         validateUserLoyaltyProgram(userLoyaltyProgram);
         checkId(userLoyaltyProgram.getUserLoyaltyProgramId().getUserId(), userLoyaltyProgram.getUserLoyaltyProgramId().getProgramId());
 
-        userLoyaltyProgramDao.create(userLoyaltyProgram);
+        userLoyaltyProgramRepository.save(userLoyaltyProgram);
     }
 
     @Override
     public void getAll() {
-        if (userLoyaltyProgramDao.getAll().isEmpty() && userLoyaltyProgramDao.getAll() == null) {
+        if (userLoyaltyProgramRepository.findAll().isEmpty()) {
             System.out.println("Таблица программ лояльности пользователя пустая");
         } else {
-            userLoyaltyProgramDao.getAll().forEach(System.out::println);
+            userLoyaltyProgramRepository.findAll().forEach(System.out::println);
         }
     }
 
     @Override
     public void delete(Integer userId, Integer programId) {
         checkId(userId, programId);
+        UserLoyaltyProgramId userLoyaltyProgramId = new UserLoyaltyProgramId(userId, programId);
 
-        userLoyaltyProgramDao.delete(userId, programId);
+        userLoyaltyProgramRepository.deleteById(userLoyaltyProgramId);
     }
 
     private void validateUserLoyaltyProgram(UserLoyaltyProgram userLoyaltyProgram) {
@@ -50,14 +52,20 @@ public class UserLoyaltyProgramService implements IUserLoyaltyProgramService {
 
     private void checkId(Integer userId, Integer programId) {
         if (userId > 0) {
-            Optional
-                    .ofNullable(userDao.getById(userId))
+            userRepository
+                    .findById(userId)
                     .orElseThrow(() -> new NoSuchElementException("Пользователь не найден с id: " + userId));
+            /*Optional
+                    .ofNullable(userRepository.getById(userId))
+                    .orElseThrow(() -> new NoSuchElementException("Пользователь не найден с id: " + userId));*/
         }
         if (programId > 0) {
-            Optional
-                    .ofNullable(loyaltyProgramDao.getById(programId))
+            loyaltyProgramRepository
+                    .findById(programId)
                     .orElseThrow(() -> new NoSuchElementException("Программа лояльности не найдена с id: " + programId));
+            /*Optional
+                    .ofNullable(loyaltyProgramRepository.getById(programId))
+                    .orElseThrow(() -> new NoSuchElementException("Программа лояльности не найдена с id: " + programId));*/
         }
         if (userId < 1 || programId < 1) {
             throw new IllegalArgumentException("Id должен быть больше 0");

@@ -21,10 +21,9 @@
         <module>util</module>
         <module>exception</module>
         <module>starter</module>
-        <module>dao</module>
         <module>service</module>
-        <module>configuration</module>
         <module>aspect</module>
+        <module>repository</module>
     </modules>
 
     <properties>

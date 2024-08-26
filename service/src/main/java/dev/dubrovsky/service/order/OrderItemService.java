@@ -1,9 +1,9 @@
 package dev.dubrovsky.service.order;
 
-import dev.dubrovsky.dao.order.OrderDao;
-import dev.dubrovsky.dao.order.OrderItemDao;
-import dev.dubrovsky.dao.product.ProductDao;
 import dev.dubrovsky.model.order.OrderItem;
+import dev.dubrovsky.repository.order.OrderItemRepository;
+import dev.dubrovsky.repository.order.OrderRepository;
+import dev.dubrovsky.repository.product.ProductRepository;
 import dev.dubrovsky.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,51 +14,52 @@ import java.util.List;
 @AllArgsConstructor
 public class OrderItemService implements IOrderItemService {
 
-    private final OrderItemDao orderItemDao;
-    private final OrderDao orderDao;
-    private final ProductDao productDao;
+    private final OrderItemRepository orderItemRepository;
+    private final OrderRepository orderRepository;
+    private final ProductRepository productRepository;
 
     @Override
     public OrderItem create(OrderItem orderItem) {
         validateOrderItem(orderItem);
-        ValidationUtil.checkEntityPresent(orderItem.getOrder().getId(), orderDao);
-        ValidationUtil.checkEntityPresent(orderItem.getProduct().getId(), productDao);
+        ValidationUtil.checkEntityPresent(orderItem.getOrder().getId(), orderRepository);
+        ValidationUtil.checkEntityPresent(orderItem.getProduct().getId(), productRepository);
 
-        return orderItemDao.create(orderItem);
+        return orderItemRepository.save(orderItem);
     }
 
     @Override
     public OrderItem getById(Integer id) {
-        ValidationUtil.checkId(id, orderItemDao);
+        ValidationUtil.checkId(id, orderItemRepository);
 
-        return orderItemDao.getById(id);
+        return orderItemRepository.findById(id).orElse(null);
     }
 
     @Override
     public List<OrderItem> getAll() {
-        if (orderItemDao.getAll().isEmpty() && orderItemDao.getAll() == null) {
+        if (orderItemRepository.findAll().isEmpty()) {
             return null;
         } else {
-            return orderItemDao.getAll();
+            return orderItemRepository.findAll();
         }
     }
 
     @Override
     public OrderItem update(OrderItem orderItem, Integer id) {
         validateOrderItem(orderItem);
-        ValidationUtil.checkEntityPresent(orderItem.getOrder().getId(), orderDao);
-        ValidationUtil.checkEntityPresent(orderItem.getProduct().getId(), productDao);
-        ValidationUtil.checkId(id, orderItemDao);
+        ValidationUtil.checkEntityPresent(orderItem.getOrder().getId(), orderRepository);
+        ValidationUtil.checkEntityPresent(orderItem.getProduct().getId(), productRepository);
+        ValidationUtil.checkId(id, orderItemRepository);
 
         orderItem.setId(id);
-        return orderItemDao.update(orderItem);
+        return orderItemRepository.save(orderItem);
     }
 
     @Override
     public String delete(Integer id) {
-        ValidationUtil.checkId(id, orderItemDao);
+        ValidationUtil.checkId(id, orderItemRepository);
+        orderItemRepository.deleteById(id);
 
-        return orderItemDao.delete(id);
+        return "Удалено!";
     }
 
     private void validateOrderItem(OrderItem orderItem) {

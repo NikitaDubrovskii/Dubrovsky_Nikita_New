@@ -1,8 +1,8 @@
 package dev.dubrovsky.service.bonus;
 
-import dev.dubrovsky.dao.bonus.BonusDao;
-import dev.dubrovsky.dao.loyalty.program.LoyaltyProgramDao;
 import dev.dubrovsky.model.bonus.Bonus;
+import dev.dubrovsky.repository.bonus.BonusRepository;
+import dev.dubrovsky.repository.loyalty.program.LoyaltyProgramRepository;
 import dev.dubrovsky.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,48 +13,49 @@ import java.util.List;
 @AllArgsConstructor
 public class BonusService implements IBonusService {
 
-    private final BonusDao bonusDao;
-    private final LoyaltyProgramDao loyaltyProgramDao;
+    private final BonusRepository bonusRepository;
+    private final LoyaltyProgramRepository loyaltyProgramRepository;
 
     @Override
     public Bonus create(Bonus bonus) {
         validateBonus(bonus);
-        ValidationUtil.checkEntityPresent(bonus.getProgram().getId(), loyaltyProgramDao);
+        ValidationUtil.checkEntityPresent(bonus.getProgram().getId(), loyaltyProgramRepository);
 
-        return bonusDao.create(bonus);
+        return bonusRepository.save(bonus);
     }
 
     @Override
     public Bonus getById(Integer id) {
-        ValidationUtil.checkId(id, bonusDao);
+        ValidationUtil.checkId(id, bonusRepository);
 
-        return bonusDao.getById(id);
+        return bonusRepository.findById(id).orElse(null);
     }
 
     @Override
     public List<Bonus> getAll() {
-        if (bonusDao.getAll().isEmpty() && bonusDao.getAll() == null) {
+        if (bonusRepository.findAll().isEmpty()) {
             return null;
         } else {
-            return bonusDao.getAll();
+            return bonusRepository.findAll();
         }
     }
 
     @Override
     public Bonus update(Bonus bonus, Integer id) {
         validateBonus(bonus);
-        ValidationUtil.checkId(id, bonusDao);
-        ValidationUtil.checkEntityPresent(bonus.getProgram().getId(), loyaltyProgramDao);
+        ValidationUtil.checkId(id, bonusRepository);
+        ValidationUtil.checkEntityPresent(bonus.getProgram().getId(), loyaltyProgramRepository);
 
         bonus.setId(id);
-        return bonusDao.update(bonus);
+        return bonusRepository.save(bonus);
     }
 
     @Override
     public String delete(Integer id) {
-        ValidationUtil.checkId(id, bonusDao);
+        ValidationUtil.checkId(id, bonusRepository);
 
-        return bonusDao.delete(id);
+        bonusRepository.deleteById(id);
+        return "Удалено!";
     }
 
     private void validateBonus(Bonus bonus) {

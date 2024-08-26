@@ -1,7 +1,7 @@
 package dev.dubrovsky.service.loyalty.program;
 
-import dev.dubrovsky.dao.loyalty.program.LoyaltyProgramDao;
 import dev.dubrovsky.model.loyalty.program.LoyaltyProgram;
+import dev.dubrovsky.repository.loyalty.program.LoyaltyProgramRepository;
 import dev.dubrovsky.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -12,45 +12,46 @@ import java.util.List;
 @AllArgsConstructor
 public class LoyaltyProgramService implements ILoyaltyProgramService {
 
-    private final LoyaltyProgramDao loyaltyProgramDao;
+    private final LoyaltyProgramRepository loyaltyProgramRepository;
 
     @Override
     public LoyaltyProgram create(LoyaltyProgram loyaltyProgram) {
         validateLoyaltyProgram(loyaltyProgram);
 
-        return loyaltyProgramDao.create(loyaltyProgram);
+        return loyaltyProgramRepository.save(loyaltyProgram);
     }
 
     @Override
     public LoyaltyProgram getById(Integer id) {
-        ValidationUtil.checkId(id, loyaltyProgramDao);
+        ValidationUtil.checkId(id, loyaltyProgramRepository);
 
-        return loyaltyProgramDao.getById(id);
+        return loyaltyProgramRepository.findById(id).orElse(null);
     }
 
     @Override
     public List<LoyaltyProgram> getAll() {
-        if (loyaltyProgramDao.getAll().isEmpty() && loyaltyProgramDao.getAll() == null) {
+        if (loyaltyProgramRepository.findAll().isEmpty()) {
             return null;
         } else {
-            return loyaltyProgramDao.getAll();
+            return loyaltyProgramRepository.findAll();
         }
     }
 
     @Override
     public LoyaltyProgram update(LoyaltyProgram loyaltyProgram, Integer id) {
         validateLoyaltyProgram(loyaltyProgram);
-        ValidationUtil.checkId(id, loyaltyProgramDao);
+        ValidationUtil.checkId(id, loyaltyProgramRepository);
 
         loyaltyProgram.setId(id);
-        return loyaltyProgramDao.update(loyaltyProgram);
+        return loyaltyProgramRepository.save(loyaltyProgram);
     }
 
     @Override
     public String delete(Integer id) {
-        ValidationUtil.checkId(id, loyaltyProgramDao);
+        ValidationUtil.checkId(id, loyaltyProgramRepository);
+        loyaltyProgramRepository.deleteById(id);
 
-        return loyaltyProgramDao.delete(id);
+        return "Удалено!";
     }
 
     private void validateLoyaltyProgram(LoyaltyProgram loyaltyProgram) {

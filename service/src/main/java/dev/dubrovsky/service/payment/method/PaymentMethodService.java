@@ -1,7 +1,7 @@
 package dev.dubrovsky.service.payment.method;
 
-import dev.dubrovsky.dao.payment.method.PaymentMethodDao;
 import dev.dubrovsky.model.payment.method.PaymentMethod;
+import dev.dubrovsky.repository.payment.method.PaymentMethodRepository;
 import dev.dubrovsky.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -12,45 +12,46 @@ import java.util.List;
 @AllArgsConstructor
 public class PaymentMethodService implements IPaymentMethodService {
 
-    private final PaymentMethodDao paymentMethodDao;
+    private final PaymentMethodRepository paymentMethodRepository;
 
     @Override
     public PaymentMethod create(PaymentMethod paymentMethod) {
         validatePaymentMethod(paymentMethod);
 
-        return paymentMethodDao.create(paymentMethod);
+        return paymentMethodRepository.save(paymentMethod);
     }
 
     @Override
     public PaymentMethod getById(Integer id) {
-        ValidationUtil.checkId(id, paymentMethodDao);
+        ValidationUtil.checkId(id, paymentMethodRepository);
 
-        return paymentMethodDao.getById(id);
+        return paymentMethodRepository.findById(id).orElse(null);
     }
 
     @Override
     public List<PaymentMethod> getAll() {
-        if (paymentMethodDao.getAll().isEmpty() && paymentMethodDao.getAll() == null) {
+        if (paymentMethodRepository.findAll().isEmpty()) {
             return null;
         } else {
-            return paymentMethodDao.getAll();
+            return paymentMethodRepository.findAll();
         }
     }
 
     @Override
     public PaymentMethod update(PaymentMethod paymentMethod, Integer id) {
         validatePaymentMethod(paymentMethod);
-        ValidationUtil.checkId(id, paymentMethodDao);
+        ValidationUtil.checkId(id, paymentMethodRepository);
 
         paymentMethod.setId(id);
-        return paymentMethodDao.update(paymentMethod);
+        return paymentMethodRepository.save(paymentMethod);
     }
 
     @Override
     public String delete(Integer id) {
-        ValidationUtil.checkId(id, paymentMethodDao);
+        ValidationUtil.checkId(id, paymentMethodRepository);
+        paymentMethodRepository.deleteById(id);
 
-        return paymentMethodDao.delete(id);
+        return "Удалено!";
     }
 
     private void validatePaymentMethod(PaymentMethod paymentMethod) {

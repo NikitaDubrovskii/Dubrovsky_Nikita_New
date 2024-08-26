@@ -1,12 +1,12 @@
 package dev.dubrovsky.service.cart;
 
-import dev.dubrovsky.dao.cart.CartDao;
-import dev.dubrovsky.dao.cart.CartItemDao;
-import dev.dubrovsky.dao.product.ProductDao;
-import dev.dubrovsky.dao.user.UserDao;
 import dev.dubrovsky.model.cart.Cart;
 import dev.dubrovsky.model.cart.CartItem;
 import dev.dubrovsky.model.product.Product;
+import dev.dubrovsky.repository.cart.CartItemRepository;
+import dev.dubrovsky.repository.cart.CartRepository;
+import dev.dubrovsky.repository.product.ProductRepository;
+import dev.dubrovsky.repository.user.UserRepository;
 import dev.dubrovsky.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,64 +17,67 @@ import java.util.List;
 @AllArgsConstructor
 public class CartService implements ICartService {
 
-    private final CartDao cartDao;
-    private final UserDao userDao;
-    private final CartItemDao cartItemDao;
-    private final ProductDao productDao;
+    private final CartRepository cartRepository;
+    private final UserRepository userRepository;
+    private final CartItemRepository cartItemRepository;
+    private final ProductRepository productRepository;
 
     @Override
     public Cart create(Cart cart) {
         validateCart(cart);
-        ValidationUtil.checkEntityPresent(cart.getUser().getId(), userDao);
+        ValidationUtil.checkEntityPresent(cart.getUser().getId(), userRepository);
 
-        return cartDao.create(cart);
+        return cartRepository.save(cart);
     }
 
     @Override
     public Cart getById(Integer id) {
-        ValidationUtil.checkId(id, cartDao);
+        ValidationUtil.checkId(id, cartRepository);
 
-        return cartDao.getById(id);
+        return cartRepository.findById(id).orElse(null);
     }
 
     @Override
     public List<Cart> getAll() {
-        if (cartDao.getAll().isEmpty() && cartDao.getAll() == null) {
+        if (cartRepository.findAll().isEmpty()) {
             return null;
         } else {
-            return cartDao.getAll();
+            return cartRepository.findAll();
         }
     }
 
     @Override
     public Cart update(Cart cart, Integer id) {
         validateCart(cart);
-        ValidationUtil.checkEntityPresent(cart.getUser().getId(), userDao);
-        ValidationUtil.checkId(id, cartDao);
+        ValidationUtil.checkEntityPresent(cart.getUser().getId(), userRepository);
+        ValidationUtil.checkId(id, cartRepository);
 
         cart.setId(id);
-        return cartDao.update(cart);
+        return cartRepository.save(cart);
     }
 
     @Override
     public String delete(Integer id) {
-        ValidationUtil.checkId(id, cartDao);
+        ValidationUtil.checkId(id, cartRepository);
 
-        return cartDao.delete(id);
+        cartRepository.deleteById(id);
+        return "Удалено";
     }
 
     @Override
     public void getTotalPrice(Integer id) {
         float totalPrice = 0;
-        List<CartItem> allByCartId = cartItemDao.getAllByCartId(id);
+        List<CartItem> allByCartId = cartItemRepository.findAllByCartId(id);
         if (allByCartId.isEmpty()) {
             throw new IllegalArgumentException("Корзины не существует с id: " + id);
         }
         for (CartItem cartItem : allByCartId) {
             Integer productId = cartItem.getProduct().getId();
-            Product product = productDao.getById(productId);
-            float i = product.getPrice() * cartItem.getQuantity();
-            totalPrice += i;
+            Product product = productRepository.findById(productId).orElse(null);
+            if (product != null) {
+                float i = product.getPrice() * cartItem.getQuantity();
+                totalPrice += i;
+            }
         }
 
         System.out.println(totalPrice);

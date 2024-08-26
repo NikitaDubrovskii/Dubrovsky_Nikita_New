@@ -1,9 +1,9 @@
 package dev.dubrovsky.service.cart;
 
-import dev.dubrovsky.dao.cart.CartDao;
-import dev.dubrovsky.dao.cart.CartItemDao;
-import dev.dubrovsky.dao.product.ProductDao;
 import dev.dubrovsky.model.cart.CartItem;
+import dev.dubrovsky.repository.cart.CartItemRepository;
+import dev.dubrovsky.repository.cart.CartRepository;
+import dev.dubrovsky.repository.product.ProductRepository;
 import dev.dubrovsky.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,51 +14,52 @@ import java.util.List;
 @AllArgsConstructor
 public class CartItemService implements ICartItemService {
 
-    private final CartItemDao cartItemDao;
-    private final CartDao cartDao;
-    private final ProductDao productDao;
+    private final CartItemRepository cartItemRepository;
+    private final CartRepository cartRepository;
+    private final ProductRepository productRepository;
 
     @Override
     public CartItem create(CartItem cartItem) {
         validateCartItem(cartItem);
-        ValidationUtil.checkEntityPresent(cartItem.getCart().getId(), cartDao);
-        ValidationUtil.checkEntityPresent(cartItem.getProduct().getId(), productDao);
+        ValidationUtil.checkEntityPresent(cartItem.getCart().getId(), cartRepository);
+        ValidationUtil.checkEntityPresent(cartItem.getProduct().getId(), productRepository);
 
-        return cartItemDao.create(cartItem);
+        return cartItemRepository.save(cartItem);
     }
 
     @Override
     public CartItem getById(Integer id) {
-        ValidationUtil.checkId(id, cartItemDao);
+        ValidationUtil.checkId(id, cartItemRepository);
 
-        return cartItemDao.getById(id);
+        return cartItemRepository.findById(id).orElse(null);
     }
 
     @Override
     public List<CartItem> getAll() {
-        if (cartItemDao.getAll().isEmpty() && cartItemDao.getAll() == null) {
+        if (cartItemRepository.findAll().isEmpty()) {
             return null;
         } else {
-            return cartItemDao.getAll();
+            return cartItemRepository.findAll();
         }
     }
 
     @Override
     public CartItem update(CartItem cartItem, Integer id) {
         validateCartItem(cartItem);
-        ValidationUtil.checkEntityPresent(cartItem.getCart().getId(), cartDao);
-        ValidationUtil.checkEntityPresent(cartItem.getProduct().getId(), productDao);
-        ValidationUtil.checkId(id, cartItemDao);
+        ValidationUtil.checkEntityPresent(cartItem.getCart().getId(), cartRepository);
+        ValidationUtil.checkEntityPresent(cartItem.getProduct().getId(), productRepository);
+        ValidationUtil.checkId(id, cartItemRepository);
 
         cartItem.setId(id);
-        return cartItemDao.update(cartItem);
+        return cartItemRepository.save(cartItem);
     }
 
     @Override
     public String delete(Integer id) {
-        ValidationUtil.checkId(id, cartItemDao);
+        ValidationUtil.checkId(id, cartItemRepository);
+        cartItemRepository.deleteById(id);
 
-        return cartItemDao.delete(id);
+        return "Удалено!";
     }
 
     private void validateCartItem(CartItem cartItem) {
