@@ -1,7 +1,7 @@
 package dev.dubrovsky.service.category;
 
-import dev.dubrovsky.dao.category.CategoryDao;
 import dev.dubrovsky.model.category.Category;
+import dev.dubrovsky.repository.category.CategoryRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -21,7 +22,7 @@ import static org.mockito.Mockito.*;
 class CategoryServiceTest {
 
     @Mock
-    private CategoryDao categoryDao;
+    private CategoryRepository categoryRepository;
 
     @InjectMocks
     private CategoryService categoryService;
@@ -31,7 +32,7 @@ class CategoryServiceTest {
 
     @BeforeEach
     void setUp() {
-        categoryService = new CategoryService(categoryDao);
+        categoryService = new CategoryService(categoryRepository);
 
         category = new Category("test", "test");
         category.setId(1);
@@ -42,7 +43,7 @@ class CategoryServiceTest {
     void create_Success() {
         categoryService.create(category);
 
-        verify(categoryDao).create(category);
+        verify(categoryRepository).save(category);
     }
 
     @Test
@@ -72,11 +73,11 @@ class CategoryServiceTest {
     @Test
     void getById_Success() {
         Integer id = 1;
-        when(categoryDao.getById(id)).thenReturn(category);
+        when(categoryRepository.findById(id)).thenReturn(Optional.of(category));
 
         categoryService.getById(id);
 
-        verify(categoryDao, times(2)).getById(id);
+        verify(categoryRepository, times(2)).findById(id);
     }
 
     @Test
@@ -106,7 +107,7 @@ class CategoryServiceTest {
     @Test
     void getById_IdNotFound_ThrowNoSuchElementException() {
         Integer id = 45;
-        when(categoryDao.getById(id)).thenReturn(null);
+        when(categoryRepository.findById(id)).thenReturn(Optional.empty());
 
         NoSuchElementException thrown = assertThrows(NoSuchElementException.class, () -> categoryService.getById(id));
         assertEquals("Ничего не найдено с id: " + id, thrown.getMessage());
@@ -121,30 +122,30 @@ class CategoryServiceTest {
                 category2
         );
 
-        when(categoryDao.getAll()).thenReturn(categories);
+        when(categoryRepository.findAll()).thenReturn(categories);
 
         categoryService.getAll();
 
-        verify(categoryDao, times(2)).getAll();
+        verify(categoryRepository, times(2)).findAll();
     }
 
     @Test
     void getAll_ListIsEmpty() {
-        when(categoryDao.getAll()).thenReturn(Collections.emptyList());
+        when(categoryRepository.findAll()).thenReturn(Collections.emptyList());
 
         categoryService.getAll();
 
-        verify(categoryDao, times(3)).getAll();
+        verify(categoryRepository, times(1)).findAll();
     }
 
     @Test
     void update_Success() {
         Integer id = 1;
-        when(categoryDao.getById(id)).thenReturn(category);
+        when(categoryRepository.findById(id)).thenReturn(Optional.of(category));
 
         categoryService.update(updCategory, id);
 
-        verify(categoryDao).update(updCategory);
+        verify(categoryRepository).save(updCategory);
     }
 
     @Test
@@ -201,7 +202,7 @@ class CategoryServiceTest {
     @Test
     void update_IdNotFound_ThrowNoSuchElementException() {
         Integer id = 44;
-        when(categoryDao.getById(id)).thenReturn(null);
+        when(categoryRepository.findById(id)).thenReturn(Optional.empty());
 
         NoSuchElementException thrown = assertThrows(NoSuchElementException.class, () -> categoryService.update(updCategory, id));
         assertEquals("Ничего не найдено с id: " + id, thrown.getMessage());
@@ -211,11 +212,11 @@ class CategoryServiceTest {
     void delete_Success() {
         Integer id = 1;
 
-        when(categoryDao.getById(id)).thenReturn(category);
+        when(categoryRepository.findById(id)).thenReturn(Optional.of(category));
 
         categoryService.delete(id);
 
-        verify(categoryDao).delete(id);
+        verify(categoryRepository).deleteById(id);
     }
 
     @Test
@@ -245,7 +246,7 @@ class CategoryServiceTest {
     @Test
     void delete_IdNotFound_ThrowNoSuchElementException() {
         Integer id = 44;
-        when(categoryDao.getById(id)).thenReturn(null);
+        when(categoryRepository.findById(id)).thenReturn(Optional.empty());
 
         NoSuchElementException thrown = assertThrows(NoSuchElementException.class, () -> categoryService.delete(id));
         assertEquals("Ничего не найдено с id: " + id, thrown.getMessage());

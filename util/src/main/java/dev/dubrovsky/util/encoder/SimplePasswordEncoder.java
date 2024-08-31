@@ -10,15 +10,15 @@ import java.util.Base64;
 @PropertySource("/util.properties")
 public final class SimplePasswordEncoder {
 
-    @Value("${encode.algorithm:SHA-256}")
-    private static String encodeAlgorithm;
+    @Value("${encode.algorithm:SHA-256")
+    private String encodeAlgorithm;
 
     private SimplePasswordEncoder() {
     }
 
     public static String encode(String rawPassword) {
         try {
-            MessageDigest messageDigest = MessageDigest.getInstance(encodeAlgorithm);
+            MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
             byte[] hashedPassword = messageDigest.digest(rawPassword.getBytes());
             return Base64.getEncoder().encodeToString(hashedPassword);
         } catch (NoSuchAlgorithmException e) {

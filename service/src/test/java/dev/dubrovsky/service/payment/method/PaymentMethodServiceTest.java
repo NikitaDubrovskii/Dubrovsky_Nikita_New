@@ -1,7 +1,7 @@
 package dev.dubrovsky.service.payment.method;
 
-import dev.dubrovsky.dao.payment.method.PaymentMethodDao;
 import dev.dubrovsky.model.payment.method.PaymentMethod;
+import dev.dubrovsky.repository.payment.method.PaymentMethodRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -21,7 +22,7 @@ import static org.mockito.Mockito.*;
 class PaymentMethodServiceTest {
 
     @Mock
-    private PaymentMethodDao paymentMethodDao;
+    private PaymentMethodRepository paymentMethodRepository;
 
     @InjectMocks
     private PaymentMethodService paymentMethodService;
@@ -31,7 +32,7 @@ class PaymentMethodServiceTest {
 
     @BeforeEach
     void setUp() {
-        paymentMethodService = new PaymentMethodService(paymentMethodDao);
+        paymentMethodService = new PaymentMethodService(paymentMethodRepository);
 
         paymentMethod = new PaymentMethod("test");
         paymentMethod.setId(1);
@@ -42,7 +43,7 @@ class PaymentMethodServiceTest {
     void create_Success() {
         paymentMethodService.create(paymentMethod);
 
-        verify(paymentMethodDao).create(paymentMethod);
+        verify(paymentMethodRepository).save(paymentMethod);
     }
 
     @Test
@@ -56,11 +57,11 @@ class PaymentMethodServiceTest {
     @Test
     void getById_Success() {
         Integer id = 1;
-        when(paymentMethodDao.getById(id)).thenReturn(paymentMethod);
+        when(paymentMethodRepository.findById(id)).thenReturn(Optional.of(paymentMethod));
 
         paymentMethodService.getById(id);
 
-        verify(paymentMethodDao, times(2)).getById(id);
+        verify(paymentMethodRepository, times(2)).findById(id);
     }
 
     @Test
@@ -90,7 +91,7 @@ class PaymentMethodServiceTest {
     @Test
     void getById_IdNotFound_ThrowNoSuchElementException() {
         Integer id = 45;
-        when(paymentMethodDao.getById(id)).thenReturn(null);
+        when(paymentMethodRepository.findById(id)).thenReturn(Optional.empty());
 
         NoSuchElementException thrown = assertThrows(NoSuchElementException.class, () -> paymentMethodService.getById(id));
         assertEquals("Ничего не найдено с id: " + id, thrown.getMessage());
@@ -105,30 +106,30 @@ class PaymentMethodServiceTest {
                 paymentMethod2
         );
 
-        when(paymentMethodDao.getAll()).thenReturn(paymentMethodList);
+        when(paymentMethodRepository.findAll()).thenReturn(paymentMethodList);
 
         paymentMethodService.getAll();
 
-        verify(paymentMethodDao, times(2)).getAll();
+        verify(paymentMethodRepository, times(2)).findAll();
     }
 
     @Test
     void getAll_ListIsEmpty() {
-        when(paymentMethodDao.getAll()).thenReturn(Collections.emptyList());
+        when(paymentMethodRepository.findAll()).thenReturn(Collections.emptyList());
 
         paymentMethodService.getAll();
 
-        verify(paymentMethodDao, times(3)).getAll();
+        verify(paymentMethodRepository, times(1)).findAll();
     }
 
     @Test
     void update_Success() {
         Integer id = 1;
-        when(paymentMethodDao.getById(id)).thenReturn(paymentMethod);
+        when(paymentMethodRepository.findById(id)).thenReturn(Optional.of(paymentMethod));
 
         paymentMethodService.update(updPaymentMethod, id);
 
-        verify(paymentMethodDao).update(updPaymentMethod);
+        verify(paymentMethodRepository).save(updPaymentMethod);
     }
 
     @Test
@@ -167,7 +168,7 @@ class PaymentMethodServiceTest {
     @Test
     void update_IdNotFound_ThrowNoSuchElementException() {
         Integer id = 45;
-        when(paymentMethodDao.getById(id)).thenReturn(null);
+        when(paymentMethodRepository.findById(id)).thenReturn(Optional.empty());
 
         NoSuchElementException thrown = assertThrows(NoSuchElementException.class, () -> paymentMethodService.update(updPaymentMethod, id));
         assertEquals("Ничего не найдено с id: " + id, thrown.getMessage());
@@ -177,11 +178,11 @@ class PaymentMethodServiceTest {
     void delete_Success() {
         Integer id = 1;
 
-        when(paymentMethodDao.getById(id)).thenReturn(paymentMethod);
+        when(paymentMethodRepository.findById(id)).thenReturn(Optional.of(paymentMethod));
 
         paymentMethodService.delete(id);
 
-        verify(paymentMethodDao).delete(id);
+        verify(paymentMethodRepository).deleteById(id);
     }
 
     @Test
@@ -211,7 +212,7 @@ class PaymentMethodServiceTest {
     @Test
     void delete_IdNotFound_ThrowNoSuchElementException() {
         Integer id = 44;
-        when(paymentMethodDao.getById(id)).thenReturn(null);
+        when(paymentMethodRepository.findById(id)).thenReturn(Optional.empty());
 
         NoSuchElementException thrown = assertThrows(NoSuchElementException.class, () -> paymentMethodService.delete(id));
         assertEquals("Ничего не найдено с id: " + id, thrown.getMessage());
