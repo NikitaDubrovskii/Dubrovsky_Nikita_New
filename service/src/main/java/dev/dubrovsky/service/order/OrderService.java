@@ -5,22 +5,18 @@ import dev.dubrovsky.dao.payment.method.PaymentMethodDao;
 import dev.dubrovsky.dao.user.UserDao;
 import dev.dubrovsky.model.order.Order;
 import dev.dubrovsky.util.validation.ValidationUtil;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class OrderService implements IOrderService {
 
     private final OrderDao orderDao;
     private final PaymentMethodDao paymentMethodDao;
     private final UserDao userDao;
-
-    public OrderService(OrderDao orderDao, PaymentMethodDao paymentMethodDao, UserDao userDao) {
-        this.orderDao = orderDao;
-        this.paymentMethodDao = paymentMethodDao;
-        this.userDao = userDao;
-    }
 
     @Override
     public Order create(Order order) {

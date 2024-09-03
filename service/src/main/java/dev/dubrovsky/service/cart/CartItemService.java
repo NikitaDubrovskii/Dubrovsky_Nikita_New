@@ -5,22 +5,18 @@ import dev.dubrovsky.dao.cart.CartItemDao;
 import dev.dubrovsky.dao.product.ProductDao;
 import dev.dubrovsky.model.cart.CartItem;
 import dev.dubrovsky.util.validation.ValidationUtil;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class CartItemService implements ICartItemService {
 
     private final CartItemDao cartItemDao;
     private final CartDao cartDao;
     private final ProductDao productDao;
-
-    public CartItemService(CartItemDao cartItemDao, CartDao cartDao, ProductDao productDao) {
-        this.cartItemDao = cartItemDao;
-        this.cartDao = cartDao;
-        this.productDao = productDao;
-    }
 
     @Override
     public CartItem create(CartItem cartItem) {

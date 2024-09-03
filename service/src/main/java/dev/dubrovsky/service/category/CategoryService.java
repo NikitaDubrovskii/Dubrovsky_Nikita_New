@@ -3,18 +3,16 @@ package dev.dubrovsky.service.category;
 import dev.dubrovsky.dao.category.CategoryDao;
 import dev.dubrovsky.model.category.Category;
 import dev.dubrovsky.util.validation.ValidationUtil;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class CategoryService implements ICategoryService {
 
     private final CategoryDao categoryDao;
-
-    public CategoryService(CategoryDao categoryDao) {
-        this.categoryDao = categoryDao;
-    }
 
     @Override
     public Category create(Category category) {

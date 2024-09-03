@@ -5,19 +5,17 @@ import dev.dubrovsky.model.user.User;
 import dev.dubrovsky.util.encoder.SimplePasswordEncoder;
 import dev.dubrovsky.util.validation.ValidationUtil;
 import jakarta.persistence.NonUniqueResultException;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
 @Service
+@AllArgsConstructor
 public class UserService implements IUserService {
 
     private final UserDao userDao;
-
-    public UserService(UserDao userDao) {
-        this.userDao = userDao;
-    }
 
     @Override
     public User create(User user) {

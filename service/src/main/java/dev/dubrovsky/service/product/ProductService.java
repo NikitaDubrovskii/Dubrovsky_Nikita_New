@@ -4,20 +4,17 @@ import dev.dubrovsky.dao.category.CategoryDao;
 import dev.dubrovsky.dao.product.ProductDao;
 import dev.dubrovsky.model.product.Product;
 import dev.dubrovsky.util.validation.ValidationUtil;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class ProductService implements IProductService {
 
     private final ProductDao productDao;
     private final CategoryDao categoryDao;
-
-    public ProductService(ProductDao productDao, CategoryDao categoryDao) {
-        this.productDao = productDao;
-        this.categoryDao = categoryDao;
-    }
 
     @Override
     public Product create(Product product) {

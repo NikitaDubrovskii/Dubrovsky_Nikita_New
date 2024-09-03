@@ -4,20 +4,17 @@ import dev.dubrovsky.dao.analytics.AnalyticsDao;
 import dev.dubrovsky.dao.user.UserDao;
 import dev.dubrovsky.model.analytics.Analytics;
 import dev.dubrovsky.util.validation.ValidationUtil;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class AnalyticsService implements IAnalyticsService {
 
     private final AnalyticsDao analyticsDao;
     private final UserDao userDao;
-
-    public AnalyticsService(AnalyticsDao analyticsDao, UserDao userDao) {
-        this.analyticsDao = analyticsDao;
-        this.userDao = userDao;
-    }
 
     @Override
     public Analytics create(Analytics analytics) {

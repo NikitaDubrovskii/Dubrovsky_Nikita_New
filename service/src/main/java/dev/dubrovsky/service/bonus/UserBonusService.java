@@ -4,23 +4,19 @@ import dev.dubrovsky.dao.bonus.BonusDao;
 import dev.dubrovsky.dao.bonus.UserBonusDao;
 import dev.dubrovsky.dao.user.UserDao;
 import dev.dubrovsky.model.bonus.UserBonus;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
+@AllArgsConstructor
 public class UserBonusService implements IUserBonusService {
 
     private final UserBonusDao userBonusDao;
     private final UserDao userDao;
     private final BonusDao bonusDao;
-
-    public UserBonusService(UserBonusDao userBonusDao, UserDao userDao, BonusDao bonusDao) {
-        this.userBonusDao = userBonusDao;
-        this.userDao = userDao;
-        this.bonusDao = bonusDao;
-    }
 
     @Override
     public void create(UserBonus userBonus) {
