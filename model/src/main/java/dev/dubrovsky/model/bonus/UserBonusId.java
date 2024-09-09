@@ -1,5 +1,6 @@
 package dev.dubrovsky.model.bonus;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,7 +14,10 @@ import java.util.Objects;
 @NoArgsConstructor
 public class UserBonusId {
 
+    @Column(name = "user_id")
     private Integer userId;
+
+    @Column(name = "bonus_id")
     private Integer bonusId;
 
     public UserBonusId(Integer userId, Integer bonusId) {

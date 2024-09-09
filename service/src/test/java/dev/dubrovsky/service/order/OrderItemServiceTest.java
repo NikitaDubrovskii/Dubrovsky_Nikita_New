@@ -1,11 +1,11 @@
 package dev.dubrovsky.service.order;
 
-import dev.dubrovsky.dao.order.OrderDao;
-import dev.dubrovsky.dao.order.OrderItemDao;
-import dev.dubrovsky.dao.product.ProductDao;
 import dev.dubrovsky.model.order.Order;
 import dev.dubrovsky.model.order.OrderItem;
 import dev.dubrovsky.model.product.Product;
+import dev.dubrovsky.repository.order.OrderItemRepository;
+import dev.dubrovsky.repository.order.OrderRepository;
+import dev.dubrovsky.repository.product.ProductRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,21 +16,23 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class OrderItemServiceTest {
 
     @Mock
-    private OrderItemDao orderItemDao;
+    private OrderItemRepository orderItemRepository;
 
     @Mock
-    private OrderDao orderDao;
+    private OrderRepository orderRepository;
 
     @Mock
-    private ProductDao productDao;
+    private ProductRepository productRepository;
 
     @InjectMocks
     private OrderItemService orderItemService;
@@ -44,7 +46,7 @@ class OrderItemServiceTest {
 
     @BeforeEach
     void setUp() {
-        orderItemService = new OrderItemService(orderItemDao, orderDao, productDao);
+        orderItemService = new OrderItemService(orderItemRepository, orderRepository, productRepository);
 
         order1 = new Order();
         order1.setId(1);
@@ -62,12 +64,12 @@ class OrderItemServiceTest {
 
     @Test
     void create_Success() {
-        when(orderDao.getById(orderItem.getOrder().getId())).thenReturn(new Order());
-        when(productDao.getById(orderItem.getProduct().getId())).thenReturn(new Product());
+        when(orderRepository.findById(orderItem.getOrder().getId())).thenReturn(Optional.of(new Order()));
+        when(productRepository.findById(orderItem.getProduct().getId())).thenReturn(Optional.of(new Product()));
 
         orderItemService.create(orderItem);
 
-        verify(orderItemDao).create(orderItem);
+        verify(orderItemRepository).save(orderItem);
     }
 
     @Test
@@ -104,7 +106,7 @@ class OrderItemServiceTest {
 
     @Test
     void create_OrderNotFound_ThrowNoSuchElementException() {
-        when(orderDao.getById(orderItem.getOrder().getId())).thenReturn(null);
+        when(orderRepository.findById(orderItem.getOrder().getId())).thenReturn(Optional.empty());
 
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> orderItemService.create(orderItem));
         assertEquals("Ничего не найдено с id: " + orderItem.getOrder().getId(), exception.getMessage());
@@ -130,7 +132,7 @@ class OrderItemServiceTest {
 
     @Test
     void create_ProductIdIsNull_ThrowIllegalArgumentException() {
-        when(orderDao.getById(orderItem.getOrder().getId())).thenReturn(new Order());
+        when(orderRepository.findById(orderItem.getOrder().getId())).thenReturn(Optional.of(new Order()));
         orderItem.setProduct(null);
 
         NullPointerException exception = assertThrows(NullPointerException.class, () -> orderItemService.create(orderItem));
@@ -139,8 +141,8 @@ class OrderItemServiceTest {
 
     @Test
     void create_ProductNotFound_ThrowNoSuchElementException() {
-        when(orderDao.getById(orderItem.getOrder().getId())).thenReturn(new Order());
-        when(productDao.getById(orderItem.getProduct().getId())).thenReturn(null);
+        when(orderRepository.findById(orderItem.getOrder().getId())).thenReturn(Optional.of(new Order()));
+        when(productRepository.findById(orderItem.getProduct().getId())).thenReturn(Optional.empty());
 
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> orderItemService.create(orderItem));
         assertEquals("Ничего не найдено с id: " + orderItem.getProduct().getId(), exception.getMessage());
@@ -148,7 +150,7 @@ class OrderItemServiceTest {
 
     @Test
     void create_ProductIdIsNegative_ThrowIllegalArgumentException() {
-        when(orderDao.getById(orderItem.getOrder().getId())).thenReturn(new Order());
+        when(orderRepository.findById(orderItem.getOrder().getId())).thenReturn(Optional.of(new Order()));
         product1.setId(-1);
         orderItem.setProduct(product1);
 
@@ -158,7 +160,7 @@ class OrderItemServiceTest {
 
     @Test
     void create_ProductIdIsZero_ThrowIllegalArgumentException() {
-        when(orderDao.getById(orderItem.getOrder().getId())).thenReturn(new Order());
+        when(orderRepository.findById(orderItem.getOrder().getId())).thenReturn(Optional.of(new Order()));
         product1.setId(0);
         orderItem.setProduct(product1);
 
@@ -169,11 +171,11 @@ class OrderItemServiceTest {
     @Test
     void getById_Success() {
         Integer id = 1;
-        when(orderItemDao.getById(id)).thenReturn(orderItem);
+        when(orderItemRepository.findById(id)).thenReturn(Optional.of(orderItem));
 
         orderItemService.getById(id);
 
-        verify(orderItemDao, times(2)).getById(id);
+        verify(orderItemRepository, times(2)).findById(id);
     }
 
     @Test
@@ -203,7 +205,7 @@ class OrderItemServiceTest {
     @Test
     void getById_IdNotFound_ThrowNoSuchElementException() {
         Integer id = 45;
-        when(orderItemDao.getById(id)).thenReturn(null);
+        when(orderItemRepository.findById(id)).thenReturn(Optional.empty());
 
         NoSuchElementException thrown = assertThrows(NoSuchElementException.class, () -> orderItemService.getById(id));
         assertEquals("Ничего не найдено с id: " + id, thrown.getMessage());
@@ -217,32 +219,32 @@ class OrderItemServiceTest {
                 orderItem2, orderItem2
         );
 
-        when(orderItemDao.getAll()).thenReturn(orderItemList);
+        when(orderItemRepository.findAll()).thenReturn(orderItemList);
 
         orderItemService.getAll();
 
-        verify(orderItemDao, times(2)).getAll();
+        verify(orderItemRepository, times(2)).findAll();
     }
 
     @Test
     void getAll_ListIsEmpty() {
-        when(orderItemDao.getAll()).thenReturn(Collections.emptyList());
+        when(orderItemRepository.findAll()).thenReturn(Collections.emptyList());
 
         orderItemService.getAll();
 
-        verify(orderItemDao, times(3)).getAll();
+        verify(orderItemRepository, times(1)).findAll();
     }
 
     @Test
     void update_Success() {
         Integer id = 1;
-        when(orderDao.getById(updOrderItem.getOrder().getId())).thenReturn(new Order());
-        when(productDao.getById(updOrderItem.getProduct().getId())).thenReturn(new Product());
-        when(orderItemDao.getById(id)).thenReturn(orderItem);
+        when(orderRepository.findById(updOrderItem.getOrder().getId())).thenReturn(Optional.of(new Order()));
+        when(productRepository.findById(updOrderItem.getProduct().getId())).thenReturn(Optional.of(new Product()));
+        when(orderItemRepository.findById(id)).thenReturn(Optional.of(orderItem));
 
         orderItemService.update(updOrderItem, id);
 
-        verify(orderItemDao).update(updOrderItem);
+        verify(orderItemRepository).save(updOrderItem);
     }
 
     @Test
@@ -284,7 +286,7 @@ class OrderItemServiceTest {
     @Test
     void update_OrderNotFound_ThrowNoSuchElementException() {
         Integer id = 1;
-        when(orderDao.getById(updOrderItem.getOrder().getId())).thenReturn(null);
+        when(orderRepository.findById(updOrderItem.getOrder().getId())).thenReturn(Optional.empty());
 
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> orderItemService.update(updOrderItem, id));
         assertEquals("Ничего не найдено с id: " + updOrderItem.getOrder().getId(), exception.getMessage());
@@ -313,7 +315,7 @@ class OrderItemServiceTest {
     @Test
     void update_ProductIdIsNull_ThrowNullPointerException() {
         Integer id = 1;
-        when(orderDao.getById(updOrderItem.getOrder().getId())).thenReturn(new Order());
+        when(orderRepository.findById(updOrderItem.getOrder().getId())).thenReturn(Optional.of(new Order()));
         updOrderItem.setProduct(null);
 
         NullPointerException exception = assertThrows(NullPointerException.class, () -> orderItemService.update(updOrderItem, id));
@@ -323,8 +325,8 @@ class OrderItemServiceTest {
     @Test
     void update_ProductNotFound_ThrowNoSuchElementException() {
         Integer id = 1;
-        when(orderDao.getById(updOrderItem.getOrder().getId())).thenReturn(new Order());
-        when(productDao.getById(updOrderItem.getProduct().getId())).thenReturn(null);
+        when(orderRepository.findById(updOrderItem.getOrder().getId())).thenReturn(Optional.of(new Order()));
+        when(productRepository.findById(updOrderItem.getProduct().getId())).thenReturn(Optional.empty());
 
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> orderItemService.update(updOrderItem, id));
         assertEquals("Ничего не найдено с id: " + updOrderItem.getProduct().getId(), exception.getMessage());
@@ -333,7 +335,7 @@ class OrderItemServiceTest {
     @Test
     void update_ProductIdIsZero_ThrowIllegalArgumentException() {
         Integer id = 1;
-        when(orderDao.getById(updOrderItem.getOrder().getId())).thenReturn(new Order());
+        when(orderRepository.findById(updOrderItem.getOrder().getId())).thenReturn(Optional.of(new Order()));
         product1.setId(0);
         updOrderItem.setProduct(product1);
 
@@ -344,7 +346,7 @@ class OrderItemServiceTest {
     @Test
     void update_ProductIdIsNegative_ThrowIllegalArgumentException() {
         Integer id = 1;
-        when(orderDao.getById(updOrderItem.getOrder().getId())).thenReturn(new Order());
+        when(orderRepository.findById(updOrderItem.getOrder().getId())).thenReturn(Optional.of(new Order()));
         product1.setId(-1);
         updOrderItem.setProduct(product1);
 
@@ -355,8 +357,8 @@ class OrderItemServiceTest {
     @Test
     void update_IdIsNull_ThrowNullPointerException() {
         Integer id = null;
-        when(orderDao.getById(updOrderItem.getOrder().getId())).thenReturn(new Order());
-        when(productDao.getById(updOrderItem.getProduct().getId())).thenReturn(new Product());
+        when(orderRepository.findById(updOrderItem.getOrder().getId())).thenReturn(Optional.of(new Order()));
+        when(productRepository.findById(updOrderItem.getProduct().getId())).thenReturn(Optional.of(new Product()));
 
         NullPointerException thrown = assertThrows(NullPointerException.class, () -> orderItemService.update(updOrderItem, id));
         assertEquals("Cannot invoke \"java.lang.Integer.intValue()\" because \"id\" is null", thrown.getMessage());
@@ -365,8 +367,8 @@ class OrderItemServiceTest {
     @Test
     void update_IdIsZero_ThrowIllegalArgumentException() {
         Integer id = 0;
-        when(orderDao.getById(updOrderItem.getOrder().getId())).thenReturn(new Order());
-        when(productDao.getById(updOrderItem.getProduct().getId())).thenReturn(new Product());
+        when(orderRepository.findById(updOrderItem.getOrder().getId())).thenReturn(Optional.of(new Order()));
+        when(productRepository.findById(updOrderItem.getProduct().getId())).thenReturn(Optional.of(new Product()));
 
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> orderItemService.update(updOrderItem, id));
         assertEquals("Id должен быть больше 0", thrown.getMessage());
@@ -375,8 +377,8 @@ class OrderItemServiceTest {
     @Test
     void update_IdIsNegative_ThrowIllegalArgumentException() {
         Integer id = -44;
-        when(orderDao.getById(updOrderItem.getOrder().getId())).thenReturn(new Order());
-        when(productDao.getById(updOrderItem.getProduct().getId())).thenReturn(new Product());
+        when(orderRepository.findById(updOrderItem.getOrder().getId())).thenReturn(Optional.of(new Order()));
+        when(productRepository.findById(updOrderItem.getProduct().getId())).thenReturn(Optional.of(new Product()));
 
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> orderItemService.update(updOrderItem, id));
         assertEquals("Id должен быть больше 0", thrown.getMessage());
@@ -385,9 +387,9 @@ class OrderItemServiceTest {
     @Test
     void update_IdNotFound_ThrowNoSuchElementException() {
         Integer id = 44;
-        when(orderDao.getById(updOrderItem.getOrder().getId())).thenReturn(new Order());
-        when(productDao.getById(updOrderItem.getProduct().getId())).thenReturn(new Product());
-        when(orderItemDao.getById(id)).thenReturn(null);
+        when(orderRepository.findById(updOrderItem.getOrder().getId())).thenReturn(Optional.of(new Order()));
+        when(productRepository.findById(updOrderItem.getProduct().getId())).thenReturn(Optional.of(new Product()));
+        when(orderItemRepository.findById(id)).thenReturn(Optional.empty());
 
         NoSuchElementException thrown = assertThrows(NoSuchElementException.class, () -> orderItemService.update(updOrderItem, id));
         assertEquals("Ничего не найдено с id: " + id, thrown.getMessage());
@@ -397,11 +399,11 @@ class OrderItemServiceTest {
     void delete_Success() {
         Integer id = 1;
 
-        when(orderItemDao.getById(id)).thenReturn(orderItem);
+        when(orderItemRepository.findById(id)).thenReturn(Optional.of(orderItem));
 
         orderItemService.delete(id);
 
-        verify(orderItemDao).delete(id);
+        verify(orderItemRepository).deleteById(id);
     }
 
     @Test

@@ -1,12 +1,12 @@
 package dev.dubrovsky.service.loyalty.program;
 
-import dev.dubrovsky.dao.loyalty.program.LoyaltyProgramDao;
-import dev.dubrovsky.dao.loyalty.program.UserLoyaltyProgramDao;
-import dev.dubrovsky.dao.user.UserDao;
 import dev.dubrovsky.model.loyalty.program.LoyaltyProgram;
 import dev.dubrovsky.model.loyalty.program.UserLoyaltyProgram;
 import dev.dubrovsky.model.loyalty.program.UserLoyaltyProgramId;
 import dev.dubrovsky.model.user.User;
+import dev.dubrovsky.repository.loyalty.program.LoyaltyProgramRepository;
+import dev.dubrovsky.repository.loyalty.program.UserLoyaltyProgramRepository;
+import dev.dubrovsky.repository.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -26,13 +27,13 @@ import static org.mockito.Mockito.*;
 class UserLoyaltyProgramServiceTest {
 
     @Mock
-    private UserLoyaltyProgramDao userLoyaltyProgramDao;
+    private UserLoyaltyProgramRepository userLoyaltyProgramRepository;
 
     @Mock
-    private UserDao userDao;
+    private UserRepository userRepository;
 
     @Mock
-    private LoyaltyProgramDao loyaltyProgramDao;
+    private LoyaltyProgramRepository loyaltyProgramRepository;
 
     @InjectMocks
     private UserLoyaltyProgramService userLoyaltyProgramService;
@@ -41,19 +42,19 @@ class UserLoyaltyProgramServiceTest {
 
     @BeforeEach
     void setUp() {
-        userLoyaltyProgramService = new UserLoyaltyProgramService(userLoyaltyProgramDao, userDao, loyaltyProgramDao);
+        userLoyaltyProgramService = new UserLoyaltyProgramService(userLoyaltyProgramRepository, userRepository, loyaltyProgramRepository);
 
         userLoyaltyProgram = new UserLoyaltyProgram(new UserLoyaltyProgramId(1, 1));
     }
 
     @Test
     void create_Success() {
-        when(userDao.getById(userLoyaltyProgram.getUserLoyaltyProgramId().getUserId())).thenReturn(new User());
-        when(loyaltyProgramDao.getById(userLoyaltyProgram.getUserLoyaltyProgramId().getProgramId())).thenReturn(new LoyaltyProgram());
+        when(userRepository.findById(userLoyaltyProgram.getUserLoyaltyProgramId().getUserId())).thenReturn(Optional.of(new User()));
+        when(loyaltyProgramRepository.findById(userLoyaltyProgram.getUserLoyaltyProgramId().getProgramId())).thenReturn(Optional.of(new LoyaltyProgram()));
 
         userLoyaltyProgramService.create(userLoyaltyProgram);
 
-        verify(userLoyaltyProgramDao).create(userLoyaltyProgram);
+        verify(userLoyaltyProgramRepository).save(userLoyaltyProgram);
     }
 
     @Test
@@ -74,7 +75,7 @@ class UserLoyaltyProgramServiceTest {
 
     @Test
     void create_UserIdNotFound_ThrowNoSuchElementException() {
-        when(userDao.getById(userLoyaltyProgram.getUserLoyaltyProgramId().getUserId())).thenReturn(null);
+        when(userRepository.findById(userLoyaltyProgram.getUserLoyaltyProgramId().getUserId())).thenReturn(Optional.empty());
 
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> userLoyaltyProgramService.create(userLoyaltyProgram));
         assertEquals("Пользователь не найден с id: " + userLoyaltyProgram.getUserLoyaltyProgramId().getUserId(), exception.getMessage());
@@ -82,7 +83,7 @@ class UserLoyaltyProgramServiceTest {
 
     @Test
     void create_LoyaltyProgramIdIsNull_ThrowNullPointerException() {
-        when(userDao.getById(userLoyaltyProgram.getUserLoyaltyProgramId().getUserId())).thenReturn(new User());
+        when(userRepository.findById(userLoyaltyProgram.getUserLoyaltyProgramId().getUserId())).thenReturn(Optional.of(new User()));
         userLoyaltyProgram.getUserLoyaltyProgramId().setProgramId(null);
 
         NullPointerException exception = assertThrows(NullPointerException.class, () -> userLoyaltyProgramService.create(userLoyaltyProgram));
@@ -91,8 +92,8 @@ class UserLoyaltyProgramServiceTest {
 
     @Test
     void create_LoyaltyProgramIdNotFound_ThrowNoSuchElementException() {
-        when(userDao.getById(userLoyaltyProgram.getUserLoyaltyProgramId().getUserId())).thenReturn(new User());
-        when(loyaltyProgramDao.getById(userLoyaltyProgram.getUserLoyaltyProgramId().getProgramId())).thenReturn(null);
+        when(userRepository.findById(userLoyaltyProgram.getUserLoyaltyProgramId().getUserId())).thenReturn(Optional.of(new User()));
+        when(loyaltyProgramRepository.findById(userLoyaltyProgram.getUserLoyaltyProgramId().getProgramId())).thenReturn(Optional.empty());
 
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> userLoyaltyProgramService.create(userLoyaltyProgram));
         assertEquals("Программа лояльности не найдена с id: " + userLoyaltyProgram.getUserLoyaltyProgramId().getProgramId(), exception.getMessage());
@@ -115,30 +116,30 @@ class UserLoyaltyProgramServiceTest {
                 userLoyaltyProgram2
         );
 
-        when(userLoyaltyProgramDao.getAll()).thenReturn(userLoyaltyProgramList);
+        when(userLoyaltyProgramRepository.findAll()).thenReturn(userLoyaltyProgramList);
 
         userLoyaltyProgramService.getAll();
 
-        verify(userLoyaltyProgramDao, times(2)).getAll();
+        verify(userLoyaltyProgramRepository, times(2)).findAll();
     }
 
     @Test
     void getAll_ListIsEmpty() {
-        when(userLoyaltyProgramDao.getAll()).thenReturn(Collections.emptyList());
+        when(userLoyaltyProgramRepository.findAll()).thenReturn(Collections.emptyList());
 
         userLoyaltyProgramService.getAll();
 
-        verify(userLoyaltyProgramDao, times(3)).getAll();
+        verify(userLoyaltyProgramRepository, times(1)).findAll();
     }
 
     @Test
     void delete_Success() {
-        when(userDao.getById(userLoyaltyProgram.getUserLoyaltyProgramId().getUserId())).thenReturn(new User());
-        when(loyaltyProgramDao.getById(userLoyaltyProgram.getUserLoyaltyProgramId().getProgramId())).thenReturn(new LoyaltyProgram());
+        when(userRepository.findById(userLoyaltyProgram.getUserLoyaltyProgramId().getUserId())).thenReturn(Optional.of(new User()));
+        when(loyaltyProgramRepository.findById(userLoyaltyProgram.getUserLoyaltyProgramId().getProgramId())).thenReturn(Optional.of(new LoyaltyProgram()));
 
         userLoyaltyProgramService.delete(1,1);
 
-        verify(userLoyaltyProgramDao).delete(1,1);
+        verify(userLoyaltyProgramRepository).deleteById(new UserLoyaltyProgramId(1,1));
     }
 
     @Test
@@ -149,7 +150,7 @@ class UserLoyaltyProgramServiceTest {
 
     @Test
     void delete_UserIdNotFound_ThrowNoSuchElementException() {
-        when(userDao.getById(userLoyaltyProgram.getUserLoyaltyProgramId().getUserId())).thenReturn(null);
+        when(userRepository.findById(userLoyaltyProgram.getUserLoyaltyProgramId().getUserId())).thenReturn(Optional.empty());
 
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> userLoyaltyProgramService.delete(1,1));
         assertEquals("Пользователь не найден с id: " + userLoyaltyProgram.getUserLoyaltyProgramId().getUserId(), exception.getMessage());
@@ -157,7 +158,7 @@ class UserLoyaltyProgramServiceTest {
 
     @Test
     void delete_LoyaltyProgramIdIsNull_ThrowNullPointerException() {
-        when(userDao.getById(userLoyaltyProgram.getUserLoyaltyProgramId().getUserId())).thenReturn(new User());
+        when(userRepository.findById(userLoyaltyProgram.getUserLoyaltyProgramId().getUserId())).thenReturn(Optional.of(new User()));
 
         NullPointerException exception = assertThrows(NullPointerException.class, () -> userLoyaltyProgramService.delete(1,null));
         assertEquals("Cannot invoke \"java.lang.Integer.intValue()\" because \"programId\" is null", exception.getMessage());
@@ -165,8 +166,8 @@ class UserLoyaltyProgramServiceTest {
 
     @Test
     void delete_BonusIdNotFound_ThrowNoSuchElementException() {
-        when(userDao.getById(userLoyaltyProgram.getUserLoyaltyProgramId().getUserId())).thenReturn(new User());
-        when(loyaltyProgramDao.getById(userLoyaltyProgram.getUserLoyaltyProgramId().getProgramId())).thenReturn(null);
+        when(userRepository.findById(userLoyaltyProgram.getUserLoyaltyProgramId().getUserId())).thenReturn(Optional.of(new User()));
+        when(loyaltyProgramRepository.findById(userLoyaltyProgram.getUserLoyaltyProgramId().getProgramId())).thenReturn(Optional.empty());
 
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> userLoyaltyProgramService.delete(1, 1));
         assertEquals("Программа лояльности не найдена с id: " + userLoyaltyProgram.getUserLoyaltyProgramId().getProgramId(), exception.getMessage());

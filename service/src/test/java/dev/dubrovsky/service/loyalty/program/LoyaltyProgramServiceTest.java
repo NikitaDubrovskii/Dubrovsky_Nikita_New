@@ -1,7 +1,7 @@
 package dev.dubrovsky.service.loyalty.program;
 
-import dev.dubrovsky.dao.loyalty.program.LoyaltyProgramDao;
 import dev.dubrovsky.model.loyalty.program.LoyaltyProgram;
+import dev.dubrovsky.repository.loyalty.program.LoyaltyProgramRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -21,7 +22,7 @@ import static org.mockito.Mockito.*;
 class LoyaltyProgramServiceTest {
 
     @Mock
-    private LoyaltyProgramDao loyaltyProgramDao;
+    private LoyaltyProgramRepository loyaltyProgramRepository;
 
     @InjectMocks
     private LoyaltyProgramService loyaltyProgramService;
@@ -31,7 +32,7 @@ class LoyaltyProgramServiceTest {
 
     @BeforeEach
     void setUp() {
-        loyaltyProgramService = new LoyaltyProgramService(loyaltyProgramDao);
+        loyaltyProgramService = new LoyaltyProgramService(loyaltyProgramRepository);
 
         loyaltyProgram = new LoyaltyProgram("test", "test");
         loyaltyProgram.setId(1);
@@ -42,7 +43,7 @@ class LoyaltyProgramServiceTest {
     void create_Success() {
         loyaltyProgramService.create(loyaltyProgram);
 
-        verify(loyaltyProgramDao).create(loyaltyProgram);
+        verify(loyaltyProgramRepository).save(loyaltyProgram);
     }
 
     @Test
@@ -72,11 +73,11 @@ class LoyaltyProgramServiceTest {
     @Test
     void getById_Success() {
         Integer id = 1;
-        when(loyaltyProgramDao.getById(id)).thenReturn(loyaltyProgram);
+        when(loyaltyProgramRepository.findById(id)).thenReturn(Optional.of(loyaltyProgram));
 
         loyaltyProgramService.getById(id);
 
-        verify(loyaltyProgramDao, times(2)).getById(id);
+        verify(loyaltyProgramRepository, times(2)).findById(id);
     }
 
     @Test
@@ -107,7 +108,7 @@ class LoyaltyProgramServiceTest {
     @Test
     void getById_IdNotFound_ThrowNoSuchElementException() {
         Integer id = 45;
-        when(loyaltyProgramDao.getById(id)).thenReturn(null);
+        when(loyaltyProgramRepository.findById(id)).thenReturn(Optional.empty());
 
         NoSuchElementException thrown = assertThrows(NoSuchElementException.class, () -> loyaltyProgramService.getById(id));
         assertEquals("Ничего не найдено с id: " + id, thrown.getMessage());
@@ -122,30 +123,30 @@ class LoyaltyProgramServiceTest {
                 loyaltyProgram2
         );
 
-        when(loyaltyProgramDao.getAll()).thenReturn(loyaltyProgramList);
+        when(loyaltyProgramRepository.findAll()).thenReturn(loyaltyProgramList);
 
         loyaltyProgramService.getAll();
 
-        verify(loyaltyProgramDao, times(2)).getAll();
+        verify(loyaltyProgramRepository, times(2)).findAll();
     }
 
     @Test
     void getAll_ListIsEmpty() {
-        when(loyaltyProgramDao.getAll()).thenReturn(Collections.emptyList());
+        when(loyaltyProgramRepository.findAll()).thenReturn(Collections.emptyList());
 
         loyaltyProgramService.getAll();
 
-        verify(loyaltyProgramDao, times(3)).getAll();
+        verify(loyaltyProgramRepository, times(1)).findAll();
     }
 
     @Test
     void update_Success() {
         Integer id = 1;
-        when(loyaltyProgramDao.getById(id)).thenReturn(loyaltyProgram);
+        when(loyaltyProgramRepository.findById(id)).thenReturn(Optional.of(loyaltyProgram));
 
         loyaltyProgramService.update(updloyaltyProgram, id);
 
-        verify(loyaltyProgramDao).update(updloyaltyProgram);
+        verify(loyaltyProgramRepository).save(updloyaltyProgram);
     }
 
     @Test
@@ -202,7 +203,7 @@ class LoyaltyProgramServiceTest {
     @Test
     void update_IdNotFound_ThrowNoSuchElementException() {
         Integer id = 44;
-        when(loyaltyProgramDao.getById(id)).thenReturn(null);
+        when(loyaltyProgramRepository.findById(id)).thenReturn(Optional.empty());
 
         NoSuchElementException thrown = assertThrows(NoSuchElementException.class, () -> loyaltyProgramService.update(updloyaltyProgram, id));
         assertEquals("Ничего не найдено с id: " + id, thrown.getMessage());
@@ -212,11 +213,11 @@ class LoyaltyProgramServiceTest {
     void delete_Success() {
         Integer id = 1;
 
-        when(loyaltyProgramDao.getById(id)).thenReturn(loyaltyProgram);
+        when(loyaltyProgramRepository.findById(id)).thenReturn(Optional.of(loyaltyProgram));
 
         loyaltyProgramService.delete(id);
 
-        verify(loyaltyProgramDao).delete(id);
+        verify(loyaltyProgramRepository).deleteById(id);
     }
 
     @Test
@@ -246,7 +247,7 @@ class LoyaltyProgramServiceTest {
     @Test
     void delete_IdNotFound_ThrowNoSuchElementException() {
         Integer id = 44;
-        when(loyaltyProgramDao.getById(id)).thenReturn(null);
+        when(loyaltyProgramRepository.findById(id)).thenReturn(Optional.empty());
 
         NoSuchElementException thrown = assertThrows(NoSuchElementException.class, () -> loyaltyProgramService.delete(id));
         assertEquals("Ничего не найдено с id: " + id, thrown.getMessage());

@@ -1,7 +1,7 @@
 package dev.dubrovsky.service.user;
 
-import dev.dubrovsky.dao.user.UserDao;
 import dev.dubrovsky.model.user.User;
+import dev.dubrovsky.repository.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -21,7 +22,7 @@ import static org.mockito.Mockito.*;
 class UserServiceTest {
 
     @Mock
-    private UserDao userDao;
+    private UserRepository userRepository;
 
     @InjectMocks
     private UserService userService;
@@ -31,7 +32,7 @@ class UserServiceTest {
 
     @BeforeEach
     void setUp() {
-        userService = new UserService(userDao);
+        userService = new UserService(userRepository);
 
         user = new User("test", "test", "test");
         user.setId(1);
@@ -40,12 +41,12 @@ class UserServiceTest {
 
     @Test
     void create_Success() {
-        when(userDao.findByUsername(user.getUsername())).thenReturn(null);
-        when(userDao.findByEmail(user.getEmail())).thenReturn(null);
+        when(userRepository.findByUsername(user.getUsername())).thenReturn(null);
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(null);
 
         userService.create(user);
 
-        verify(userDao).create(user);
+        verify(userRepository).save(user);
     }
 
     @Test
@@ -106,7 +107,7 @@ class UserServiceTest {
 
     @Test
     void create_NonUniqueUsername_ThrowIllegalArgumentException() {
-        when(userDao.findByUsername(user.getUsername())).thenReturn(new User());
+        when(userRepository.findByUsername(user.getUsername())).thenReturn(new User());
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> userService.create(user));
         assertEquals("Пользователь уже существует с именем: " + user.getUsername(), exception.getMessage());
@@ -114,7 +115,7 @@ class UserServiceTest {
 
     @Test
     void create_NonUniqueEmail_ThrowIllegalArgumentException() {
-        when(userDao.findByEmail(user.getEmail())).thenReturn(new User());
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(new User());
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> userService.create(user));
         assertEquals("Пользователь уже существует с почтой: " + user.getEmail(), exception.getMessage());
@@ -123,11 +124,11 @@ class UserServiceTest {
     @Test
     void getById_Success() {
         Integer id = 1;
-        when(userDao.getById(id)).thenReturn(user);
+        when(userRepository.findById(id)).thenReturn(Optional.of(user));
 
         userService.getById(id);
 
-        verify(userDao, times(2)).getById(id);
+        verify(userRepository, times(2)).findById(id);
     }
 
     @Test
@@ -157,7 +158,7 @@ class UserServiceTest {
     @Test
     void getById_IdNotFound_ThrowNoSuchElementException() {
         Integer id = 45;
-        when(userDao.getById(id)).thenReturn(null);
+        when(userRepository.findById(id)).thenReturn(Optional.empty());
 
         NoSuchElementException thrown = assertThrows(NoSuchElementException.class, () -> userService.getById(id));
         assertEquals("Ничего не найдено с id: " + id, thrown.getMessage());
@@ -172,32 +173,32 @@ class UserServiceTest {
                 user2
         );
 
-        when(userDao.getAll()).thenReturn(userList);
+        when(userRepository.findAll()).thenReturn(userList);
 
         userService.getAll();
 
-        verify(userDao, times(2)).getAll();
+        verify(userRepository, times(2)).findAll();
     }
 
     @Test
     void getAll_ListIsEmpty() {
-        when(userDao.getAll()).thenReturn(Collections.emptyList());
+        when(userRepository.findAll()).thenReturn(Collections.emptyList());
 
         userService.getAll();
 
-        verify(userDao, times(3)).getAll();
+        verify(userRepository, times(1)).findAll();
     }
 
     @Test
     void update_Success() {
         Integer id = 1;
-        when(userDao.getById(id)).thenReturn(user);
-        when(userDao.findByUsername(updUser.getUsername())).thenReturn(null);
-        when(userDao.findByEmail(updUser.getEmail())).thenReturn(null);
+        when(userRepository.findById(id)).thenReturn(Optional.of(user));
+        when(userRepository.findByUsername(updUser.getUsername())).thenReturn(null);
+        when(userRepository.findByEmail(updUser.getEmail())).thenReturn(null);
 
         userService.update(updUser, id);
 
-        verify(userDao).update(updUser);
+        verify(userRepository).save(updUser);
     }
 
     @Test
@@ -290,7 +291,7 @@ class UserServiceTest {
     @Test
     void update_IdNotFound_ThrowNoSuchElementException() {
         Integer id = 44;
-        when(userDao.getById(id)).thenReturn(null);
+        when(userRepository.findById(id)).thenReturn(Optional.empty());
 
         NoSuchElementException thrown = assertThrows(NoSuchElementException.class, () -> userService.update(updUser, id));
         assertEquals("Ничего не найдено с id: " + id, thrown.getMessage());
@@ -299,8 +300,8 @@ class UserServiceTest {
     @Test
     void update_NonUniqueUsername_ThrowIllegalArgumentException() {
         Integer id = 1;
-        when(userDao.getById(id)).thenReturn(user);
-        when(userDao.findByUsername(updUser.getUsername())).thenReturn(new User());
+        when(userRepository.findById(id)).thenReturn(Optional.of(user));
+        when(userRepository.findByUsername(updUser.getUsername())).thenReturn(new User());
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> userService.update(updUser, id));
         assertEquals("Пользователь уже существует с именем: " + updUser.getUsername(), exception.getMessage());
@@ -309,8 +310,8 @@ class UserServiceTest {
     @Test
     void update_NonUniqueEmail_ThrowIllegalArgumentException() {
         Integer id = 1;
-        when(userDao.getById(id)).thenReturn(user);
-        when(userDao.findByEmail(updUser.getEmail())).thenReturn(new User());
+        when(userRepository.findById(id)).thenReturn(Optional.of(user));
+        when(userRepository.findByEmail(updUser.getEmail())).thenReturn(new User());
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> userService.update(updUser, id));
         assertEquals("Пользователь уже существует с почтой: " + updUser.getEmail(), exception.getMessage());
@@ -320,11 +321,11 @@ class UserServiceTest {
     void delete_Success() {
         Integer id = 1;
 
-        when(userDao.getById(id)).thenReturn(user);
+        when(userRepository.findById(id)).thenReturn(Optional.of(user));
 
         userService.delete(id);
 
-        verify(userDao).delete(id);
+        verify(userRepository).deleteById(id);
     }
 
     @Test
@@ -354,7 +355,7 @@ class UserServiceTest {
     @Test
     void delete_IdNotFound_ThrowNoSuchElementException() {
         Integer id = 44;
-        when(userDao.getById(id)).thenReturn(null);
+        when(userRepository.findById(id)).thenReturn(Optional.empty());
 
         NoSuchElementException thrown = assertThrows(NoSuchElementException.class, () -> userService.delete(id));
         assertEquals("Ничего не найдено с id: " + id, thrown.getMessage());

@@ -1,9 +1,9 @@
 package dev.dubrovsky.service.bonus;
 
-import dev.dubrovsky.dao.bonus.BonusDao;
-import dev.dubrovsky.dao.loyalty.program.LoyaltyProgramDao;
 import dev.dubrovsky.model.bonus.Bonus;
 import dev.dubrovsky.model.loyalty.program.LoyaltyProgram;
+import dev.dubrovsky.repository.bonus.BonusRepository;
+import dev.dubrovsky.repository.loyalty.program.LoyaltyProgramRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -22,10 +23,10 @@ import static org.mockito.Mockito.*;
 class BonusServiceTest {
 
     @Mock
-    private BonusDao bonusDao;
+    private BonusRepository bonusRepository;
 
     @Mock
-    private LoyaltyProgramDao loyaltyProgramDao;
+    private LoyaltyProgramRepository loyaltyProgramRepository;
 
     @InjectMocks
     private BonusService bonusService;
@@ -36,7 +37,7 @@ class BonusServiceTest {
 
     @BeforeEach
     void setUp() {
-        bonusService = new BonusService(bonusDao, loyaltyProgramDao);
+        bonusService = new BonusService(bonusRepository, loyaltyProgramRepository);
 
         program = new LoyaltyProgram();
         program.setId(1);
@@ -48,11 +49,11 @@ class BonusServiceTest {
 
     @Test
     void create_Success() {
-        when(loyaltyProgramDao.getById(bonus.getProgram().getId())).thenReturn(new LoyaltyProgram());
+        when(loyaltyProgramRepository.findById(bonus.getProgram().getId())).thenReturn(Optional.of(new LoyaltyProgram()));
 
         bonusService.create(bonus);
 
-        verify(bonusDao).create(bonus);
+        verify(bonusRepository).save(bonus);
     }
 
     @Test
@@ -97,7 +98,7 @@ class BonusServiceTest {
 
     @Test
     void create_LoyaltyProgramNotFound_ThrowNoSuchElementException() {
-        when(loyaltyProgramDao.getById(bonus.getProgram().getId())).thenReturn(null);
+        when(loyaltyProgramRepository.findById(bonus.getProgram().getId())).thenReturn(Optional.empty());
 
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> bonusService.create(bonus));
         assertEquals("Ничего не найдено с id: " + bonus.getProgram().getId(), exception.getMessage());
@@ -124,11 +125,11 @@ class BonusServiceTest {
     @Test
     void getById_Success() {
         Integer id = 1;
-        when(bonusDao.getById(id)).thenReturn(bonus);
+        when(bonusRepository.findById(id)).thenReturn(Optional.of(bonus));
 
         bonusService.getById(id);
 
-        verify(bonusDao, times(2)).getById(id);
+        verify(bonusRepository, times(2)).findById(id);
     }
 
     @Test
@@ -159,7 +160,7 @@ class BonusServiceTest {
     @Test
     void getById_IdNotFound_ThrowNoSuchElementException() {
         Integer id = 45;
-        when(bonusDao.getById(id)).thenReturn(null);
+        when(bonusRepository.findById(id)).thenReturn(Optional.empty());
 
         NoSuchElementException thrown = assertThrows(NoSuchElementException.class, () -> bonusService.getById(id));
         assertEquals("Ничего не найдено с id: " + id, thrown.getMessage());
@@ -174,31 +175,31 @@ class BonusServiceTest {
                 bonus2
         );
 
-        when(bonusDao.getAll()).thenReturn(bonuses);
+        when(bonusRepository.findAll()).thenReturn(bonuses);
 
         bonusService.getAll();
 
-        verify(bonusDao, times(2)).getAll();
+        verify(bonusRepository, times(2)).findAll();
     }
 
     @Test
     void getAll_ListIsEmpty() {
-        when(bonusDao.getAll()).thenReturn(Collections.emptyList());
+        when(bonusRepository.findAll()).thenReturn(Collections.emptyList());
 
         bonusService.getAll();
 
-        verify(bonusDao, times(3)).getAll();
+        verify(bonusRepository, times(1)).findAll();
     }
 
     @Test
     void update_Success() {
         Integer id = 1;
-        when(loyaltyProgramDao.getById(updBonus.getProgram().getId())).thenReturn(new LoyaltyProgram());
-        when(bonusDao.getById(id)).thenReturn(bonus);
+        when(loyaltyProgramRepository.findById(updBonus.getProgram().getId())).thenReturn(Optional.of(new LoyaltyProgram()));
+        when(bonusRepository.findById(id)).thenReturn(Optional.of(bonus));
 
         bonusService.update(updBonus, id);
 
-        verify(bonusDao).update(updBonus);
+        verify(bonusRepository).save(updBonus);
     }
 
     @Test
@@ -264,7 +265,7 @@ class BonusServiceTest {
     @Test
     void update_IdNotFound_ThrowNoSuchElementException() {
         Integer id = 44;
-        when(bonusDao.getById(id)).thenReturn(null);
+        when(bonusRepository.findById(id)).thenReturn(Optional.empty());
 
         NoSuchElementException thrown = assertThrows(NoSuchElementException.class, () -> bonusService.update(updBonus, id));
         assertEquals("Ничего не найдено с id: " + id, thrown.getMessage());
@@ -274,7 +275,7 @@ class BonusServiceTest {
     void update_ProgramLoyaltyIdIsNull_ThrowNullPointerException() {
         Integer id = 1;
         updBonus.setProgram(null);
-        when(bonusDao.getById(id)).thenReturn(new Bonus());
+        when(bonusRepository.findById(id)).thenReturn(Optional.of(new Bonus()));
 
         NullPointerException exception = assertThrows(NullPointerException.class, () -> bonusService.update(updBonus, id));
         assertEquals("Cannot invoke \"dev.dubrovsky.model.loyalty.program.LoyaltyProgram.getId()\" because the return value of \"dev.dubrovsky.model.bonus.Bonus.getProgram()\" is null", exception.getMessage());
@@ -285,7 +286,7 @@ class BonusServiceTest {
         Integer id = 1;
         program.setId(0);
         updBonus.setProgram(program);
-        when(bonusDao.getById(id)).thenReturn(new Bonus());
+        when(bonusRepository.findById(id)).thenReturn(Optional.of(new Bonus()));
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> bonusService.update(updBonus, id));
         assertEquals("Id должен быть больше 0", exception.getMessage());
@@ -294,8 +295,8 @@ class BonusServiceTest {
     @Test
     void update_ProgramLoyaltyNotFound_ThrowNoSuchElementException() {
         Integer id = 1;
-        when(bonusDao.getById(id)).thenReturn(new Bonus());
-        when(loyaltyProgramDao.getById(bonus.getProgram().getId())).thenReturn(null);
+        when(bonusRepository.findById(id)).thenReturn(Optional.of(new Bonus()));
+        when(loyaltyProgramRepository.findById(bonus.getProgram().getId())).thenReturn(Optional.empty());
 
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> bonusService.update(updBonus, id));
         assertEquals("Ничего не найдено с id: " + updBonus.getProgram().getId(), exception.getMessage());
@@ -306,7 +307,7 @@ class BonusServiceTest {
         Integer id = 1;
         program.setId(-1);
         updBonus.setProgram(program);
-        when(bonusDao.getById(id)).thenReturn(new Bonus());
+        when(bonusRepository.findById(id)).thenReturn(Optional.of(new Bonus()));
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> bonusService.update(updBonus, id));
         assertEquals("Id должен быть больше 0", exception.getMessage());
@@ -316,11 +317,11 @@ class BonusServiceTest {
     void delete_Success() {
         Integer id = 1;
 
-        when(bonusDao.getById(id)).thenReturn(bonus);
+        when(bonusRepository.findById(id)).thenReturn(Optional.of(bonus));
 
         bonusService.delete(id);
 
-        verify(bonusDao).delete(id);
+        verify(bonusRepository).deleteById(id);
     }
 
     @Test
@@ -350,7 +351,7 @@ class BonusServiceTest {
     @Test
     void delete_IdNotFound_ThrowNoSuchElementException() {
         Integer id = 44;
-        when(bonusDao.getById(id)).thenReturn(null);
+        when(bonusRepository.findById(id)).thenReturn(Optional.empty());
 
         NoSuchElementException thrown = assertThrows(NoSuchElementException.class, () -> bonusService.delete(id));
         assertEquals("Ничего не найдено с id: " + id, thrown.getMessage());

@@ -1,7 +1,7 @@
 package dev.dubrovsky.service.category;
 
-import dev.dubrovsky.dao.category.CategoryDao;
 import dev.dubrovsky.model.category.Category;
+import dev.dubrovsky.repository.category.CategoryRepository;
 import dev.dubrovsky.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -12,44 +12,45 @@ import java.util.List;
 @AllArgsConstructor
 public class CategoryService implements ICategoryService {
 
-    private final CategoryDao categoryDao;
+    private final CategoryRepository categoryRepository;
 
     @Override
     public Category create(Category category) {
         validateCategory(category);
 
-        return categoryDao.create(category);
+        return categoryRepository.save(category);
     }
 
     @Override
     public Category getById(Integer id) {
-        ValidationUtil.checkId(id, categoryDao);
+        ValidationUtil.checkId(id, categoryRepository);
 
-        return categoryDao.getById(id);
+        return categoryRepository.findById(id).orElse(null);
     }
 
     @Override
     public List<Category> getAll() {
-        if (categoryDao.getAll().isEmpty() && categoryDao.getAll() == null) {
+        if (categoryRepository.findAll().isEmpty()) {
             return null;
         } else {
-            return categoryDao.getAll();
+            return categoryRepository.findAll();
         }
     }
 
     @Override
     public Category update(Category category, Integer id) {
         validateCategory(category);
-        ValidationUtil.checkId(id, categoryDao);
+        ValidationUtil.checkId(id, categoryRepository);
 
-        return categoryDao.update(category);
+        return categoryRepository.save(category);
     }
 
     @Override
     public String delete(Integer id) {
-        ValidationUtil.checkId(id, categoryDao);
+        ValidationUtil.checkId(id, categoryRepository);
+        categoryRepository.deleteById(id);
 
-        return categoryDao.delete(id);
+        return "Удалено!";
     }
 
     private void validateCategory(Category category) {

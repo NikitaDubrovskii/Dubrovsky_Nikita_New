@@ -1,11 +1,11 @@
 package dev.dubrovsky.service.order;
 
-import dev.dubrovsky.dao.order.OrderDao;
-import dev.dubrovsky.dao.payment.method.PaymentMethodDao;
-import dev.dubrovsky.dao.user.UserDao;
 import dev.dubrovsky.model.order.Order;
 import dev.dubrovsky.model.payment.method.PaymentMethod;
 import dev.dubrovsky.model.user.User;
+import dev.dubrovsky.repository.order.OrderRepository;
+import dev.dubrovsky.repository.payment.method.PaymentMethodRepository;
+import dev.dubrovsky.repository.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,21 +16,23 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class OrderServiceTest {
 
     @Mock
-    private OrderDao orderDao;
+    private OrderRepository orderRepository;
 
     @Mock
-    private PaymentMethodDao paymentMethodDao;
+    private PaymentMethodRepository paymentMethodRepository;
 
     @Mock
-    private UserDao userDao;
+    private UserRepository userRepository;
 
     @InjectMocks
     private OrderService orderService;
@@ -43,7 +45,7 @@ class OrderServiceTest {
 
     @BeforeEach
     void setUp() {
-        orderService = new OrderService(orderDao, paymentMethodDao, userDao);
+        orderService = new OrderService(orderRepository, paymentMethodRepository, userRepository);
 
         paymentMethod1 = new PaymentMethod();
         paymentMethod1.setId(1);
@@ -59,12 +61,12 @@ class OrderServiceTest {
 
     @Test
     void create_Success() {
-        when(userDao.getById(order.getUser().getId())).thenReturn(new User());
-        when(paymentMethodDao.getById(order.getPaymentMethod().getId())).thenReturn(new PaymentMethod());
+        when(userRepository.findById(order.getUser().getId())).thenReturn(Optional.of(new User()));
+        when(paymentMethodRepository.findById(order.getPaymentMethod().getId())).thenReturn(Optional.of(new PaymentMethod()));
 
         orderService.create(order);
 
-        verify(orderDao).create(order);
+        verify(orderRepository).save(order);
     }
 
     @Test
@@ -117,7 +119,7 @@ class OrderServiceTest {
 
     @Test
     void create_UserNotFound_ThrowNoSuchElementException() {
-        when(userDao.getById(order.getUser().getId())).thenReturn(null);
+        when(userRepository.findById(order.getUser().getId())).thenReturn(Optional.empty());
 
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> orderService.create(order));
         assertEquals("Ничего не найдено с id: " + order.getUser().getId(), exception.getMessage());
@@ -143,7 +145,7 @@ class OrderServiceTest {
 
     @Test
     void create_PaymentMethodIdIsNull_ThrowIllegalArgumentException() {
-        when(userDao.getById(order.getUser().getId())).thenReturn(new User());
+        when(userRepository.findById(order.getUser().getId())).thenReturn(Optional.of(new User()));
         order.setPaymentMethod(null);
 
         NullPointerException exception = assertThrows(NullPointerException.class, () -> orderService.create(order));
@@ -152,8 +154,8 @@ class OrderServiceTest {
 
     @Test
     void create_PaymentMethodNotFound_ThrowNoSuchElementException() {
-        when(userDao.getById(order.getUser().getId())).thenReturn(new User());
-        when(paymentMethodDao.getById(order.getPaymentMethod().getId())).thenReturn(null);
+        when(userRepository.findById(order.getUser().getId())).thenReturn(Optional.of(new User()));
+        when(paymentMethodRepository.findById(order.getPaymentMethod().getId())).thenReturn(Optional.empty());
 
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> orderService.create(order));
         assertEquals("Ничего не найдено с id: " + order.getPaymentMethod().getId(), exception.getMessage());
@@ -161,7 +163,7 @@ class OrderServiceTest {
 
     @Test
     void create_PaymentMethodIdIsNegative_ThrowIllegalArgumentException() {
-        when(userDao.getById(order.getUser().getId())).thenReturn(new User());
+        when(userRepository.findById(order.getUser().getId())).thenReturn(Optional.of(new User()));
         paymentMethod1.setId(-1);
         order.setPaymentMethod(paymentMethod1);
 
@@ -171,7 +173,7 @@ class OrderServiceTest {
 
     @Test
     void create_PaymentMethodIdIsZero_ThrowIllegalArgumentException() {
-        when(userDao.getById(order.getUser().getId())).thenReturn(new User());
+        when(userRepository.findById(order.getUser().getId())).thenReturn(Optional.of(new User()));
         paymentMethod1.setId(0);
         order.setPaymentMethod(paymentMethod1);
 
@@ -182,11 +184,11 @@ class OrderServiceTest {
     @Test
     void getById_Success() {
         Integer id = 1;
-        when(orderDao.getById(id)).thenReturn(order);
+        when(orderRepository.findById(id)).thenReturn(Optional.of(order));
 
         orderService.getById(id);
 
-        verify(orderDao, times(2)).getById(id);
+        verify(orderRepository, times(2)).findById(id);
     }
 
     @Test
@@ -216,7 +218,7 @@ class OrderServiceTest {
     @Test
     void getById_IdNotFound_ThrowNoSuchElementException() {
         Integer id = 45;
-        when(orderDao.getById(id)).thenReturn(null);
+        when(orderRepository.findById(id)).thenReturn(Optional.empty());
 
         NoSuchElementException thrown = assertThrows(NoSuchElementException.class, () -> orderService.getById(id));
         assertEquals("Ничего не найдено с id: " + id, thrown.getMessage());
@@ -231,32 +233,32 @@ class OrderServiceTest {
                 order2
         );
 
-        when(orderDao.getAll()).thenReturn(orderList);
+        when(orderRepository.findAll()).thenReturn(orderList);
 
         orderService.getAll();
 
-        verify(orderDao, times(2)).getAll();
+        verify(orderRepository, times(2)).findAll();
     }
 
     @Test
     void getAll_ListIsEmpty() {
-        when(orderDao.getAll()).thenReturn(Collections.emptyList());
+        when(orderRepository.findAll()).thenReturn(Collections.emptyList());
 
         orderService.getAll();
 
-        verify(orderDao, times(3)).getAll();
+        verify(orderRepository, times(1)).findAll();
     }
 
     @Test
     void update_Success() {
         Integer id = 1;
-        when(userDao.getById(updOrder.getUser().getId())).thenReturn(new User());
-        when(paymentMethodDao.getById(updOrder.getPaymentMethod().getId())).thenReturn(new PaymentMethod());
-        when(orderDao.getById(id)).thenReturn(order);
+        when(userRepository.findById(updOrder.getUser().getId())).thenReturn(Optional.of(new User()));
+        when(paymentMethodRepository.findById(updOrder.getPaymentMethod().getId())).thenReturn(Optional.of(new PaymentMethod()));
+        when(orderRepository.findById(id)).thenReturn(Optional.of(order));
 
         orderService.update(updOrder, id);
 
-        verify(orderDao).update(updOrder);
+        verify(orderRepository).save(updOrder);
     }
 
     @Test
@@ -316,7 +318,7 @@ class OrderServiceTest {
     @Test
     void update_UserNotFound_ThrowNoSuchElementException() {
         Integer id = 1;
-        when(userDao.getById(updOrder.getUser().getId())).thenReturn(null);
+        when(userRepository.findById(updOrder.getUser().getId())).thenReturn(Optional.empty());
 
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> orderService.update(updOrder, id));
         assertEquals("Ничего не найдено с id: " + updOrder.getUser().getId(), exception.getMessage());
@@ -345,7 +347,7 @@ class OrderServiceTest {
     @Test
     void update_PaymentMethodIdIsNull_ThrowNullPointerException() {
         Integer id = 1;
-        when(userDao.getById(updOrder.getUser().getId())).thenReturn(new User());
+        when(userRepository.findById(updOrder.getUser().getId())).thenReturn(Optional.of(new User()));
         updOrder.setPaymentMethod(null);
 
         NullPointerException exception = assertThrows(NullPointerException.class, () -> orderService.update(updOrder, id));
@@ -355,8 +357,8 @@ class OrderServiceTest {
     @Test
     void update_PaymentMethodNotFound_ThrowNoSuchElementException() {
         Integer id = 1;
-        when(userDao.getById(updOrder.getUser().getId())).thenReturn(new User());
-        when(paymentMethodDao.getById(updOrder.getPaymentMethod().getId())).thenReturn(null);
+        when(userRepository.findById(updOrder.getUser().getId())).thenReturn(Optional.of(new User()));
+        when(paymentMethodRepository.findById(updOrder.getPaymentMethod().getId())).thenReturn(Optional.empty());
 
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> orderService.update(updOrder, id));
         assertEquals("Ничего не найдено с id: " + updOrder.getPaymentMethod().getId(), exception.getMessage());
@@ -365,7 +367,7 @@ class OrderServiceTest {
     @Test
     void update_PaymentMethodIdIsZero_ThrowIllegalArgumentException() {
         Integer id = 1;
-        when(userDao.getById(updOrder.getUser().getId())).thenReturn(new User());
+        when(userRepository.findById(updOrder.getUser().getId())).thenReturn(Optional.of(new User()));
         paymentMethod1.setId(0);
         updOrder.setPaymentMethod(paymentMethod1);
 
@@ -376,7 +378,7 @@ class OrderServiceTest {
     @Test
     void update_ProductIdIsNegative_ThrowIllegalArgumentException() {
         Integer id = 1;
-        when(userDao.getById(updOrder.getUser().getId())).thenReturn(new User());
+        when(userRepository.findById(updOrder.getUser().getId())).thenReturn(Optional.of(new User()));
         paymentMethod1.setId(-1);
         updOrder.setPaymentMethod(paymentMethod1);
 
@@ -387,8 +389,8 @@ class OrderServiceTest {
     @Test
     void update_IdIsNull_ThrowNullPointerException() {
         Integer id = null;
-        when(userDao.getById(updOrder.getUser().getId())).thenReturn(new User());
-        when(paymentMethodDao.getById(updOrder.getPaymentMethod().getId())).thenReturn(new PaymentMethod());
+        when(userRepository.findById(updOrder.getUser().getId())).thenReturn(Optional.of(new User()));
+        when(paymentMethodRepository.findById(updOrder.getPaymentMethod().getId())).thenReturn(Optional.of(new PaymentMethod()));
 
         NullPointerException thrown = assertThrows(NullPointerException.class, () -> orderService.update(updOrder, id));
         assertEquals("Cannot invoke \"java.lang.Integer.intValue()\" because \"id\" is null", thrown.getMessage());
@@ -397,8 +399,8 @@ class OrderServiceTest {
     @Test
     void update_IdIsZero_ThrowIllegalArgumentException() {
         Integer id = 0;
-        when(userDao.getById(updOrder.getUser().getId())).thenReturn(new User());
-        when(paymentMethodDao.getById(updOrder.getPaymentMethod().getId())).thenReturn(new PaymentMethod());
+        when(userRepository.findById(updOrder.getUser().getId())).thenReturn(Optional.of(new User()));
+        when(paymentMethodRepository.findById(updOrder.getPaymentMethod().getId())).thenReturn(Optional.of(new PaymentMethod()));
 
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> orderService.update(updOrder, id));
         assertEquals("Id должен быть больше 0", thrown.getMessage());
@@ -407,8 +409,8 @@ class OrderServiceTest {
     @Test
     void update_IdIsNegative_ThrowIllegalArgumentException() {
         Integer id = -44;
-        when(userDao.getById(updOrder.getUser().getId())).thenReturn(new User());
-        when(paymentMethodDao.getById(updOrder.getPaymentMethod().getId())).thenReturn(new PaymentMethod());
+        when(userRepository.findById(updOrder.getUser().getId())).thenReturn(Optional.of(new User()));
+        when(paymentMethodRepository.findById(updOrder.getPaymentMethod().getId())).thenReturn(Optional.of(new PaymentMethod()));
 
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> orderService.update(updOrder, id));
         assertEquals("Id должен быть больше 0", thrown.getMessage());
@@ -417,9 +419,9 @@ class OrderServiceTest {
     @Test
     void update_IdNotFound_ThrowNoSuchElementException() {
         Integer id = 44;
-        when(userDao.getById(updOrder.getUser().getId())).thenReturn(new User());
-        when(paymentMethodDao.getById(updOrder.getPaymentMethod().getId())).thenReturn(new PaymentMethod());
-        when(orderDao.getById(id)).thenReturn(null);
+        when(userRepository.findById(updOrder.getUser().getId())).thenReturn(Optional.of(new User()));
+        when(paymentMethodRepository.findById(updOrder.getPaymentMethod().getId())).thenReturn(Optional.of(new PaymentMethod()));
+        when(orderRepository.findById(id)).thenReturn(Optional.empty());
 
         NoSuchElementException thrown = assertThrows(NoSuchElementException.class, () -> orderService.update(updOrder, id));
         assertEquals("Ничего не найдено с id: " + id, thrown.getMessage());
@@ -429,11 +431,11 @@ class OrderServiceTest {
     void delete_Success() {
         Integer id = 1;
 
-        when(orderDao.getById(id)).thenReturn(order);
+        when(orderRepository.findById(id)).thenReturn(Optional.of(order));
 
         orderService.delete(id);
 
-        verify(orderDao).delete(id);
+        verify(orderRepository).deleteById(id);
     }
 
     @Test

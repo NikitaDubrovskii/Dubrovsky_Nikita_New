@@ -1,5 +1,6 @@
 package dev.dubrovsky.model.loyalty.program;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,7 +14,10 @@ import java.util.Objects;
 @NoArgsConstructor
 public class UserLoyaltyProgramId {
 
+    @Column(name = "user_id")
     private Integer userId;
+
+    @Column(name = "program_id")
     private Integer programId;
 
     public UserLoyaltyProgramId(Integer userId, Integer programId) {

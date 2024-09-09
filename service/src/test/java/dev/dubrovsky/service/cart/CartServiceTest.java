@@ -1,11 +1,11 @@
 package dev.dubrovsky.service.cart;
 
-import dev.dubrovsky.dao.cart.CartDao;
-import dev.dubrovsky.dao.cart.CartItemDao;
-import dev.dubrovsky.dao.product.ProductDao;
-import dev.dubrovsky.dao.user.UserDao;
 import dev.dubrovsky.model.cart.Cart;
 import dev.dubrovsky.model.user.User;
+import dev.dubrovsky.repository.cart.CartItemRepository;
+import dev.dubrovsky.repository.cart.CartRepository;
+import dev.dubrovsky.repository.product.ProductRepository;
+import dev.dubrovsky.repository.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,24 +16,26 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class CartServiceTest {
 
     @Mock
-    private CartDao cartDao;
+    private CartRepository cartRepository;
 
     @Mock
-    private UserDao userDao;
+    private UserRepository userRepository;
 
     @Mock
-    private CartItemDao cartItemDao;
+    private CartItemRepository cartItemRepository;
 
     @Mock
-    private ProductDao productDao;
+    private ProductRepository productRepository;
 
     @InjectMocks
     private CartService cartService;
@@ -44,7 +46,7 @@ class CartServiceTest {
 
     @BeforeEach
     void setUp() {
-        cartService = new CartService(cartDao, userDao, cartItemDao, productDao);
+        cartService = new CartService(cartRepository, userRepository, cartItemRepository, productRepository);
 
         user = new User();
         user.setId(1);
@@ -58,11 +60,11 @@ class CartServiceTest {
 
     @Test
     void create() {
-        when(userDao.getById(cart.getUser().getId())).thenReturn(new User());
+        when(userRepository.findById(cart.getUser().getId())).thenReturn(Optional.of(new User()));
 
         cartService.create(cart);
 
-        verify(cartDao).create(cart);
+        verify(cartRepository).save(cart);
     }
 
     @Test
@@ -83,7 +85,7 @@ class CartServiceTest {
 
     @Test
     void create_UserNotFound_ThrowNoSuchElementException() {
-        when(userDao.getById(cart.getUser().getId())).thenReturn(null);
+        when(userRepository.findById(cart.getUser().getId())).thenReturn(Optional.empty());
 
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> cartService.create(cart));
         assertEquals("Ничего не найдено с id: " + cart.getUser().getId(), exception.getMessage());
@@ -110,11 +112,11 @@ class CartServiceTest {
     @Test
     void getById_Success() {
         Integer id = 1;
-        when(cartDao.getById(id)).thenReturn(cart);
+        when(cartRepository.findById(id)).thenReturn(Optional.of(cart));
 
         cartService.getById(id);
 
-        verify(cartDao, times(2)).getById(id);
+        verify(cartRepository, times(2)).findById(id);
     }
 
     @Test
@@ -145,7 +147,7 @@ class CartServiceTest {
     @Test
     void getById_IdNotFound_ThrowNoSuchElementException() {
         Integer id = 45;
-        when(cartDao.getById(id)).thenReturn(null);
+        when(cartRepository.findById(id)).thenReturn(Optional.empty());
 
         NoSuchElementException thrown = assertThrows(NoSuchElementException.class, () -> cartService.getById(id));
         assertEquals("Ничего не найдено с id: " + id, thrown.getMessage());
@@ -160,31 +162,31 @@ class CartServiceTest {
                 cart2
         );
 
-        when(cartDao.getAll()).thenReturn(cartList);
+        when(cartRepository.findAll()).thenReturn(cartList);
 
         cartService.getAll();
 
-        verify(cartDao, times(2)).getAll();
+        verify(cartRepository, times(2)).findAll();
     }
 
     @Test
     void getAll_ListIsEmpty() {
-        when(cartDao.getAll()).thenReturn(Collections.emptyList());
+        when(cartRepository.findAll()).thenReturn(Collections.emptyList());
 
         cartService.getAll();
 
-        verify(cartDao, times(3)).getAll();
+        verify(cartRepository, times(1)).findAll();
     }
 
     @Test
     void update_Success() {
         Integer id = 1;
-        when(userDao.getById(updCart.getUser().getId())).thenReturn(new User());
-        when(cartDao.getById(id)).thenReturn(cart);
+        when(userRepository.findById(updCart.getUser().getId())).thenReturn(Optional.of(new User()));
+        when(cartRepository.findById(id)).thenReturn(Optional.of(cart));
 
         cartService.update(updCart, id);
 
-        verify(cartDao).update(updCart);
+        verify(cartRepository).save(updCart);
     }
 
     @Test
@@ -218,7 +220,7 @@ class CartServiceTest {
     @Test
     void update_UserNotFound_ThrowNoSuchElementException() {
         Integer id = 1;
-        when(userDao.getById(updCart.getUser().getId())).thenReturn(null);
+        when(userRepository.findById(updCart.getUser().getId())).thenReturn(Optional.empty());
 
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> cartService.update(updCart, id));
         assertEquals("Ничего не найдено с id: " + updCart.getUser().getId(), exception.getMessage());
@@ -237,7 +239,7 @@ class CartServiceTest {
     @Test
     void update_IdIsNull_ThrowNullPointerException() {
         Integer id = null;
-        when(userDao.getById(updCart.getUser().getId())).thenReturn(new User());
+        when(userRepository.findById(updCart.getUser().getId())).thenReturn(Optional.of(new User()));
 
         NullPointerException thrown = assertThrows(NullPointerException.class, () -> cartService.update(updCart, id));
         assertEquals("Cannot invoke \"java.lang.Integer.intValue()\" because \"id\" is null", thrown.getMessage());
@@ -246,7 +248,7 @@ class CartServiceTest {
     @Test
     void update_IdIsZero_ThrowIllegalArgumentException() {
         Integer id = 0;
-        when(userDao.getById(updCart.getUser().getId())).thenReturn(new User());
+        when(userRepository.findById(updCart.getUser().getId())).thenReturn(Optional.of(new User()));
 
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> cartService.update(updCart, id));
         assertEquals("Id должен быть больше 0", thrown.getMessage());
@@ -255,7 +257,7 @@ class CartServiceTest {
     @Test
     void update_IdIsNegative_ThrowIllegalArgumentException() {
         Integer id = -44;
-        when(userDao.getById(updCart.getUser().getId())).thenReturn(new User());
+        when(userRepository.findById(updCart.getUser().getId())).thenReturn(Optional.of(new User()));
 
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> cartService.update(updCart, id));
         assertEquals("Id должен быть больше 0", thrown.getMessage());
@@ -264,8 +266,8 @@ class CartServiceTest {
     @Test
     void update_IdNotFound_ThrowNoSuchElementException() {
         Integer id = 44;
-        when(cartDao.getById(id)).thenReturn(null);
-        when(userDao.getById(updCart.getUser().getId())).thenReturn(new User());
+        when(cartRepository.findById(id)).thenReturn(Optional.empty());
+        when(userRepository.findById(updCart.getUser().getId())).thenReturn(Optional.of(new User()));
 
         NoSuchElementException thrown = assertThrows(NoSuchElementException.class, () -> cartService.update(updCart, id));
         assertEquals("Ничего не найдено с id: " + id, thrown.getMessage());
@@ -275,11 +277,11 @@ class CartServiceTest {
     void delete_Success() {
         Integer id = 1;
 
-        when(cartDao.getById(id)).thenReturn(cart);
+        when(cartRepository.findById(id)).thenReturn(Optional.of(cart));
 
         cartService.delete(id);
 
-        verify(cartDao).delete(id);
+        verify(cartRepository).deleteById(id);
     }
 
     @Test
@@ -309,7 +311,7 @@ class CartServiceTest {
     @Test
     void delete_IdNotFound_ThrowNoSuchElementException() {
         Integer id = 44;
-        when(cartDao.getById(id)).thenReturn(null);
+        when(cartRepository.findById(id)).thenReturn(Optional.empty());
 
         NoSuchElementException thrown = assertThrows(NoSuchElementException.class, () -> cartService.delete(id));
         assertEquals("Ничего не найдено с id: " + id, thrown.getMessage());

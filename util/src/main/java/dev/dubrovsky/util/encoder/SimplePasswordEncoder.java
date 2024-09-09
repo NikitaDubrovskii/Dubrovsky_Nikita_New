@@ -1,24 +1,19 @@
 package dev.dubrovsky.util.encoder;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
-
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
-@PropertySource("/util.properties")
 public final class SimplePasswordEncoder {
 
-    @Value("${encode.algorithm:SHA-256}")
-    private static String encodeAlgorithm;
+    private final static String ENCODE_ALGORITHM = "SHA-256";
 
     private SimplePasswordEncoder() {
     }
 
     public static String encode(String rawPassword) {
         try {
-            MessageDigest messageDigest = MessageDigest.getInstance(encodeAlgorithm);
+            MessageDigest messageDigest = MessageDigest.getInstance(ENCODE_ALGORITHM);
             byte[] hashedPassword = messageDigest.digest(rawPassword.getBytes());
             return Base64.getEncoder().encodeToString(hashedPassword);
         } catch (NoSuchAlgorithmException e) {

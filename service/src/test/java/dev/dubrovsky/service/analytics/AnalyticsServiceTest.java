@@ -1,9 +1,9 @@
 package dev.dubrovsky.service.analytics;
 
-import dev.dubrovsky.dao.analytics.AnalyticsDao;
-import dev.dubrovsky.dao.user.UserDao;
 import dev.dubrovsky.model.analytics.Analytics;
 import dev.dubrovsky.model.user.User;
+import dev.dubrovsky.repository.analytics.AnalyticsRepository;
+import dev.dubrovsky.repository.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -23,10 +24,10 @@ import static org.mockito.Mockito.*;
 class AnalyticsServiceTest {
 
     @Mock
-    private AnalyticsDao analyticsDao;
+    private AnalyticsRepository analyticsRepository;
 
     @Mock
-    private UserDao userDao;
+    private UserRepository userRepository;
 
     @InjectMocks
     private AnalyticsService analyticsService;
@@ -37,7 +38,7 @@ class AnalyticsServiceTest {
 
     @BeforeEach
     void setUp() {
-        analyticsService = new AnalyticsService(analyticsDao, userDao);
+        analyticsService = new AnalyticsService(analyticsRepository, userRepository);
 
         user = new User();
         user.setId(1);
@@ -49,11 +50,11 @@ class AnalyticsServiceTest {
 
     @Test
     void create_Success() {
-        when(userDao.getById(analytics.getUser().getId())).thenReturn(new User());
+        when(userRepository.findById(analytics.getUser().getId())).thenReturn(Optional.of(new User()));
 
         analyticsService.create(analytics);
 
-        verify(analyticsDao).create(analytics);
+        verify(analyticsRepository).save(analytics);
     }
 
     @Test
@@ -74,7 +75,7 @@ class AnalyticsServiceTest {
 
     @Test
     void create_UserNotFound_ThrowNoSuchElementException() {
-        when(userDao.getById(analytics.getUser().getId())).thenReturn(null);
+        when(userRepository.findById(analytics.getUser().getId())).thenReturn(Optional.empty());
 
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> analyticsService.create(analytics));
         assertEquals("Ничего не найдено с id: " + analytics.getUser().getId(), exception.getMessage());
@@ -101,11 +102,11 @@ class AnalyticsServiceTest {
     @Test
     void getById_Success() {
         Integer id = 1;
-        when(analyticsDao.getById(id)).thenReturn(analytics);
+        when(analyticsRepository.findById(id)).thenReturn(Optional.of(analytics));
 
         analyticsService.getById(id);
 
-        verify(analyticsDao, times(2)).getById(id);
+        verify(analyticsRepository, times(2)).findById(id);
     }
 
     @Test
@@ -135,7 +136,7 @@ class AnalyticsServiceTest {
     @Test
     void getById_IdNotFound_ThrowNoSuchElementException() {
         Integer id = 45;
-        when(analyticsDao.getById(id)).thenReturn(null);
+        when(analyticsRepository.findById(id)).thenReturn(Optional.empty());
 
         NoSuchElementException thrown = assertThrows(NoSuchElementException.class, () -> analyticsService.getById(id));
         assertEquals("Ничего не найдено с id: " + id, thrown.getMessage());
@@ -150,31 +151,31 @@ class AnalyticsServiceTest {
                 analytics2
         );
 
-        when(analyticsDao.getAll()).thenReturn(analyticsList);
+        when(analyticsRepository.findAll()).thenReturn(analyticsList);
 
         analyticsService.getAll();
 
-        verify(analyticsDao, times(2)).getAll();
+        verify(analyticsRepository, times(2)).findAll();
     }
 
     @Test
     void getAll_ListIsEmpty() {
-        when(analyticsDao.getAll()).thenReturn(Collections.emptyList());
+        when(analyticsRepository.findAll()).thenReturn(Collections.emptyList());
 
         analyticsService.getAll();
 
-        verify(analyticsDao, times(3)).getAll();
+        verify(analyticsRepository, times(1)).findAll();
     }
 
     @Test
     void update_Success() {
         Integer id = 1;
-        when(userDao.getById(updAnalytics.getUser().getId())).thenReturn(new User());
-        when(analyticsDao.getById(id)).thenReturn(analytics);
+        when(userRepository.findById(updAnalytics.getUser().getId())).thenReturn(Optional.of(new User()));
+        when(analyticsRepository.findById(id)).thenReturn(Optional.of(analytics));
 
         analyticsService.update(updAnalytics, id);
 
-        verify(analyticsDao).update(updAnalytics);
+        verify(analyticsRepository).save(updAnalytics);
     }
 
     @Test
@@ -213,7 +214,7 @@ class AnalyticsServiceTest {
     @Test
     void update_IdNotFound_ThrowNoSuchElementException() {
         Integer id = 44;
-        when(analyticsDao.getById(id)).thenReturn(null);
+        when(analyticsRepository.findById(id)).thenReturn(Optional.empty());
 
         NoSuchElementException thrown = assertThrows(NoSuchElementException.class, () -> analyticsService.update(updAnalytics, id));
         assertEquals("Ничего не найдено с id: " + id, thrown.getMessage());
@@ -223,7 +224,7 @@ class AnalyticsServiceTest {
     void update_UserIdIsNull_ThrowNullPointerException() {
         Integer id = 1;
         updAnalytics.setUser(null);
-        when(analyticsDao.getById(id)).thenReturn(new Analytics());
+        when(analyticsRepository.findById(id)).thenReturn(Optional.of(new Analytics()));
 
         NullPointerException exception = assertThrows(NullPointerException.class, () -> analyticsService.update(updAnalytics, id));
         assertEquals("Cannot invoke \"dev.dubrovsky.model.user.User.getId()\" because the return value of \"dev.dubrovsky.model.analytics.Analytics.getUser()\" is null", exception.getMessage());
@@ -232,8 +233,8 @@ class AnalyticsServiceTest {
     @Test
     void update_UserNotFound_ThrowNoSuchElementException() {
         Integer id = 1;
-        when(analyticsDao.getById(id)).thenReturn(new Analytics());
-        when(userDao.getById(analytics.getUser().getId())).thenReturn(null);
+        when(analyticsRepository.findById(id)).thenReturn(Optional.of(new Analytics()));
+        when(userRepository.findById(analytics.getUser().getId())).thenReturn(Optional.empty());
 
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> analyticsService.update(updAnalytics, id));
         assertEquals("Ничего не найдено с id: " + updAnalytics.getUser().getId(), exception.getMessage());
@@ -244,7 +245,7 @@ class AnalyticsServiceTest {
         Integer id = 1;
         user.setId(0);
         updAnalytics.setUser(user);
-        when(analyticsDao.getById(id)).thenReturn(new Analytics());
+        when(analyticsRepository.findById(id)).thenReturn(Optional.of(new Analytics()));
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> analyticsService.update(updAnalytics, id));
         assertEquals("Id должен быть больше 0", exception.getMessage());
@@ -255,7 +256,7 @@ class AnalyticsServiceTest {
         Integer id = 1;
         user.setId(-1);
         updAnalytics.setUser(user);
-        when(analyticsDao.getById(id)).thenReturn(new Analytics());
+        when(analyticsRepository.findById(id)).thenReturn(Optional.of(new Analytics()));
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> analyticsService.update(updAnalytics, id));
         assertEquals("Id должен быть больше 0", exception.getMessage());
@@ -266,11 +267,11 @@ class AnalyticsServiceTest {
     void delete_Success() {
         Integer id = 1;
 
-        when(analyticsDao.getById(id)).thenReturn(analytics);
+        when(analyticsRepository.findById(id)).thenReturn(Optional.of(analytics));
 
         analyticsService.delete(id);
 
-        verify(analyticsDao).delete(id);
+        verify(analyticsRepository).deleteById(id);
     }
 
     @Test

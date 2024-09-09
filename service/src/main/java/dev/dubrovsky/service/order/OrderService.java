@@ -1,9 +1,9 @@
 package dev.dubrovsky.service.order;
 
-import dev.dubrovsky.dao.order.OrderDao;
-import dev.dubrovsky.dao.payment.method.PaymentMethodDao;
-import dev.dubrovsky.dao.user.UserDao;
 import dev.dubrovsky.model.order.Order;
+import dev.dubrovsky.repository.order.OrderRepository;
+import dev.dubrovsky.repository.payment.method.PaymentMethodRepository;
+import dev.dubrovsky.repository.user.UserRepository;
 import dev.dubrovsky.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,51 +14,52 @@ import java.util.List;
 @AllArgsConstructor
 public class OrderService implements IOrderService {
 
-    private final OrderDao orderDao;
-    private final PaymentMethodDao paymentMethodDao;
-    private final UserDao userDao;
+    private final OrderRepository orderRepository;
+    private final PaymentMethodRepository paymentMethodRepository;
+    private final UserRepository userRepository;
 
     @Override
     public Order create(Order order) {
         validateOrder(order);
-        ValidationUtil.checkEntityPresent(order.getUser().getId(), userDao);
-        ValidationUtil.checkEntityPresent(order.getPaymentMethod().getId(), paymentMethodDao);
+        ValidationUtil.checkEntityPresent(order.getUser().getId(), userRepository);
+        ValidationUtil.checkEntityPresent(order.getPaymentMethod().getId(), paymentMethodRepository);
 
-        return orderDao.create(order);
+        return orderRepository.save(order);
     }
 
     @Override
     public Order getById(Integer id) {
-        ValidationUtil.checkId(id, orderDao);
+        ValidationUtil.checkId(id, orderRepository);
 
-        return orderDao.getById(id);
+        return orderRepository.findById(id).orElse(null);
     }
 
     @Override
     public List<Order> getAll() {
-        if (orderDao.getAll().isEmpty() && orderDao.getAll() == null) {
+        if (orderRepository.findAll().isEmpty()) {
             return null;
         } else {
-            return orderDao.getAll();
+            return orderRepository.findAll();
         }
     }
 
     @Override
     public Order update(Order order, Integer id) {
         validateOrder(order);
-        ValidationUtil.checkEntityPresent(order.getUser().getId(), userDao);
-        ValidationUtil.checkEntityPresent(order.getPaymentMethod().getId(), paymentMethodDao);
-        ValidationUtil.checkId(id, orderDao);
+        ValidationUtil.checkEntityPresent(order.getUser().getId(), userRepository);
+        ValidationUtil.checkEntityPresent(order.getPaymentMethod().getId(), paymentMethodRepository);
+        ValidationUtil.checkId(id, orderRepository);
 
         order.setId(id);
-        return orderDao.update(order);
+        return orderRepository.save(order);
     }
 
     @Override
     public String delete(Integer id) {
-        ValidationUtil.checkId(id, orderDao);
+        ValidationUtil.checkId(id, orderRepository);
+        orderRepository.deleteById(id);
 
-        return orderDao.delete(id);
+        return "Удалено!";
     }
 
     private void validateOrder(Order order) {

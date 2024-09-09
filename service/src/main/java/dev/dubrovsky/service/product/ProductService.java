@@ -1,8 +1,8 @@
 package dev.dubrovsky.service.product;
 
-import dev.dubrovsky.dao.category.CategoryDao;
-import dev.dubrovsky.dao.product.ProductDao;
 import dev.dubrovsky.model.product.Product;
+import dev.dubrovsky.repository.category.CategoryRepository;
+import dev.dubrovsky.repository.product.ProductRepository;
 import dev.dubrovsky.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,48 +13,49 @@ import java.util.List;
 @AllArgsConstructor
 public class ProductService implements IProductService {
 
-    private final ProductDao productDao;
-    private final CategoryDao categoryDao;
+    private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
 
     @Override
     public Product create(Product product) {
         validateProduct(product);
-        ValidationUtil.checkEntityPresent(product.getCategory().getId(), categoryDao);
+        ValidationUtil.checkEntityPresent(product.getCategory().getId(), categoryRepository);
 
-        return productDao.create(product);
+        return productRepository.save(product);
     }
 
     @Override
     public Product getById(Integer id) {
-        ValidationUtil.checkId(id, productDao);
+        ValidationUtil.checkId(id, productRepository);
 
-        return productDao.getById(id);
+        return productRepository.findById(id).orElse(null);
     }
 
     @Override
     public List<Product> getAll() {
-        if (productDao.getAll().isEmpty() && productDao.getAll() == null) {
+        if (productRepository.findAll().isEmpty()) {
             return null;
         } else {
-            return productDao.getAll();
+            return productRepository.findAll();
         }
     }
 
     @Override
     public Product update(Product product, Integer id) {
         validateProduct(product);
-        ValidationUtil.checkEntityPresent(product.getCategory().getId(), categoryDao);
-        ValidationUtil.checkId(id, productDao);
+        ValidationUtil.checkEntityPresent(product.getCategory().getId(), categoryRepository);
+        ValidationUtil.checkId(id, productRepository);
 
         product.setId(id);
-        return productDao.update(product);
+        return productRepository.save(product);
     }
 
     @Override
     public String delete(Integer id) {
-        ValidationUtil.checkId(id, productDao);
+        ValidationUtil.checkId(id, productRepository);
+        productRepository.deleteById(id);
 
-        return productDao.delete(id);
+        return "Удалено!";
     }
 
     private void validateProduct(Product product) {

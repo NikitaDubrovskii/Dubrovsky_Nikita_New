@@ -1,60 +1,63 @@
 package dev.dubrovsky.service.analytics;
 
-import dev.dubrovsky.dao.analytics.AnalyticsDao;
-import dev.dubrovsky.dao.user.UserDao;
 import dev.dubrovsky.model.analytics.Analytics;
+import dev.dubrovsky.repository.analytics.AnalyticsRepository;
+import dev.dubrovsky.repository.user.UserRepository;
 import dev.dubrovsky.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
 public class AnalyticsService implements IAnalyticsService {
 
-    private final AnalyticsDao analyticsDao;
-    private final UserDao userDao;
+    private final AnalyticsRepository analyticsRepository;
+    private final UserRepository userRepository;
 
     @Override
     public Analytics create(Analytics analytics) {
         validateAnalytics(analytics);
-        ValidationUtil.checkEntityPresent(analytics.getUser().getId(), userDao);
+        ValidationUtil.checkEntityPresent(analytics.getUser().getId(), userRepository);
 
-        return analyticsDao.create(analytics);
+        return analyticsRepository.save(analytics);
     }
 
     @Override
     public Analytics getById(Integer id) {
-        ValidationUtil.checkId(id, analyticsDao);
+        ValidationUtil.checkId(id, analyticsRepository);
 
-        return analyticsDao.getById(id);
+        return analyticsRepository.findById(id).orElse(null);
     }
 
     @Override
     public List<Analytics> getAll() {
-        if (analyticsDao.getAll().isEmpty() && analyticsDao.getAll() == null) {
+        if (analyticsRepository.findAll().isEmpty()) {
             return null;
         } else {
-            return analyticsDao.getAll();
+            return analyticsRepository.findAll();
         }
     }
 
     @Override
     public Analytics update(Analytics analytics, Integer id) {
         validateAnalytics(analytics);
-        ValidationUtil.checkId(id, analyticsDao);
-        ValidationUtil.checkEntityPresent(analytics.getUser().getId(), userDao);
+        ValidationUtil.checkId(id, analyticsRepository);
+        ValidationUtil.checkEntityPresent(analytics.getUser().getId(), userRepository);
 
         analytics.setId(id);
-        return analyticsDao.update(analytics);
+
+        return analyticsRepository.save(analytics);
     }
 
     @Override
     public String delete(Integer id) {
-        ValidationUtil.checkId(id, analyticsDao);
+        ValidationUtil.checkId(id, analyticsRepository);
 
-        return analyticsDao.delete(id);
+        analyticsRepository.deleteById(id);
+        return "Удалено!";
     }
 
     private void validateAnalytics(Analytics analytics) {
