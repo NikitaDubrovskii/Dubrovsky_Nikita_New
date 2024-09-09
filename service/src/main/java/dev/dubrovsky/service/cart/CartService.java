@@ -65,7 +65,7 @@ public class CartService implements ICartService {
     }
 
     @Override
-    public void getTotalPrice(Integer id) {
+    public Float getTotalPrice(Integer id) {
         float totalPrice = 0;
         List<CartItem> allByCartId = cartItemRepository.findAllByCartId(id);
         if (allByCartId.isEmpty()) {
@@ -80,7 +80,7 @@ public class CartService implements ICartService {
             }
         }
 
-        System.out.println(totalPrice);
+        return totalPrice;
     }
 
     private void validateCart(Cart cart) {

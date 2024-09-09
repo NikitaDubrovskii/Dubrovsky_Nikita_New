@@ -5,6 +5,6 @@ import dev.dubrovsky.model.cart.Cart;
 
 public interface ICartService extends ICommonService<Cart> {
 
-    void getTotalPrice(Integer id);
+    Float getTotalPrice(Integer id);
 
 }

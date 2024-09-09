@@ -8,6 +8,7 @@ import dev.dubrovsky.repository.user.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -28,11 +29,11 @@ public class UserLoyaltyProgramService implements IUserLoyaltyProgramService {
     }
 
     @Override
-    public void getAll() {
+    public List<UserLoyaltyProgram> getAll() {
         if (userLoyaltyProgramRepository.findAll().isEmpty()) {
-            System.out.println("Таблица программ лояльности пользователя пустая");
+            return null;
         } else {
-            userLoyaltyProgramRepository.findAll().forEach(System.out::println);
+            return userLoyaltyProgramRepository.findAll();
         }
     }
 

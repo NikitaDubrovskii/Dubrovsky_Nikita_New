@@ -8,6 +8,7 @@ import dev.dubrovsky.repository.user.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
@@ -27,11 +28,11 @@ public class UserBonusService implements IUserBonusService {
     }
 
     @Override
-    public void getAll() {
+    public List<UserBonus> getAll() {
         if (userBonusRepository.findAll().isEmpty()) {
-            System.out.println("Таблица бонусов пользователей пустая");
+            return null;
         } else {
-            userBonusRepository.findAll().forEach(System.out::println);
+            return userBonusRepository.findAll();
         }
     }
 
