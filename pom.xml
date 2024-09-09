@@ -24,6 +24,7 @@
         <module>service</module>
         <module>aspect</module>
         <module>repository</module>
+        <module>controller</module>
     </modules>
 
     <properties>
