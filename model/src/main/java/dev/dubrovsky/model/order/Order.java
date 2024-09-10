@@ -24,7 +24,7 @@ public class Order {
     private Integer id;
 
     @Column(name = "total_price")
-    private Integer totalPrice;
+    private Float totalPrice;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -43,7 +43,7 @@ public class Order {
     @OneToMany(mappedBy = "order")
     private List<OrderItem> orderItems;
 
-    public Order(Integer totalPrice, String address,
+    public Order(Float totalPrice, String address,
                  PaymentMethod paymentMethod, User user) {
         this.totalPrice = totalPrice;
         this.createdAt = LocalDateTime.now();
