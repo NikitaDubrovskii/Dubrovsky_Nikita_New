@@ -1,5 +1,7 @@
 package dev.dubrovsky.service.order;
 
+import dev.dubrovsky.dto.request.order.NewOrderItemRequest;
+import dev.dubrovsky.dto.request.order.UpdateOrderItemRequest;
 import dev.dubrovsky.model.order.OrderItem;
 import dev.dubrovsky.repository.order.OrderItemRepository;
 import dev.dubrovsky.repository.order.OrderRepository;
@@ -19,7 +21,16 @@ public class OrderItemService implements IOrderItemService {
     private final ProductRepository productRepository;
 
     @Override
-    public OrderItem create(OrderItem orderItem) {
+    public OrderItem create(NewOrderItemRequest request) {
+        OrderItem orderItem = new OrderItem();
+        orderItem.setQuantity(request.quantity());
+        orderItem.setOrder(orderRepository
+                .findById(request.orderId())
+                .orElse(null));
+        orderItem.setProduct(productRepository
+                .findById(request.productId())
+                .orElse(null));
+
         validateOrderItem(orderItem);
         ValidationUtil.checkEntityPresent(orderItem.getOrder().getId(), orderRepository);
         ValidationUtil.checkEntityPresent(orderItem.getProduct().getId(), productRepository);
@@ -44,7 +55,16 @@ public class OrderItemService implements IOrderItemService {
     }
 
     @Override
-    public OrderItem update(OrderItem orderItem, Integer id) {
+    public OrderItem update(UpdateOrderItemRequest request, Integer id) {
+        OrderItem orderItem = new OrderItem();
+        orderItem.setQuantity(request.quantity());
+        orderItem.setOrder(orderRepository
+                .findById(request.orderId())
+                .orElse(null));
+        orderItem.setProduct(productRepository
+                .findById(request.productId())
+                .orElse(null));
+
         validateOrderItem(orderItem);
         ValidationUtil.checkEntityPresent(orderItem.getOrder().getId(), orderRepository);
         ValidationUtil.checkEntityPresent(orderItem.getProduct().getId(), productRepository);

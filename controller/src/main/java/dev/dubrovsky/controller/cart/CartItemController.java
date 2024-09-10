@@ -1,6 +1,7 @@
 package dev.dubrovsky.controller.cart;
 
-import dev.dubrovsky.model.cart.CartItem;
+import dev.dubrovsky.dto.request.cart.NewCartItemRequest;
+import dev.dubrovsky.dto.request.cart.UpdateCartItemRequest;
 import dev.dubrovsky.service.cart.CartItemService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,8 +16,8 @@ public class CartItemController {
     private final CartItemService cartItemService;
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody CartItem cartItem) {
-        cartItemService.create(cartItem);
+    public ResponseEntity<?> create(@RequestBody NewCartItemRequest request) {
+        cartItemService.create(request);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
@@ -31,9 +32,9 @@ public class CartItemController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@RequestBody CartItem cartItem,
+    public ResponseEntity<?> update(@RequestBody UpdateCartItemRequest request,
                                     @PathVariable Integer id) {
-        cartItemService.update(cartItem, id);
+        cartItemService.update(request, id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

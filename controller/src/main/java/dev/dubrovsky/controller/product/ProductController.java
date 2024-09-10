@@ -1,6 +1,7 @@
 package dev.dubrovsky.controller.product;
 
-import dev.dubrovsky.model.product.Product;
+import dev.dubrovsky.dto.request.product.NewProductRequest;
+import dev.dubrovsky.dto.request.product.UpdateProductRequest;
 import dev.dubrovsky.service.product.ProductService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,8 +16,8 @@ public class ProductController {
     private final ProductService productService;
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody Product product) {
-        productService.create(product);
+    public ResponseEntity<?> create(@RequestBody NewProductRequest request) {
+        productService.create(request);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
@@ -31,9 +32,9 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@RequestBody Product product,
+    public ResponseEntity<?> update(@RequestBody UpdateProductRequest request,
                                     @PathVariable Integer id) {
-        productService.update(product, id);
+        productService.update(request, id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

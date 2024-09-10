@@ -1,5 +1,7 @@
 package dev.dubrovsky.service.loyalty.program;
 
+import dev.dubrovsky.dto.request.loyalty.program.NewLoyaltyProgramRequest;
+import dev.dubrovsky.dto.request.loyalty.program.UpdateLoyaltyProgramRequest;
 import dev.dubrovsky.model.loyalty.program.LoyaltyProgram;
 import dev.dubrovsky.repository.loyalty.program.LoyaltyProgramRepository;
 import dev.dubrovsky.util.validation.ValidationUtil;
@@ -15,7 +17,11 @@ public class LoyaltyProgramService implements ILoyaltyProgramService {
     private final LoyaltyProgramRepository loyaltyProgramRepository;
 
     @Override
-    public LoyaltyProgram create(LoyaltyProgram loyaltyProgram) {
+    public LoyaltyProgram create(NewLoyaltyProgramRequest request) {
+        LoyaltyProgram loyaltyProgram = new LoyaltyProgram();
+        loyaltyProgram.setName(request.name());
+        loyaltyProgram.setDescription(request.description());
+
         validateLoyaltyProgram(loyaltyProgram);
 
         return loyaltyProgramRepository.save(loyaltyProgram);
@@ -38,7 +44,11 @@ public class LoyaltyProgramService implements ILoyaltyProgramService {
     }
 
     @Override
-    public LoyaltyProgram update(LoyaltyProgram loyaltyProgram, Integer id) {
+    public LoyaltyProgram update(UpdateLoyaltyProgramRequest request, Integer id) {
+        LoyaltyProgram loyaltyProgram = new LoyaltyProgram();
+        loyaltyProgram.setName(request.name());
+        loyaltyProgram.setDescription(request.description());
+
         validateLoyaltyProgram(loyaltyProgram);
         ValidationUtil.checkId(id, loyaltyProgramRepository);
 

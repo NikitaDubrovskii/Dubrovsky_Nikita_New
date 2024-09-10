@@ -1,6 +1,7 @@
 package dev.dubrovsky.controller.category;
 
-import dev.dubrovsky.model.category.Category;
+import dev.dubrovsky.dto.request.category.NewCategoryRequest;
+import dev.dubrovsky.dto.request.category.UpdateCategoryRequest;
 import dev.dubrovsky.service.category.CategoryService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,8 +16,8 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody Category category) {
-        categoryService.create(category);
+    public ResponseEntity<?> create(@RequestBody NewCategoryRequest request) {
+        categoryService.create(request);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
@@ -31,9 +32,9 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@RequestBody Category category,
+    public ResponseEntity<?> update(@RequestBody UpdateCategoryRequest request,
                                     @PathVariable Integer id) {
-        categoryService.update(category, id);
+        categoryService.update(request, id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

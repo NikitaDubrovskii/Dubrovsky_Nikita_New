@@ -1,5 +1,7 @@
 package dev.dubrovsky.service.category;
 
+import dev.dubrovsky.dto.request.category.NewCategoryRequest;
+import dev.dubrovsky.dto.request.category.UpdateCategoryRequest;
 import dev.dubrovsky.model.category.Category;
 import dev.dubrovsky.repository.category.CategoryRepository;
 import dev.dubrovsky.util.validation.ValidationUtil;
@@ -15,7 +17,11 @@ public class CategoryService implements ICategoryService {
     private final CategoryRepository categoryRepository;
 
     @Override
-    public Category create(Category category) {
+    public Category create(NewCategoryRequest request) {
+        Category category = new Category();
+        category.setName(request.name());
+        category.setDescription(request.description());
+
         validateCategory(category);
 
         return categoryRepository.save(category);
@@ -38,7 +44,11 @@ public class CategoryService implements ICategoryService {
     }
 
     @Override
-    public Category update(Category category, Integer id) {
+    public Category update(UpdateCategoryRequest request, Integer id) {
+        Category category = new Category();
+        category.setName(request.name());
+        category.setDescription(request.description());
+
         validateCategory(category);
         ValidationUtil.checkId(id, categoryRepository);
 

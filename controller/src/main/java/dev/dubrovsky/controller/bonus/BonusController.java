@@ -1,6 +1,7 @@
 package dev.dubrovsky.controller.bonus;
 
-import dev.dubrovsky.model.bonus.Bonus;
+import dev.dubrovsky.dto.request.bonus.NewBonusRequest;
+import dev.dubrovsky.dto.request.bonus.UpdateBonusRequest;
 import dev.dubrovsky.service.bonus.BonusService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,8 +16,8 @@ public class BonusController {
     private final BonusService bonusService;
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody Bonus bonus) {
-        bonusService.create(bonus);
+    public ResponseEntity<?> create(@RequestBody NewBonusRequest request) {
+        bonusService.create(request);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
@@ -31,9 +32,9 @@ public class BonusController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@RequestBody Bonus bonus,
+    public ResponseEntity<?> update(@RequestBody UpdateBonusRequest request,
                                     @PathVariable Integer id) {
-        bonusService.update(bonus, id);
+        bonusService.update(request, id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

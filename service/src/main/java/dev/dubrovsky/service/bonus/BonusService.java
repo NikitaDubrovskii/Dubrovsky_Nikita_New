@@ -1,5 +1,7 @@
 package dev.dubrovsky.service.bonus;
 
+import dev.dubrovsky.dto.request.bonus.NewBonusRequest;
+import dev.dubrovsky.dto.request.bonus.UpdateBonusRequest;
 import dev.dubrovsky.model.bonus.Bonus;
 import dev.dubrovsky.repository.bonus.BonusRepository;
 import dev.dubrovsky.repository.loyalty.program.LoyaltyProgramRepository;
@@ -17,7 +19,15 @@ public class BonusService implements IBonusService {
     private final LoyaltyProgramRepository loyaltyProgramRepository;
 
     @Override
-    public Bonus create(Bonus bonus) {
+    public Bonus create(NewBonusRequest request) {
+        Bonus bonus = new Bonus();
+        bonus.setName(request.name());
+        bonus.setDescription(request.description());
+        bonus.setProgram(loyaltyProgramRepository
+                .findById(request.programId())
+                .orElse(null));
+        bonus.setPoints(request.points());
+
         validateBonus(bonus);
         ValidationUtil.checkEntityPresent(bonus.getProgram().getId(), loyaltyProgramRepository);
 
@@ -41,7 +51,15 @@ public class BonusService implements IBonusService {
     }
 
     @Override
-    public Bonus update(Bonus bonus, Integer id) {
+    public Bonus update(UpdateBonusRequest request, Integer id) {
+        Bonus bonus = new Bonus();
+        bonus.setName(request.name());
+        bonus.setDescription(request.description());
+        bonus.setProgram(loyaltyProgramRepository
+                .findById(request.programId())
+                .orElse(null));
+        bonus.setPoints(request.points());
+
         validateBonus(bonus);
         ValidationUtil.checkId(id, bonusRepository);
         ValidationUtil.checkEntityPresent(bonus.getProgram().getId(), loyaltyProgramRepository);

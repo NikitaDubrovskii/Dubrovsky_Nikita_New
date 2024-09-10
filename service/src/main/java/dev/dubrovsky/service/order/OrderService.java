@@ -1,5 +1,7 @@
 package dev.dubrovsky.service.order;
 
+import dev.dubrovsky.dto.request.order.NewOrderRequest;
+import dev.dubrovsky.dto.request.order.UpdateOrderRequest;
 import dev.dubrovsky.model.order.Order;
 import dev.dubrovsky.repository.order.OrderRepository;
 import dev.dubrovsky.repository.payment.method.PaymentMethodRepository;
@@ -8,6 +10,7 @@ import dev.dubrovsky.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -19,7 +22,19 @@ public class OrderService implements IOrderService {
     private final UserRepository userRepository;
 
     @Override
-    public Order create(Order order) {
+    public Order create(NewOrderRequest request) {
+        Order order = new Order();
+        order.setTotalPrice(request.totalPrice());
+        order.setAddress(request.address());
+        order.setPaymentMethod(paymentMethodRepository
+                .findById(request.paymentMethodId())
+                .orElse(null));
+        order.setUser(userRepository
+                .findById(request.userId())
+                .orElse(null));
+        order.setCreatedAt(LocalDateTime.now());
+
+
         validateOrder(order);
         ValidationUtil.checkEntityPresent(order.getUser().getId(), userRepository);
         ValidationUtil.checkEntityPresent(order.getPaymentMethod().getId(), paymentMethodRepository);
@@ -44,7 +59,17 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public Order update(Order order, Integer id) {
+    public Order update(UpdateOrderRequest request, Integer id) {
+        Order order = new Order();
+        order.setTotalPrice(request.totalPrice());
+        order.setAddress(request.address());
+        order.setPaymentMethod(paymentMethodRepository
+                .findById(request.paymentMethodId())
+                .orElse(null));
+        order.setUser(userRepository
+                .findById(request.userId())
+                .orElse(null));
+
         validateOrder(order);
         ValidationUtil.checkEntityPresent(order.getUser().getId(), userRepository);
         ValidationUtil.checkEntityPresent(order.getPaymentMethod().getId(), paymentMethodRepository);

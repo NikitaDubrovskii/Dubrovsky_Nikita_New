@@ -1,5 +1,7 @@
 package dev.dubrovsky.service.user;
 
+import dev.dubrovsky.dto.request.user.NewUserRequest;
+import dev.dubrovsky.dto.request.user.UpdateUserRequest;
 import dev.dubrovsky.model.user.User;
 import dev.dubrovsky.repository.user.UserRepository;
 import dev.dubrovsky.util.encoder.SimplePasswordEncoder;
@@ -8,6 +10,7 @@ import jakarta.persistence.NonUniqueResultException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,7 +21,13 @@ public class UserService implements IUserService {
     private final UserRepository userRepository;
 
     @Override
-    public User create(User user) {
+    public User create(NewUserRequest request) {
+        User user = new User();
+        user.setUsername(request.username());
+        user.setPassword(SimplePasswordEncoder.encode(request.password()));
+        user.setEmail(request.email());
+        user.setCreatedAt(LocalDateTime.now());
+
         validateUser(user);
         checkUniqueUsername(user.getUsername());
         checkUniqueEmail(user.getEmail());
@@ -44,7 +53,11 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public User update(User user, Integer id) {
+    public User update(UpdateUserRequest request, Integer id) {
+        User user = new User();
+        user.setUsername(request.username());
+        user.setEmail(request.email());
+
         validateUser(user);
         ValidationUtil.checkId(id, userRepository);
 

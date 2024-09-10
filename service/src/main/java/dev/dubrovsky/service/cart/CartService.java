@@ -1,5 +1,7 @@
 package dev.dubrovsky.service.cart;
 
+import dev.dubrovsky.dto.request.cart.NewCartRequest;
+import dev.dubrovsky.dto.request.cart.UpdateCartRequest;
 import dev.dubrovsky.model.cart.Cart;
 import dev.dubrovsky.model.cart.CartItem;
 import dev.dubrovsky.model.product.Product;
@@ -23,7 +25,12 @@ public class CartService implements ICartService {
     private final ProductRepository productRepository;
 
     @Override
-    public Cart create(Cart cart) {
+    public Cart create(NewCartRequest request) {
+        Cart cart = new Cart();
+        cart.setUser(userRepository.
+                findById(request.userId()).
+                orElse(null));
+
         validateCart(cart);
         ValidationUtil.checkEntityPresent(cart.getUser().getId(), userRepository);
 
@@ -47,7 +54,12 @@ public class CartService implements ICartService {
     }
 
     @Override
-    public Cart update(Cart cart, Integer id) {
+    public Cart update(UpdateCartRequest request, Integer id) {
+        Cart cart = new Cart();
+        cart.setUser(userRepository.
+                findById(request.userId()).
+                orElse(null));
+
         validateCart(cart);
         ValidationUtil.checkEntityPresent(cart.getUser().getId(), userRepository);
         ValidationUtil.checkId(id, cartRepository);

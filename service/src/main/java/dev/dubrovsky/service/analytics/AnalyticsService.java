@@ -1,5 +1,7 @@
 package dev.dubrovsky.service.analytics;
 
+import dev.dubrovsky.dto.request.analytics.NewAnalyticsRequest;
+import dev.dubrovsky.dto.request.analytics.UpdateAnalyticsRequest;
 import dev.dubrovsky.model.analytics.Analytics;
 import dev.dubrovsky.repository.analytics.AnalyticsRepository;
 import dev.dubrovsky.repository.user.UserRepository;
@@ -7,6 +9,7 @@ import dev.dubrovsky.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -17,7 +20,14 @@ public class AnalyticsService implements IAnalyticsService {
     private final UserRepository userRepository;
 
     @Override
-    public Analytics create(Analytics analytics) {
+    public Analytics create(NewAnalyticsRequest request) {
+        Analytics analytics = new Analytics();
+        analytics.setActivity(request.activity());
+        analytics.setUser(userRepository
+                .findById(request.userId())
+                .orElse(null));
+        analytics.setTimestamp(LocalDateTime.now());
+
         validateAnalytics(analytics);
         ValidationUtil.checkEntityPresent(analytics.getUser().getId(), userRepository);
 
@@ -41,7 +51,13 @@ public class AnalyticsService implements IAnalyticsService {
     }
 
     @Override
-    public Analytics update(Analytics analytics, Integer id) {
+    public Analytics update(UpdateAnalyticsRequest request, Integer id) {
+        Analytics analytics = new Analytics();
+        analytics.setActivity(request.activity());
+        analytics.setUser(userRepository
+                .findById(request.userId())
+                .orElse(null));
+
         validateAnalytics(analytics);
         ValidationUtil.checkId(id, analyticsRepository);
         ValidationUtil.checkEntityPresent(analytics.getUser().getId(), userRepository);

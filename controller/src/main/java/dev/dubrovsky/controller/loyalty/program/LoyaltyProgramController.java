@@ -1,6 +1,7 @@
 package dev.dubrovsky.controller.loyalty.program;
 
-import dev.dubrovsky.model.loyalty.program.LoyaltyProgram;
+import dev.dubrovsky.dto.request.loyalty.program.NewLoyaltyProgramRequest;
+import dev.dubrovsky.dto.request.loyalty.program.UpdateLoyaltyProgramRequest;
 import dev.dubrovsky.service.loyalty.program.LoyaltyProgramService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,8 +16,8 @@ public class LoyaltyProgramController {
     private final LoyaltyProgramService loyaltyProgramService;
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody LoyaltyProgram loyaltyProgram) {
-        loyaltyProgramService.create(loyaltyProgram);
+    public ResponseEntity<?> create(@RequestBody NewLoyaltyProgramRequest request) {
+        loyaltyProgramService.create(request);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
@@ -31,9 +32,9 @@ public class LoyaltyProgramController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@RequestBody LoyaltyProgram loyaltyProgram,
+    public ResponseEntity<?> update(@RequestBody UpdateLoyaltyProgramRequest request,
                                     @PathVariable Integer id) {
-        loyaltyProgramService.update(loyaltyProgram, id);
+        loyaltyProgramService.update(request, id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

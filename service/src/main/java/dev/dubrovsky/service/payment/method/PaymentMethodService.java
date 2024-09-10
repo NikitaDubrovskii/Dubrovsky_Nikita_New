@@ -1,5 +1,7 @@
 package dev.dubrovsky.service.payment.method;
 
+import dev.dubrovsky.dto.request.payment.method.NewPaymentMethodRequest;
+import dev.dubrovsky.dto.request.payment.method.UpdatePaymentMethodRequest;
 import dev.dubrovsky.model.payment.method.PaymentMethod;
 import dev.dubrovsky.repository.payment.method.PaymentMethodRepository;
 import dev.dubrovsky.util.validation.ValidationUtil;
@@ -15,7 +17,10 @@ public class PaymentMethodService implements IPaymentMethodService {
     private final PaymentMethodRepository paymentMethodRepository;
 
     @Override
-    public PaymentMethod create(PaymentMethod paymentMethod) {
+    public PaymentMethod create(NewPaymentMethodRequest request) {
+        PaymentMethod paymentMethod = new PaymentMethod();
+        paymentMethod.setMethod(request.method());
+
         validatePaymentMethod(paymentMethod);
 
         return paymentMethodRepository.save(paymentMethod);
@@ -38,7 +43,10 @@ public class PaymentMethodService implements IPaymentMethodService {
     }
 
     @Override
-    public PaymentMethod update(PaymentMethod paymentMethod, Integer id) {
+    public PaymentMethod update(UpdatePaymentMethodRequest request, Integer id) {
+        PaymentMethod paymentMethod = new PaymentMethod();
+        paymentMethod.setMethod(request.method());
+
         validatePaymentMethod(paymentMethod);
         ValidationUtil.checkId(id, paymentMethodRepository);
 

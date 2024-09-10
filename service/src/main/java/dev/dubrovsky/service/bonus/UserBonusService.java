@@ -1,5 +1,6 @@
 package dev.dubrovsky.service.bonus;
 
+import dev.dubrovsky.dto.request.bonus.NewUserBonusRequest;
 import dev.dubrovsky.model.bonus.UserBonus;
 import dev.dubrovsky.model.bonus.UserBonusId;
 import dev.dubrovsky.repository.bonus.BonusRepository;
@@ -8,6 +9,7 @@ import dev.dubrovsky.repository.user.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -20,7 +22,14 @@ public class UserBonusService implements IUserBonusService {
     private final BonusRepository bonusRepository;
 
     @Override
-    public void create(UserBonus userBonus) {
+    public void create(NewUserBonusRequest request) {
+        UserBonus userBonus = new UserBonus();
+        UserBonusId userBonusId = new UserBonusId();
+        userBonusId.setBonusId(request.bonusId());
+        userBonusId.setUserId(request.userId());
+        userBonus.setUserBonusId(userBonusId);
+        userBonus.setReceivedAt(LocalDateTime.now());
+
         validateUserBonus(userBonus);
         checkId(userBonus.getUserBonusId().getUserId(), userBonus.getUserBonusId().getBonusId());
 
@@ -55,17 +64,11 @@ public class UserBonusService implements IUserBonusService {
             userRepository
                     .findById(userId)
                     .orElseThrow(() -> new NoSuchElementException("Пользователь не найден с id: " + userId));
-            /*Optional
-                    .of(userRepository.getById(userId))
-                    .orElseThrow(() -> new NoSuchElementException("Пользователь не найден с id: " + userId));*/
         }
         if (bonusId > 0) {
             bonusRepository
                     .findById(bonusId)
                     .orElseThrow(() -> new NoSuchElementException("Бонус не найден с id: " + userId));
-            /*Optional
-                    .ofNullable(bonusRepository.getById(bonusId))
-                    .orElseThrow(() -> new NoSuchElementException("Бонус не найден с id: " + userId));*/
         }
         if (userId < 1 || bonusId < 1) {
             throw new IllegalArgumentException("Id должен быть больше 0");

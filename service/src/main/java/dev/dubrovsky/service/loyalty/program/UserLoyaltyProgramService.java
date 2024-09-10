@@ -1,5 +1,6 @@
 package dev.dubrovsky.service.loyalty.program;
 
+import dev.dubrovsky.dto.request.loyalty.program.NewUserLoyaltyProgramRequest;
 import dev.dubrovsky.model.loyalty.program.UserLoyaltyProgram;
 import dev.dubrovsky.model.loyalty.program.UserLoyaltyProgramId;
 import dev.dubrovsky.repository.loyalty.program.LoyaltyProgramRepository;
@@ -8,6 +9,7 @@ import dev.dubrovsky.repository.user.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -21,7 +23,14 @@ public class UserLoyaltyProgramService implements IUserLoyaltyProgramService {
     private final LoyaltyProgramRepository loyaltyProgramRepository;
 
     @Override
-    public void create(UserLoyaltyProgram userLoyaltyProgram) {
+    public void create(NewUserLoyaltyProgramRequest request) {
+        UserLoyaltyProgram userLoyaltyProgram = new UserLoyaltyProgram();
+        UserLoyaltyProgramId userLoyaltyProgramId = new UserLoyaltyProgramId();
+        userLoyaltyProgramId.setProgramId(request.programId());
+        userLoyaltyProgramId.setUserId(request.userId());
+        userLoyaltyProgram.setUserLoyaltyProgramId(userLoyaltyProgramId);
+        userLoyaltyProgram.setReceivedAt(LocalDateTime.now());
+
         validateUserLoyaltyProgram(userLoyaltyProgram);
         checkId(userLoyaltyProgram.getUserLoyaltyProgramId().getUserId(), userLoyaltyProgram.getUserLoyaltyProgramId().getProgramId());
 
@@ -56,17 +65,11 @@ public class UserLoyaltyProgramService implements IUserLoyaltyProgramService {
             userRepository
                     .findById(userId)
                     .orElseThrow(() -> new NoSuchElementException("Пользователь не найден с id: " + userId));
-            /*Optional
-                    .ofNullable(userRepository.getById(userId))
-                    .orElseThrow(() -> new NoSuchElementException("Пользователь не найден с id: " + userId));*/
         }
         if (programId > 0) {
             loyaltyProgramRepository
                     .findById(programId)
                     .orElseThrow(() -> new NoSuchElementException("Программа лояльности не найдена с id: " + programId));
-            /*Optional
-                    .ofNullable(loyaltyProgramRepository.getById(programId))
-                    .orElseThrow(() -> new NoSuchElementException("Программа лояльности не найдена с id: " + programId));*/
         }
         if (userId < 1 || programId < 1) {
             throw new IllegalArgumentException("Id должен быть больше 0");

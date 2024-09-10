@@ -1,5 +1,7 @@
 package dev.dubrovsky.service.cart;
 
+import dev.dubrovsky.dto.request.cart.NewCartItemRequest;
+import dev.dubrovsky.dto.request.cart.UpdateCartItemRequest;
 import dev.dubrovsky.model.cart.CartItem;
 import dev.dubrovsky.repository.cart.CartItemRepository;
 import dev.dubrovsky.repository.cart.CartRepository;
@@ -19,7 +21,16 @@ public class CartItemService implements ICartItemService {
     private final ProductRepository productRepository;
 
     @Override
-    public CartItem create(CartItem cartItem) {
+    public CartItem create(NewCartItemRequest request) {
+        CartItem cartItem = new CartItem();
+        cartItem.setQuantity(request.quantity());
+        cartItem.setCart(cartRepository
+                .findById(request.cartId())
+                .orElse(null));
+        cartItem.setProduct(productRepository
+                .findById(request.productId())
+                .orElse(null));
+
         validateCartItem(cartItem);
         ValidationUtil.checkEntityPresent(cartItem.getCart().getId(), cartRepository);
         ValidationUtil.checkEntityPresent(cartItem.getProduct().getId(), productRepository);
@@ -44,7 +55,16 @@ public class CartItemService implements ICartItemService {
     }
 
     @Override
-    public CartItem update(CartItem cartItem, Integer id) {
+    public CartItem update(UpdateCartItemRequest request, Integer id) {
+        CartItem cartItem = new CartItem();
+        cartItem.setQuantity(request.quantity());
+        cartItem.setCart(cartRepository
+                .findById(request.cartId())
+                .orElse(null));
+        cartItem.setProduct(productRepository
+                .findById(request.productId())
+                .orElse(null));
+
         validateCartItem(cartItem);
         ValidationUtil.checkEntityPresent(cartItem.getCart().getId(), cartRepository);
         ValidationUtil.checkEntityPresent(cartItem.getProduct().getId(), productRepository);

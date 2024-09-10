@@ -1,6 +1,7 @@
 package dev.dubrovsky.controller.order;
 
-import dev.dubrovsky.model.order.OrderItem;
+import dev.dubrovsky.dto.request.order.NewOrderItemRequest;
+import dev.dubrovsky.dto.request.order.UpdateOrderItemRequest;
 import dev.dubrovsky.service.order.OrderItemService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,8 +16,8 @@ public class OrderItemController {
     private final OrderItemService orderItemService;
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody OrderItem orderItem) {
-        orderItemService.create(orderItem);
+    public ResponseEntity<?> create(@RequestBody NewOrderItemRequest request) {
+        orderItemService.create(request);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
@@ -31,9 +32,9 @@ public class OrderItemController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@RequestBody OrderItem orderItem,
+    public ResponseEntity<?> update(@RequestBody UpdateOrderItemRequest request,
                                     @PathVariable Integer id) {
-        orderItemService.update(orderItem, id);
+        orderItemService.update(request, id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

@@ -1,6 +1,6 @@
 package dev.dubrovsky.controller.loyalty.program;
 
-import dev.dubrovsky.model.loyalty.program.UserLoyaltyProgram;
+import dev.dubrovsky.dto.request.loyalty.program.NewUserLoyaltyProgramRequest;
 import dev.dubrovsky.service.loyalty.program.UserLoyaltyProgramService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,8 +15,8 @@ public class UserLoyaltyProgramController {
     private final UserLoyaltyProgramService loyaltyProgramService;
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody UserLoyaltyProgram userLoyaltyProgram) {
-        loyaltyProgramService.create(userLoyaltyProgram);
+    public ResponseEntity<?> create(@RequestBody NewUserLoyaltyProgramRequest request) {
+        loyaltyProgramService.create(request);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 

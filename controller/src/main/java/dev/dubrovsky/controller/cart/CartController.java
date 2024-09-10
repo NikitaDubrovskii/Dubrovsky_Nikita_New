@@ -1,5 +1,7 @@
 package dev.dubrovsky.controller.cart;
 
+import dev.dubrovsky.dto.request.cart.NewCartRequest;
+import dev.dubrovsky.dto.request.cart.UpdateCartRequest;
 import dev.dubrovsky.model.cart.Cart;
 import dev.dubrovsky.service.cart.CartService;
 import lombok.AllArgsConstructor;
@@ -15,8 +17,8 @@ public class CartController {
     private final CartService cartService;
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody Cart cart) {
-        cartService.create(cart);
+    public ResponseEntity<?> create(@RequestBody NewCartRequest request) {
+        cartService.create(request);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
@@ -31,9 +33,9 @@ public class CartController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@RequestBody Cart cart,
+    public ResponseEntity<?> update(@RequestBody UpdateCartRequest request,
                                     @PathVariable Integer id) {
-        cartService.update(cart, id);
+        cartService.update(request, id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

@@ -1,6 +1,6 @@
 package dev.dubrovsky.controller.bonus;
 
-import dev.dubrovsky.model.bonus.UserBonus;
+import dev.dubrovsky.dto.request.bonus.NewUserBonusRequest;
 import dev.dubrovsky.service.bonus.UserBonusService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,8 +15,8 @@ public class UserBonusController {
     private final UserBonusService userBonusService;
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody UserBonus userBonus) {
-        userBonusService.create(userBonus);
+    public ResponseEntity<?> create(@RequestBody NewUserBonusRequest request) {
+        userBonusService.create(request);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 

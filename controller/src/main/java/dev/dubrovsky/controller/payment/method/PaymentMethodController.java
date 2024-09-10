@@ -1,6 +1,7 @@
 package dev.dubrovsky.controller.payment.method;
 
-import dev.dubrovsky.model.payment.method.PaymentMethod;
+import dev.dubrovsky.dto.request.payment.method.NewPaymentMethodRequest;
+import dev.dubrovsky.dto.request.payment.method.UpdatePaymentMethodRequest;
 import dev.dubrovsky.service.payment.method.PaymentMethodService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,8 +16,8 @@ public class PaymentMethodController {
     private final PaymentMethodService paymentMethodService;
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody PaymentMethod paymentMethod) {
-        paymentMethodService.create(paymentMethod);
+    public ResponseEntity<?> create(@RequestBody NewPaymentMethodRequest request) {
+        paymentMethodService.create(request);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
@@ -31,9 +32,9 @@ public class PaymentMethodController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@RequestBody PaymentMethod paymentMethod,
+    public ResponseEntity<?> update(@RequestBody UpdatePaymentMethodRequest request,
                                     @PathVariable Integer id) {
-        paymentMethodService.update(paymentMethod, id);
+        paymentMethodService.update(request, id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

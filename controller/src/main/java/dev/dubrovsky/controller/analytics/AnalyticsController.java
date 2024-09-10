@@ -1,6 +1,7 @@
 package dev.dubrovsky.controller.analytics;
 
-import dev.dubrovsky.model.analytics.Analytics;
+import dev.dubrovsky.dto.request.analytics.NewAnalyticsRequest;
+import dev.dubrovsky.dto.request.analytics.UpdateAnalyticsRequest;
 import dev.dubrovsky.service.analytics.AnalyticsService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,8 +16,8 @@ public class AnalyticsController {
     private final AnalyticsService analyticsService;
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody Analytics analytics) {
-        analyticsService.create(analytics);
+    public ResponseEntity<?> create(@RequestBody NewAnalyticsRequest request) {
+        analyticsService.create(request);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
@@ -31,9 +32,9 @@ public class AnalyticsController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@RequestBody Analytics analytics,
+    public ResponseEntity<?> update(@RequestBody UpdateAnalyticsRequest request,
                                     @PathVariable Integer id) {
-        analyticsService.update(analytics, id);
+        analyticsService.update(request, id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

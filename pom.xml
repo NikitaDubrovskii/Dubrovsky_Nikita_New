@@ -25,6 +25,7 @@
         <module>aspect</module>
         <module>repository</module>
         <module>controller</module>
+        <module>dto</module>
     </modules>
 
     <properties>
