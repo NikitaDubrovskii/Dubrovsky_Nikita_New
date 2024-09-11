@@ -1,5 +1,6 @@
 package dev.dubrovsky.model.user;
 
+import dev.dubrovsky.dto.response.user.UserResponse;
 import dev.dubrovsky.model.analytics.Analytics;
 import dev.dubrovsky.model.bonus.Bonus;
 import dev.dubrovsky.model.cart.Cart;
@@ -84,6 +85,10 @@ public class User {
                 ", email='" + email + '\'' +
                 ", createdAt=" + createdAt +
                 '}';
+    }
+
+    public UserResponse mapToResponse() {
+        return new UserResponse(id, username, email);
     }
 
 }

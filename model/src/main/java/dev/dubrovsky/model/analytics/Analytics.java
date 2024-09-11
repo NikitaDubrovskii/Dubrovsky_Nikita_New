@@ -1,5 +1,7 @@
 package dev.dubrovsky.model.analytics;
 
+import dev.dubrovsky.dto.response.analytics.AnalyticsResponse;
+import dev.dubrovsky.dto.response.user.UserResponse;
 import dev.dubrovsky.model.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -59,6 +61,10 @@ public class Analytics {
                 ", timestamp=" + timestamp +
                 ", userId=" + user +
                 '}';
+    }
+
+    public AnalyticsResponse mapToResponse() {
+        return new AnalyticsResponse(id, activity, timestamp, user.mapToResponse());
     }
 
 }

@@ -1,5 +1,6 @@
 package dev.dubrovsky.model.payment.method;
 
+import dev.dubrovsky.dto.response.payment.method.PaymentMethodResponse;
 import dev.dubrovsky.model.order.Order;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -50,6 +51,10 @@ public class PaymentMethod {
                 "id=" + id +
                 ", method='" + method + '\'' +
                 '}';
+    }
+
+    public PaymentMethodResponse mapToResponse() {
+        return new PaymentMethodResponse(id, method);
     }
 
 }

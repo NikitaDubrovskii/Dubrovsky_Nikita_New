@@ -1,5 +1,6 @@
 package dev.dubrovsky.model.bonus;
 
+import dev.dubrovsky.dto.response.bonus.BonusResponse;
 import dev.dubrovsky.model.loyalty.program.LoyaltyProgram;
 import dev.dubrovsky.model.user.User;
 import jakarta.persistence.*;
@@ -74,6 +75,10 @@ public class Bonus {
                 ", points=" + points +
                 ", programId=" + program +
                 '}';
+    }
+
+    public BonusResponse mapToResponse() {
+        return new BonusResponse(id, name, description, points, program.mapToResponse());
     }
 
 }

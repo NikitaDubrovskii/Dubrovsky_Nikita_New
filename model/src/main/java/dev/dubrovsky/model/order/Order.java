@@ -1,5 +1,6 @@
 package dev.dubrovsky.model.order;
 
+import dev.dubrovsky.dto.response.order.OrderResponse;
 import dev.dubrovsky.model.payment.method.PaymentMethod;
 import dev.dubrovsky.model.user.User;
 import jakarta.persistence.*;
@@ -77,6 +78,10 @@ public class Order {
                 ", paymentMethodId='" + paymentMethod + '\'' +
                 ", userId=" + user +
                 '}';
+    }
+
+    public OrderResponse mapToResponse() {
+        return new OrderResponse(id, totalPrice, createdAt, address, paymentMethod.mapToResponse(), user.mapToResponse());
     }
 
 }

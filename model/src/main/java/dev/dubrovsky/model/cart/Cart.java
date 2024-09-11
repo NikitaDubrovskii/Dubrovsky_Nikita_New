@@ -1,5 +1,6 @@
 package dev.dubrovsky.model.cart;
 
+import dev.dubrovsky.dto.response.cart.CartResponse;
 import dev.dubrovsky.model.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -54,6 +55,10 @@ public class Cart {
                 ", timestamp=" + createdAt +
                 ", userId=" + user +
                 '}';
+    }
+
+    public CartResponse mapToResponse() {
+        return new CartResponse(id, createdAt, user.mapToResponse());
     }
 
 }

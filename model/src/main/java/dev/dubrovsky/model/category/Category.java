@@ -1,5 +1,6 @@
 package dev.dubrovsky.model.category;
 
+import dev.dubrovsky.dto.response.category.CategoryResponse;
 import dev.dubrovsky.model.product.Product;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -57,6 +58,10 @@ public class Category {
     @Override
     public int hashCode() {
         return Objects.hash(id, name, description);
+    }
+
+    public CategoryResponse mapToResponse() {
+        return new CategoryResponse(id, name, description);
     }
 
 }

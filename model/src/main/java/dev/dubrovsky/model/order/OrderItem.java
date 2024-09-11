@@ -1,5 +1,6 @@
 package dev.dubrovsky.model.order;
 
+import dev.dubrovsky.dto.response.order.OrderItemResponse;
 import dev.dubrovsky.model.product.Product;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -59,6 +60,10 @@ public class OrderItem {
                 ", orderId=" + order +
                 ", productId=" + product +
                 '}';
+    }
+
+    public OrderItemResponse mapToResponse() {
+        return new OrderItemResponse(id, quantity, order.mapToResponse(), product.mapToResponse());
     }
 
 }

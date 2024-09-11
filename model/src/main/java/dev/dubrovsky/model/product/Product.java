@@ -1,5 +1,6 @@
 package dev.dubrovsky.model.product;
 
+import dev.dubrovsky.dto.response.product.ProductResponse;
 import dev.dubrovsky.model.cart.CartItem;
 import dev.dubrovsky.model.category.Category;
 import dev.dubrovsky.model.order.OrderItem;
@@ -79,6 +80,10 @@ public class Product {
                 ", createdAt=" + createdAt +
                 ", categoryId=" + category +
                 '}';
+    }
+
+    public ProductResponse mapToResponse() {
+        return new ProductResponse(id, name, description, price, createdAt, category.mapToResponse());
     }
 
 }
