@@ -1,8 +1,13 @@
 package dev.dubrovsky.service.bonus;
 
 import dev.dubrovsky.dto.request.bonus.NewUserBonusRequest;
+import dev.dubrovsky.dto.response.bonus.BonusResponse;
+import dev.dubrovsky.dto.response.bonus.UserBonusResponse;
+import dev.dubrovsky.dto.response.user.UserResponse;
+import dev.dubrovsky.model.bonus.Bonus;
 import dev.dubrovsky.model.bonus.UserBonus;
 import dev.dubrovsky.model.bonus.UserBonusId;
+import dev.dubrovsky.model.user.User;
 import dev.dubrovsky.repository.bonus.BonusRepository;
 import dev.dubrovsky.repository.bonus.UserBonusRepository;
 import dev.dubrovsky.repository.user.UserRepository;
@@ -10,6 +15,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -37,11 +43,16 @@ public class UserBonusService implements IUserBonusService {
     }
 
     @Override
-    public List<UserBonus> getAll() {
+    public List<UserBonusResponse> getAll() {
         if (userBonusRepository.findAll().isEmpty()) {
             return null;
         } else {
-            return userBonusRepository.findAll();
+            List<UserBonusResponse> responses = new ArrayList<>();
+            List<UserBonus> all = userBonusRepository.findAll();
+
+            all.forEach(userBonus -> responses.add(mapToResponse(userBonus)));
+
+            return responses;
         }
     }
 
@@ -73,6 +84,16 @@ public class UserBonusService implements IUserBonusService {
         if (userId < 1 || bonusId < 1) {
             throw new IllegalArgumentException("Id должен быть больше 0");
         }
+    }
+
+    private UserBonusResponse mapToResponse(UserBonus userBonus) {
+        User user = userRepository.findById(userBonus.getUserBonusId().getUserId()).get();
+        Bonus bonus = bonusRepository.findById(userBonus.getUserBonusId().getBonusId()).get();
+
+        UserResponse userResponse = user.mapToResponse();
+        BonusResponse bonusResponse = bonus.mapToResponse();
+
+        return new UserBonusResponse(userResponse, bonusResponse, userBonus.getReceivedAt());
     }
 
 }

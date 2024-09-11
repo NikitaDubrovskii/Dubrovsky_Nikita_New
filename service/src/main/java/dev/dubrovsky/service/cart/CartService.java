@@ -2,6 +2,7 @@ package dev.dubrovsky.service.cart;
 
 import dev.dubrovsky.dto.request.cart.NewCartRequest;
 import dev.dubrovsky.dto.request.cart.UpdateCartRequest;
+import dev.dubrovsky.dto.response.cart.CartResponse;
 import dev.dubrovsky.model.cart.Cart;
 import dev.dubrovsky.model.cart.CartItem;
 import dev.dubrovsky.model.product.Product;
@@ -13,6 +14,7 @@ import dev.dubrovsky.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -25,7 +27,7 @@ public class CartService implements ICartService {
     private final ProductRepository productRepository;
 
     @Override
-    public Cart create(NewCartRequest request) {
+    public void create(NewCartRequest request) {
         Cart cart = new Cart();
         cart.setUser(userRepository.
                 findById(request.userId()).
@@ -34,27 +36,33 @@ public class CartService implements ICartService {
         validateCart(cart);
         ValidationUtil.checkEntityPresent(cart.getUser().getId(), userRepository);
 
-        return cartRepository.save(cart);
+        cartRepository.save(cart);
     }
 
     @Override
-    public Cart getById(Integer id) {
+    public CartResponse getById(Integer id) {
         ValidationUtil.checkId(id, cartRepository);
 
-        return cartRepository.findById(id).orElse(null);
+        Cart cart = cartRepository.findById(id).orElse(null);
+        return cart.mapToResponse();
     }
 
     @Override
-    public List<Cart> getAll() {
+    public List<CartResponse> getAll() {
         if (cartRepository.findAll().isEmpty()) {
             return null;
         } else {
-            return cartRepository.findAll();
+            List<CartResponse> responses = new ArrayList<>();
+            List<Cart> all = cartRepository.findAll();
+
+            all.forEach(cart -> responses.add(cart.mapToResponse()));
+
+            return responses;
         }
     }
 
     @Override
-    public Cart update(UpdateCartRequest request, Integer id) {
+    public void update(UpdateCartRequest request, Integer id) {
         Cart cart = new Cart();
         cart.setUser(userRepository.
                 findById(request.userId()).
@@ -65,15 +73,14 @@ public class CartService implements ICartService {
         ValidationUtil.checkId(id, cartRepository);
 
         cart.setId(id);
-        return cartRepository.save(cart);
+        cartRepository.save(cart);
     }
 
     @Override
-    public String delete(Integer id) {
+    public void delete(Integer id) {
         ValidationUtil.checkId(id, cartRepository);
 
         cartRepository.deleteById(id);
-        return "Удалено";
     }
 
     @Override

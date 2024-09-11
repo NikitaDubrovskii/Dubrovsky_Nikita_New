@@ -2,6 +2,7 @@ package dev.dubrovsky.service.order;
 
 import dev.dubrovsky.dto.request.order.NewOrderItemRequest;
 import dev.dubrovsky.dto.request.order.UpdateOrderItemRequest;
+import dev.dubrovsky.dto.response.order.OrderItemResponse;
 import dev.dubrovsky.model.order.OrderItem;
 import dev.dubrovsky.repository.order.OrderItemRepository;
 import dev.dubrovsky.repository.order.OrderRepository;
@@ -10,6 +11,7 @@ import dev.dubrovsky.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -21,7 +23,7 @@ public class OrderItemService implements IOrderItemService {
     private final ProductRepository productRepository;
 
     @Override
-    public OrderItem create(NewOrderItemRequest request) {
+    public void create(NewOrderItemRequest request) {
         OrderItem orderItem = new OrderItem();
         orderItem.setQuantity(request.quantity());
         orderItem.setOrder(orderRepository
@@ -35,27 +37,33 @@ public class OrderItemService implements IOrderItemService {
         ValidationUtil.checkEntityPresent(orderItem.getOrder().getId(), orderRepository);
         ValidationUtil.checkEntityPresent(orderItem.getProduct().getId(), productRepository);
 
-        return orderItemRepository.save(orderItem);
+        orderItemRepository.save(orderItem);
     }
 
     @Override
-    public OrderItem getById(Integer id) {
+    public OrderItemResponse getById(Integer id) {
         ValidationUtil.checkId(id, orderItemRepository);
 
-        return orderItemRepository.findById(id).orElse(null);
+        OrderItem orderItem = orderItemRepository.findById(id).orElse(null);
+        return orderItem.mapToResponse();
     }
 
     @Override
-    public List<OrderItem> getAll() {
+    public List<OrderItemResponse> getAll() {
         if (orderItemRepository.findAll().isEmpty()) {
             return null;
         } else {
-            return orderItemRepository.findAll();
+            List<OrderItemResponse> responses = new ArrayList<>();
+            List<OrderItem> all = orderItemRepository.findAll();
+
+            all.forEach(orderItem -> responses.add(orderItem.mapToResponse()));
+
+            return responses;
         }
     }
 
     @Override
-    public OrderItem update(UpdateOrderItemRequest request, Integer id) {
+    public void update(UpdateOrderItemRequest request, Integer id) {
         OrderItem orderItem = new OrderItem();
         orderItem.setQuantity(request.quantity());
         orderItem.setOrder(orderRepository
@@ -71,15 +79,13 @@ public class OrderItemService implements IOrderItemService {
         ValidationUtil.checkId(id, orderItemRepository);
 
         orderItem.setId(id);
-        return orderItemRepository.save(orderItem);
+        orderItemRepository.save(orderItem);
     }
 
     @Override
-    public String delete(Integer id) {
+    public void delete(Integer id) {
         ValidationUtil.checkId(id, orderItemRepository);
         orderItemRepository.deleteById(id);
-
-        return "Удалено!";
     }
 
     private void validateOrderItem(OrderItem orderItem) {

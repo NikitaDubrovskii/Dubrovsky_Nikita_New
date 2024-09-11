@@ -2,12 +2,14 @@ package dev.dubrovsky.service.category;
 
 import dev.dubrovsky.dto.request.category.NewCategoryRequest;
 import dev.dubrovsky.dto.request.category.UpdateCategoryRequest;
+import dev.dubrovsky.dto.response.category.CategoryResponse;
 import dev.dubrovsky.model.category.Category;
 import dev.dubrovsky.repository.category.CategoryRepository;
 import dev.dubrovsky.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -17,34 +19,40 @@ public class CategoryService implements ICategoryService {
     private final CategoryRepository categoryRepository;
 
     @Override
-    public Category create(NewCategoryRequest request) {
+    public void create(NewCategoryRequest request) {
         Category category = new Category();
         category.setName(request.name());
         category.setDescription(request.description());
 
         validateCategory(category);
 
-        return categoryRepository.save(category);
+        categoryRepository.save(category);
     }
 
     @Override
-    public Category getById(Integer id) {
+    public CategoryResponse getById(Integer id) {
         ValidationUtil.checkId(id, categoryRepository);
 
-        return categoryRepository.findById(id).orElse(null);
+        Category category = categoryRepository.findById(id).orElse(null);
+        return category.mapToResponse();
     }
 
     @Override
-    public List<Category> getAll() {
+    public List<CategoryResponse> getAll() {
         if (categoryRepository.findAll().isEmpty()) {
             return null;
         } else {
-            return categoryRepository.findAll();
+            List<CategoryResponse> responses = new ArrayList<>();
+            List<Category> all = categoryRepository.findAll();
+
+            all.forEach(category -> responses.add(category.mapToResponse()));
+
+            return responses;
         }
     }
 
     @Override
-    public Category update(UpdateCategoryRequest request, Integer id) {
+    public void update(UpdateCategoryRequest request, Integer id) {
         Category category = new Category();
         category.setName(request.name());
         category.setDescription(request.description());
@@ -52,15 +60,13 @@ public class CategoryService implements ICategoryService {
         validateCategory(category);
         ValidationUtil.checkId(id, categoryRepository);
 
-        return categoryRepository.save(category);
+        categoryRepository.save(category);
     }
 
     @Override
-    public String delete(Integer id) {
+    public void delete(Integer id) {
         ValidationUtil.checkId(id, categoryRepository);
         categoryRepository.deleteById(id);
-
-        return "Удалено!";
     }
 
     private void validateCategory(Category category) {

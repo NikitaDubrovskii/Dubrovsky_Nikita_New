@@ -2,16 +2,16 @@ package dev.dubrovsky.service;
 
 import java.util.List;
 
-public interface ICommonService<T, N, U> {
+public interface ICommonService<R, N, U> {
 
-    T create(N entity);
+    void create(N entity);
 
-    T getById(Integer id);
+    R getById(Integer id);
 
-    List<T> getAll();
+    List<R> getAll();
 
-    T update(U entity, Integer id);
+    void update(U entity, Integer id);
 
-    String delete(Integer id);
+    void delete(Integer id);
 
 }

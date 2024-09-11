@@ -2,6 +2,7 @@ package dev.dubrovsky.service.order;
 
 import dev.dubrovsky.dto.request.order.NewOrderRequest;
 import dev.dubrovsky.dto.request.order.UpdateOrderRequest;
+import dev.dubrovsky.dto.response.order.OrderResponse;
 import dev.dubrovsky.model.order.Order;
 import dev.dubrovsky.repository.order.OrderRepository;
 import dev.dubrovsky.repository.payment.method.PaymentMethodRepository;
@@ -11,6 +12,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -22,7 +24,7 @@ public class OrderService implements IOrderService {
     private final UserRepository userRepository;
 
     @Override
-    public Order create(NewOrderRequest request) {
+    public void create(NewOrderRequest request) {
         Order order = new Order();
         order.setTotalPrice(request.totalPrice());
         order.setAddress(request.address());
@@ -39,27 +41,33 @@ public class OrderService implements IOrderService {
         ValidationUtil.checkEntityPresent(order.getUser().getId(), userRepository);
         ValidationUtil.checkEntityPresent(order.getPaymentMethod().getId(), paymentMethodRepository);
 
-        return orderRepository.save(order);
+        orderRepository.save(order);
     }
 
     @Override
-    public Order getById(Integer id) {
+    public OrderResponse getById(Integer id) {
         ValidationUtil.checkId(id, orderRepository);
 
-        return orderRepository.findById(id).orElse(null);
+        Order order = orderRepository.findById(id).orElse(null);
+        return order.mapToResponse();
     }
 
     @Override
-    public List<Order> getAll() {
+    public List<OrderResponse> getAll() {
         if (orderRepository.findAll().isEmpty()) {
             return null;
         } else {
-            return orderRepository.findAll();
+            List<OrderResponse> responses = new ArrayList<>();
+            List<Order> all = orderRepository.findAll();
+
+            all.forEach(order -> responses.add(order.mapToResponse()));
+
+            return responses;
         }
     }
 
     @Override
-    public Order update(UpdateOrderRequest request, Integer id) {
+    public void update(UpdateOrderRequest request, Integer id) {
         Order order = new Order();
         order.setTotalPrice(request.totalPrice());
         order.setAddress(request.address());
@@ -76,15 +84,13 @@ public class OrderService implements IOrderService {
         ValidationUtil.checkId(id, orderRepository);
 
         order.setId(id);
-        return orderRepository.save(order);
+        orderRepository.save(order);
     }
 
     @Override
-    public String delete(Integer id) {
+    public void delete(Integer id) {
         ValidationUtil.checkId(id, orderRepository);
         orderRepository.deleteById(id);
-
-        return "Удалено!";
     }
 
     private void validateOrder(Order order) {

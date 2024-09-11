@@ -2,12 +2,14 @@ package dev.dubrovsky.service.payment.method;
 
 import dev.dubrovsky.dto.request.payment.method.NewPaymentMethodRequest;
 import dev.dubrovsky.dto.request.payment.method.UpdatePaymentMethodRequest;
+import dev.dubrovsky.dto.response.payment.method.PaymentMethodResponse;
 import dev.dubrovsky.model.payment.method.PaymentMethod;
 import dev.dubrovsky.repository.payment.method.PaymentMethodRepository;
 import dev.dubrovsky.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -17,33 +19,39 @@ public class PaymentMethodService implements IPaymentMethodService {
     private final PaymentMethodRepository paymentMethodRepository;
 
     @Override
-    public PaymentMethod create(NewPaymentMethodRequest request) {
+    public void create(NewPaymentMethodRequest request) {
         PaymentMethod paymentMethod = new PaymentMethod();
         paymentMethod.setMethod(request.method());
 
         validatePaymentMethod(paymentMethod);
 
-        return paymentMethodRepository.save(paymentMethod);
+        paymentMethodRepository.save(paymentMethod);
     }
 
     @Override
-    public PaymentMethod getById(Integer id) {
+    public PaymentMethodResponse getById(Integer id) {
         ValidationUtil.checkId(id, paymentMethodRepository);
 
-        return paymentMethodRepository.findById(id).orElse(null);
+        PaymentMethod paymentMethod = paymentMethodRepository.findById(id).orElse(null);
+        return paymentMethod.mapToResponse();
     }
 
     @Override
-    public List<PaymentMethod> getAll() {
+    public List<PaymentMethodResponse> getAll() {
         if (paymentMethodRepository.findAll().isEmpty()) {
             return null;
         } else {
-            return paymentMethodRepository.findAll();
+            List<PaymentMethodResponse> responses = new ArrayList<>();
+            List<PaymentMethod> all = paymentMethodRepository.findAll();
+
+            all.forEach(paymentMethod -> responses.add(paymentMethod.mapToResponse()));
+
+            return responses;
         }
     }
 
     @Override
-    public PaymentMethod update(UpdatePaymentMethodRequest request, Integer id) {
+    public void update(UpdatePaymentMethodRequest request, Integer id) {
         PaymentMethod paymentMethod = new PaymentMethod();
         paymentMethod.setMethod(request.method());
 
@@ -51,15 +59,13 @@ public class PaymentMethodService implements IPaymentMethodService {
         ValidationUtil.checkId(id, paymentMethodRepository);
 
         paymentMethod.setId(id);
-        return paymentMethodRepository.save(paymentMethod);
+        paymentMethodRepository.save(paymentMethod);
     }
 
     @Override
-    public String delete(Integer id) {
+    public void delete(Integer id) {
         ValidationUtil.checkId(id, paymentMethodRepository);
         paymentMethodRepository.deleteById(id);
-
-        return "Удалено!";
     }
 
     private void validatePaymentMethod(PaymentMethod paymentMethod) {

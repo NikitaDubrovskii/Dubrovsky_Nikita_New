@@ -2,12 +2,14 @@ package dev.dubrovsky.service.loyalty.program;
 
 import dev.dubrovsky.dto.request.loyalty.program.NewLoyaltyProgramRequest;
 import dev.dubrovsky.dto.request.loyalty.program.UpdateLoyaltyProgramRequest;
+import dev.dubrovsky.dto.response.loyalty.program.LoyaltyProgramResponse;
 import dev.dubrovsky.model.loyalty.program.LoyaltyProgram;
 import dev.dubrovsky.repository.loyalty.program.LoyaltyProgramRepository;
 import dev.dubrovsky.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -17,34 +19,40 @@ public class LoyaltyProgramService implements ILoyaltyProgramService {
     private final LoyaltyProgramRepository loyaltyProgramRepository;
 
     @Override
-    public LoyaltyProgram create(NewLoyaltyProgramRequest request) {
+    public void create(NewLoyaltyProgramRequest request) {
         LoyaltyProgram loyaltyProgram = new LoyaltyProgram();
         loyaltyProgram.setName(request.name());
         loyaltyProgram.setDescription(request.description());
 
         validateLoyaltyProgram(loyaltyProgram);
 
-        return loyaltyProgramRepository.save(loyaltyProgram);
+        loyaltyProgramRepository.save(loyaltyProgram);
     }
 
     @Override
-    public LoyaltyProgram getById(Integer id) {
+    public LoyaltyProgramResponse getById(Integer id) {
         ValidationUtil.checkId(id, loyaltyProgramRepository);
 
-        return loyaltyProgramRepository.findById(id).orElse(null);
+        LoyaltyProgram loyaltyProgram = loyaltyProgramRepository.findById(id).orElse(null);
+        return loyaltyProgram.mapToResponse();
     }
 
     @Override
-    public List<LoyaltyProgram> getAll() {
+    public List<LoyaltyProgramResponse> getAll() {
         if (loyaltyProgramRepository.findAll().isEmpty()) {
             return null;
         } else {
-            return loyaltyProgramRepository.findAll();
+            List<LoyaltyProgramResponse> responses = new ArrayList<>();
+            List<LoyaltyProgram> all = loyaltyProgramRepository.findAll();
+
+            all.forEach(loyaltyProgram -> responses.add(loyaltyProgram.mapToResponse()));
+
+            return responses;
         }
     }
 
     @Override
-    public LoyaltyProgram update(UpdateLoyaltyProgramRequest request, Integer id) {
+    public void update(UpdateLoyaltyProgramRequest request, Integer id) {
         LoyaltyProgram loyaltyProgram = new LoyaltyProgram();
         loyaltyProgram.setName(request.name());
         loyaltyProgram.setDescription(request.description());
@@ -53,15 +61,13 @@ public class LoyaltyProgramService implements ILoyaltyProgramService {
         ValidationUtil.checkId(id, loyaltyProgramRepository);
 
         loyaltyProgram.setId(id);
-        return loyaltyProgramRepository.save(loyaltyProgram);
+        loyaltyProgramRepository.save(loyaltyProgram);
     }
 
     @Override
-    public String delete(Integer id) {
+    public void delete(Integer id) {
         ValidationUtil.checkId(id, loyaltyProgramRepository);
         loyaltyProgramRepository.deleteById(id);
-
-        return "Удалено!";
     }
 
     private void validateLoyaltyProgram(LoyaltyProgram loyaltyProgram) {

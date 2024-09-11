@@ -2,6 +2,7 @@ package dev.dubrovsky.service.cart;
 
 import dev.dubrovsky.dto.request.cart.NewCartItemRequest;
 import dev.dubrovsky.dto.request.cart.UpdateCartItemRequest;
+import dev.dubrovsky.dto.response.cart.CartItemResponse;
 import dev.dubrovsky.model.cart.CartItem;
 import dev.dubrovsky.repository.cart.CartItemRepository;
 import dev.dubrovsky.repository.cart.CartRepository;
@@ -10,6 +11,7 @@ import dev.dubrovsky.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -21,7 +23,7 @@ public class CartItemService implements ICartItemService {
     private final ProductRepository productRepository;
 
     @Override
-    public CartItem create(NewCartItemRequest request) {
+    public void create(NewCartItemRequest request) {
         CartItem cartItem = new CartItem();
         cartItem.setQuantity(request.quantity());
         cartItem.setCart(cartRepository
@@ -35,27 +37,33 @@ public class CartItemService implements ICartItemService {
         ValidationUtil.checkEntityPresent(cartItem.getCart().getId(), cartRepository);
         ValidationUtil.checkEntityPresent(cartItem.getProduct().getId(), productRepository);
 
-        return cartItemRepository.save(cartItem);
+        cartItemRepository.save(cartItem);
     }
 
     @Override
-    public CartItem getById(Integer id) {
+    public CartItemResponse getById(Integer id) {
         ValidationUtil.checkId(id, cartItemRepository);
 
-        return cartItemRepository.findById(id).orElse(null);
+        CartItem cartItem = cartItemRepository.findById(id).orElse(null);
+        return cartItem.mapToResponse();
     }
 
     @Override
-    public List<CartItem> getAll() {
+    public List<CartItemResponse> getAll() {
         if (cartItemRepository.findAll().isEmpty()) {
             return null;
         } else {
-            return cartItemRepository.findAll();
+            List<CartItemResponse> responses = new ArrayList<>();
+            List<CartItem> all = cartItemRepository.findAll();
+
+            all.forEach(cartItem -> responses.add(cartItem.mapToResponse()));
+
+            return responses;
         }
     }
 
     @Override
-    public CartItem update(UpdateCartItemRequest request, Integer id) {
+    public void update(UpdateCartItemRequest request, Integer id) {
         CartItem cartItem = new CartItem();
         cartItem.setQuantity(request.quantity());
         cartItem.setCart(cartRepository
@@ -71,15 +79,13 @@ public class CartItemService implements ICartItemService {
         ValidationUtil.checkId(id, cartItemRepository);
 
         cartItem.setId(id);
-        return cartItemRepository.save(cartItem);
+        cartItemRepository.save(cartItem);
     }
 
     @Override
-    public String delete(Integer id) {
+    public void delete(Integer id) {
         ValidationUtil.checkId(id, cartItemRepository);
         cartItemRepository.deleteById(id);
-
-        return "Удалено!";
     }
 
     private void validateCartItem(CartItem cartItem) {

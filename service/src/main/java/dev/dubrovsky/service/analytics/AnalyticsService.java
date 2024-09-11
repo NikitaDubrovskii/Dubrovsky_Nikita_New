@@ -2,6 +2,7 @@ package dev.dubrovsky.service.analytics;
 
 import dev.dubrovsky.dto.request.analytics.NewAnalyticsRequest;
 import dev.dubrovsky.dto.request.analytics.UpdateAnalyticsRequest;
+import dev.dubrovsky.dto.response.analytics.AnalyticsResponse;
 import dev.dubrovsky.model.analytics.Analytics;
 import dev.dubrovsky.repository.analytics.AnalyticsRepository;
 import dev.dubrovsky.repository.user.UserRepository;
@@ -10,6 +11,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -20,7 +22,7 @@ public class AnalyticsService implements IAnalyticsService {
     private final UserRepository userRepository;
 
     @Override
-    public Analytics create(NewAnalyticsRequest request) {
+    public void create(NewAnalyticsRequest request) {
         Analytics analytics = new Analytics();
         analytics.setActivity(request.activity());
         analytics.setUser(userRepository
@@ -31,27 +33,33 @@ public class AnalyticsService implements IAnalyticsService {
         validateAnalytics(analytics);
         ValidationUtil.checkEntityPresent(analytics.getUser().getId(), userRepository);
 
-        return analyticsRepository.save(analytics);
+        analyticsRepository.save(analytics);
     }
 
     @Override
-    public Analytics getById(Integer id) {
+    public AnalyticsResponse getById(Integer id) {
         ValidationUtil.checkId(id, analyticsRepository);
 
-        return analyticsRepository.findById(id).orElse(null);
+        Analytics analytics = analyticsRepository.findById(id).orElse(null);
+        return analytics.mapToResponse();
     }
 
     @Override
-    public List<Analytics> getAll() {
+    public List<AnalyticsResponse> getAll() {
         if (analyticsRepository.findAll().isEmpty()) {
             return null;
         } else {
-            return analyticsRepository.findAll();
+            List<AnalyticsResponse> responses = new ArrayList<>();
+            List<Analytics> all = analyticsRepository.findAll();
+
+            all.forEach(analytics -> responses.add(analytics.mapToResponse()));
+
+            return responses;
         }
     }
 
     @Override
-    public Analytics update(UpdateAnalyticsRequest request, Integer id) {
+    public void update(UpdateAnalyticsRequest request, Integer id) {
         Analytics analytics = new Analytics();
         analytics.setActivity(request.activity());
         analytics.setUser(userRepository
@@ -64,15 +72,13 @@ public class AnalyticsService implements IAnalyticsService {
 
         analytics.setId(id);
 
-        return analyticsRepository.save(analytics);
+        analyticsRepository.save(analytics);
     }
 
     @Override
-    public String delete(Integer id) {
+    public void delete(Integer id) {
         ValidationUtil.checkId(id, analyticsRepository);
-
         analyticsRepository.deleteById(id);
-        return "Удалено!";
     }
 
     private void validateAnalytics(Analytics analytics) {

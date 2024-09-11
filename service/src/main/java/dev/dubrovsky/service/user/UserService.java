@@ -2,6 +2,7 @@ package dev.dubrovsky.service.user;
 
 import dev.dubrovsky.dto.request.user.NewUserRequest;
 import dev.dubrovsky.dto.request.user.UpdateUserRequest;
+import dev.dubrovsky.dto.response.user.UserResponse;
 import dev.dubrovsky.model.user.User;
 import dev.dubrovsky.repository.user.UserRepository;
 import dev.dubrovsky.util.encoder.SimplePasswordEncoder;
@@ -11,6 +12,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,7 +23,7 @@ public class UserService implements IUserService {
     private final UserRepository userRepository;
 
     @Override
-    public User create(NewUserRequest request) {
+    public void create(NewUserRequest request) {
         User user = new User();
         user.setUsername(request.username());
         user.setPassword(SimplePasswordEncoder.encode(request.password()));
@@ -33,27 +35,33 @@ public class UserService implements IUserService {
         checkUniqueEmail(user.getEmail());
 
         user.setPassword(SimplePasswordEncoder.encode(user.getPassword()));
-        return userRepository.save(user);
+        userRepository.save(user);
     }
 
     @Override
-    public User getById(Integer id) {
+    public UserResponse getById(Integer id) {
         ValidationUtil.checkId(id, userRepository);
 
-        return userRepository.findById(id).orElse(null);
+        User user = userRepository.findById(id).orElse(null);
+        return user.mapToResponse();
     }
 
     @Override
-    public List<User> getAll() {
+    public List<UserResponse> getAll() {
         if (userRepository.findAll().isEmpty()) {
             return null;
         } else {
-            return userRepository.findAll();
+            List<UserResponse> responses = new ArrayList<>();
+            List<User> all = userRepository.findAll();
+
+            all.forEach(user -> responses.add(user.mapToResponse()));
+
+            return responses;
         }
     }
 
     @Override
-    public User update(UpdateUserRequest request, Integer id) {
+    public void update(UpdateUserRequest request, Integer id) {
         User user = new User();
         user.setUsername(request.username());
         user.setEmail(request.email());
@@ -70,15 +78,13 @@ public class UserService implements IUserService {
         }
 
         user.setId(id);
-        return userRepository.save(user);
+        userRepository.save(user);
     }
 
     @Override
-    public String delete(Integer id) {
+    public void delete(Integer id) {
         ValidationUtil.checkId(id, userRepository);
         userRepository.deleteById(id);
-
-        return "Удалено!";
     }
 
     @Override

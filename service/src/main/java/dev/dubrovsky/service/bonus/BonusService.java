@@ -2,6 +2,7 @@ package dev.dubrovsky.service.bonus;
 
 import dev.dubrovsky.dto.request.bonus.NewBonusRequest;
 import dev.dubrovsky.dto.request.bonus.UpdateBonusRequest;
+import dev.dubrovsky.dto.response.bonus.BonusResponse;
 import dev.dubrovsky.model.bonus.Bonus;
 import dev.dubrovsky.repository.bonus.BonusRepository;
 import dev.dubrovsky.repository.loyalty.program.LoyaltyProgramRepository;
@@ -9,6 +10,7 @@ import dev.dubrovsky.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -19,7 +21,7 @@ public class BonusService implements IBonusService {
     private final LoyaltyProgramRepository loyaltyProgramRepository;
 
     @Override
-    public Bonus create(NewBonusRequest request) {
+    public void create(NewBonusRequest request) {
         Bonus bonus = new Bonus();
         bonus.setName(request.name());
         bonus.setDescription(request.description());
@@ -31,27 +33,34 @@ public class BonusService implements IBonusService {
         validateBonus(bonus);
         ValidationUtil.checkEntityPresent(bonus.getProgram().getId(), loyaltyProgramRepository);
 
-        return bonusRepository.save(bonus);
+        bonusRepository.save(bonus);
     }
 
     @Override
-    public Bonus getById(Integer id) {
+    public BonusResponse getById(Integer id) {
         ValidationUtil.checkId(id, bonusRepository);
 
-        return bonusRepository.findById(id).orElse(null);
+        Bonus bonus = bonusRepository.findById(id).orElse(null);
+
+        return bonus.mapToResponse();
     }
 
     @Override
-    public List<Bonus> getAll() {
+    public List<BonusResponse> getAll() {
         if (bonusRepository.findAll().isEmpty()) {
             return null;
         } else {
-            return bonusRepository.findAll();
+            List<BonusResponse> responses = new ArrayList<>();
+            List<Bonus> all = bonusRepository.findAll();
+
+            all.forEach(bonus -> responses.add(bonus.mapToResponse()));
+
+            return responses;
         }
     }
 
     @Override
-    public Bonus update(UpdateBonusRequest request, Integer id) {
+    public void update(UpdateBonusRequest request, Integer id) {
         Bonus bonus = new Bonus();
         bonus.setName(request.name());
         bonus.setDescription(request.description());
@@ -65,15 +74,13 @@ public class BonusService implements IBonusService {
         ValidationUtil.checkEntityPresent(bonus.getProgram().getId(), loyaltyProgramRepository);
 
         bonus.setId(id);
-        return bonusRepository.save(bonus);
+        bonusRepository.save(bonus);
     }
 
     @Override
-    public String delete(Integer id) {
+    public void delete(Integer id) {
         ValidationUtil.checkId(id, bonusRepository);
-
         bonusRepository.deleteById(id);
-        return "Удалено!";
     }
 
     private void validateBonus(Bonus bonus) {

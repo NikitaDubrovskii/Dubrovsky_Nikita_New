@@ -1,8 +1,13 @@
 package dev.dubrovsky.service.loyalty.program;
 
 import dev.dubrovsky.dto.request.loyalty.program.NewUserLoyaltyProgramRequest;
+import dev.dubrovsky.dto.response.loyalty.program.LoyaltyProgramResponse;
+import dev.dubrovsky.dto.response.loyalty.program.UserLoyaltyProgramResponse;
+import dev.dubrovsky.dto.response.user.UserResponse;
+import dev.dubrovsky.model.loyalty.program.LoyaltyProgram;
 import dev.dubrovsky.model.loyalty.program.UserLoyaltyProgram;
 import dev.dubrovsky.model.loyalty.program.UserLoyaltyProgramId;
+import dev.dubrovsky.model.user.User;
 import dev.dubrovsky.repository.loyalty.program.LoyaltyProgramRepository;
 import dev.dubrovsky.repository.loyalty.program.UserLoyaltyProgramRepository;
 import dev.dubrovsky.repository.user.UserRepository;
@@ -10,6 +15,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -38,11 +44,16 @@ public class UserLoyaltyProgramService implements IUserLoyaltyProgramService {
     }
 
     @Override
-    public List<UserLoyaltyProgram> getAll() {
+    public List<UserLoyaltyProgramResponse> getAll() {
         if (userLoyaltyProgramRepository.findAll().isEmpty()) {
             return null;
         } else {
-            return userLoyaltyProgramRepository.findAll();
+            List<UserLoyaltyProgramResponse> responses = new ArrayList<>();
+            List<UserLoyaltyProgram> all = userLoyaltyProgramRepository.findAll();
+
+            all.forEach(userLoyaltyProgram -> responses.add(mapToResponse(userLoyaltyProgram)));
+
+            return responses;
         }
     }
 
@@ -74,6 +85,16 @@ public class UserLoyaltyProgramService implements IUserLoyaltyProgramService {
         if (userId < 1 || programId < 1) {
             throw new IllegalArgumentException("Id должен быть больше 0");
         }
+    }
+
+    private UserLoyaltyProgramResponse mapToResponse(UserLoyaltyProgram userLoyaltyProgram) {
+        User user = userRepository.findById(userLoyaltyProgram.getUserLoyaltyProgramId().getUserId()).get();
+        LoyaltyProgram loyaltyProgram = loyaltyProgramRepository.findById(userLoyaltyProgram.getUserLoyaltyProgramId().getProgramId()).get();
+
+        UserResponse userResponse = user.mapToResponse();
+        LoyaltyProgramResponse loyaltyProgramResponse = loyaltyProgram.mapToResponse();
+
+        return new UserLoyaltyProgramResponse(userResponse, loyaltyProgramResponse, userLoyaltyProgram.getReceivedAt());
     }
 
 }

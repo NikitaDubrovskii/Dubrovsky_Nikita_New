@@ -2,6 +2,7 @@ package dev.dubrovsky.service.product;
 
 import dev.dubrovsky.dto.request.product.NewProductRequest;
 import dev.dubrovsky.dto.request.product.UpdateProductRequest;
+import dev.dubrovsky.dto.response.product.ProductResponse;
 import dev.dubrovsky.model.product.Product;
 import dev.dubrovsky.repository.category.CategoryRepository;
 import dev.dubrovsky.repository.product.ProductRepository;
@@ -10,6 +11,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -20,7 +22,7 @@ public class ProductService implements IProductService {
     private final CategoryRepository categoryRepository;
 
     @Override
-    public Product create(NewProductRequest request) {
+    public void create(NewProductRequest request) {
         Product product = new Product();
         product.setName(request.name());
         product.setDescription(request.description());
@@ -33,27 +35,33 @@ public class ProductService implements IProductService {
         validateProduct(product);
         ValidationUtil.checkEntityPresent(product.getCategory().getId(), categoryRepository);
 
-        return productRepository.save(product);
+        productRepository.save(product);
     }
 
     @Override
-    public Product getById(Integer id) {
+    public ProductResponse getById(Integer id) {
         ValidationUtil.checkId(id, productRepository);
 
-        return productRepository.findById(id).orElse(null);
+        Product product = productRepository.findById(id).orElse(null);
+        return product.mapToResponse();
     }
 
     @Override
-    public List<Product> getAll() {
+    public List<ProductResponse> getAll() {
         if (productRepository.findAll().isEmpty()) {
             return null;
         } else {
-            return productRepository.findAll();
+            List<ProductResponse> responses = new ArrayList<>();
+            List<Product> all = productRepository.findAll();
+
+            all.forEach(product -> responses.add(product.mapToResponse()));
+
+            return responses;
         }
     }
 
     @Override
-    public Product update(UpdateProductRequest request, Integer id) {
+    public void update(UpdateProductRequest request, Integer id) {
         Product product = new Product();
         product.setName(request.name());
         product.setDescription(request.description());
@@ -67,15 +75,13 @@ public class ProductService implements IProductService {
         ValidationUtil.checkId(id, productRepository);
 
         product.setId(id);
-        return productRepository.save(product);
+        productRepository.save(product);
     }
 
     @Override
-    public String delete(Integer id) {
+    public void delete(Integer id) {
         ValidationUtil.checkId(id, productRepository);
         productRepository.deleteById(id);
-
-        return "Удалено!";
     }
 
     private void validateProduct(Product product) {
