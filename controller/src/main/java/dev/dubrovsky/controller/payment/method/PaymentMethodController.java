@@ -3,10 +3,15 @@ package dev.dubrovsky.controller.payment.method;
 import dev.dubrovsky.dto.request.payment.method.NewPaymentMethodRequest;
 import dev.dubrovsky.dto.request.payment.method.UpdatePaymentMethodRequest;
 import dev.dubrovsky.service.payment.method.PaymentMethodService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("api/v1/payment-method")
@@ -16,9 +21,17 @@ public class PaymentMethodController {
     private final PaymentMethodService paymentMethodService;
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody NewPaymentMethodRequest request) {
-        paymentMethodService.create(request);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+    public ResponseEntity<?> create(@RequestBody @Valid NewPaymentMethodRequest request,
+                                    BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            List<String> errors = bindingResult.getAllErrors().stream()
+                    .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                    .toList();
+            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+        } else {
+            paymentMethodService.create(request);
+            return new ResponseEntity<>("Создано!", HttpStatus.CREATED);
+        }
     }
 
     @GetMapping("/{id}")
@@ -32,16 +45,24 @@ public class PaymentMethodController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@RequestBody UpdatePaymentMethodRequest request,
-                                    @PathVariable Integer id) {
-        paymentMethodService.update(request, id);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<?> update(@RequestBody @Valid UpdatePaymentMethodRequest request,
+                                    @PathVariable Integer id,
+                                    BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            List<String> errors = bindingResult.getAllErrors().stream()
+                    .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                    .toList();
+            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+        } else {
+            paymentMethodService.update(request, id);
+            return new ResponseEntity<>("Обновлено!", HttpStatus.OK);
+        }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Integer id) {
         paymentMethodService.delete(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>("Удалено!", HttpStatus.OK);
     }
 
 }

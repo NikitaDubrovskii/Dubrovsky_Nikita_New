@@ -5,10 +5,15 @@ import dev.dubrovsky.dto.request.user.UpdateUserRequest;
 import dev.dubrovsky.dto.request.user.UserLoginRequest;
 import dev.dubrovsky.dto.request.user.UserResetPasswordRequest;
 import dev.dubrovsky.service.user.UserService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("api/v1/user")
@@ -18,9 +23,17 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody NewUserRequest request) {
-        userService.create(request);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+    public ResponseEntity<?> create(@RequestBody @Valid NewUserRequest request,
+                                    BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            List<String> errors = bindingResult.getAllErrors().stream()
+                    .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                    .toList();
+            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+        } else {
+            userService.create(request);
+            return new ResponseEntity<>("Создано!", HttpStatus.CREATED);
+        }
     }
 
     @GetMapping("/{id}")
@@ -34,55 +47,56 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@RequestBody UpdateUserRequest request,
-                                    @PathVariable Integer id) {
-        userService.update(request, id);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<?> update(@RequestBody @Valid UpdateUserRequest request,
+                                    @PathVariable Integer id,
+                                    BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            List<String> errors = bindingResult.getAllErrors().stream()
+                    .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                    .toList();
+            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+        } else {
+            userService.update(request, id);
+            return new ResponseEntity<>("Обновлено!", HttpStatus.OK);
+        }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Integer id) {
         userService.delete(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>("Удалено!", HttpStatus.OK);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UserLoginRequest request) {
-        userService.loginUser(request.usernameOrEmail(), request.password());
-        return new ResponseEntity<>(HttpStatus.OK);
-
-        /*try {
-            authService.loginUser(loginRequest.getUsernameOrEmail(), loginRequest.getPassword());
-            return ResponseEntity.ok("Вход выполнен");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }*/
+    public ResponseEntity<?> login(@RequestBody @Valid UserLoginRequest request,
+                                   BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            List<String> errors = bindingResult.getAllErrors().stream()
+                    .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                    .toList();
+            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+        } else {
+            return new ResponseEntity<>(userService.loginUser(request.usernameOrEmail(), request.password()), HttpStatus.OK);
+        }
     }
 
     @PostMapping("/recover-password")
     public ResponseEntity<?> recoverPassword(@RequestParam(name = "email") String email) {
-        userService.recoverPassword(email);
-        return new ResponseEntity<>(HttpStatus.OK);
-
-        /*try {
-            authService.recoverPassword(request.getEmail());
-            return ResponseEntity.ok("Временный пароль отправлен на почту");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }*/
+        return new ResponseEntity<>(userService.recoverPassword(email), HttpStatus.OK);
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<?> resetPassword(@RequestBody UserResetPasswordRequest request) {
-        userService.resetPassword(request.usernameOrEmail(), request.oldPassword(), request.newPassword());
-        return new ResponseEntity<>(HttpStatus.OK);
-
-        /*try {
-            authService.resetPassword(request.getUsernameOrEmail(), request.getOldPassword(), request.getNewPassword());
-            return ResponseEntity.ok("Пароль успешно изменен");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }*/
+    public ResponseEntity<?> resetPassword(@RequestBody @Valid UserResetPasswordRequest request,
+                                           BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            List<String> errors = bindingResult.getAllErrors().stream()
+                    .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                    .toList();
+            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+        } else {
+            userService.resetPassword(request.usernameOrEmail(), request.oldPassword(), request.newPassword());
+            return new ResponseEntity<>("Пароль изменен!", HttpStatus.OK);
+        }
     }
 
 }
