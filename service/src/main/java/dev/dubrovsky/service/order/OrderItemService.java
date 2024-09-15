@@ -24,6 +24,9 @@ public class OrderItemService implements IOrderItemService {
 
     @Override
     public void create(NewOrderItemRequest request) {
+        ValidationUtil.checkEntityPresent(request.orderId(), orderRepository);
+        ValidationUtil.checkEntityPresent(request.productId(), productRepository);
+
         OrderItem orderItem = new OrderItem();
         orderItem.setQuantity(request.quantity());
         orderItem.setOrder(orderRepository
@@ -33,10 +36,6 @@ public class OrderItemService implements IOrderItemService {
                 .findById(request.productId())
                 .orElse(null));
 
-        validateOrderItem(orderItem);
-        ValidationUtil.checkEntityPresent(orderItem.getOrder().getId(), orderRepository);
-        ValidationUtil.checkEntityPresent(orderItem.getProduct().getId(), productRepository);
-
         orderItemRepository.save(orderItem);
     }
 
@@ -45,7 +44,7 @@ public class OrderItemService implements IOrderItemService {
         ValidationUtil.checkId(id, orderItemRepository);
 
         OrderItem orderItem = orderItemRepository.findById(id).orElse(null);
-        return orderItem.mapToResponse();
+        return orderItem != null ? orderItem.mapToResponse() : null;
     }
 
     @Override
@@ -64,21 +63,24 @@ public class OrderItemService implements IOrderItemService {
 
     @Override
     public void update(UpdateOrderItemRequest request, Integer id) {
-        OrderItem orderItem = new OrderItem();
-        orderItem.setQuantity(request.quantity());
-        orderItem.setOrder(orderRepository
-                .findById(request.orderId())
-                .orElse(null));
-        orderItem.setProduct(productRepository
-                .findById(request.productId())
-                .orElse(null));
-
-        validateOrderItem(orderItem);
-        ValidationUtil.checkEntityPresent(orderItem.getOrder().getId(), orderRepository);
-        ValidationUtil.checkEntityPresent(orderItem.getProduct().getId(), productRepository);
         ValidationUtil.checkId(id, orderItemRepository);
 
+        OrderItem orderItem = orderItemRepository.findById(id).orElse(null);
+        assert orderItem != null;
+
+        if (request.quantity() != null && request.quantity() > 0) {
+            orderItem.setQuantity(request.quantity());
+        }
+        if (request.productId() != null && request.productId() > 0) {
+            ValidationUtil.checkEntityPresent(request.productId(), productRepository);
+            orderItem.setProduct(productRepository.findById(request.productId()).orElse(null));
+        }
+        if (request.orderId() != null && request.orderId() > 0) {
+            ValidationUtil.checkEntityPresent(request.orderId(), orderRepository);
+            orderItem.setOrder(orderRepository.findById(request.orderId()).orElse(null));
+        }
         orderItem.setId(id);
+
         orderItemRepository.save(orderItem);
     }
 
@@ -86,15 +88,6 @@ public class OrderItemService implements IOrderItemService {
     public void delete(Integer id) {
         ValidationUtil.checkId(id, orderItemRepository);
         orderItemRepository.deleteById(id);
-    }
-
-    private void validateOrderItem(OrderItem orderItem) {
-        if (orderItem == null) {
-            throw new IllegalArgumentException("Предмет в заказе не может отсутствовать");
-        }
-        if (orderItem.getQuantity() == null || orderItem.getQuantity() <= 0) {
-            throw new IllegalArgumentException("Количество не может отсутствовать");
-        }
     }
 
 }

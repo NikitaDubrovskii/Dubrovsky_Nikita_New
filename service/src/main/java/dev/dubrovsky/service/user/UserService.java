@@ -24,17 +24,15 @@ public class UserService implements IUserService {
 
     @Override
     public void create(NewUserRequest request) {
+        checkUniqueUsername(request.username());
+        checkUniqueEmail(request.email());
+
         User user = new User();
         user.setUsername(request.username());
         user.setPassword(SimplePasswordEncoder.encode(request.password()));
         user.setEmail(request.email());
         user.setCreatedAt(LocalDateTime.now());
 
-        validateUser(user);
-        checkUniqueUsername(user.getUsername());
-        checkUniqueEmail(user.getEmail());
-
-        user.setPassword(SimplePasswordEncoder.encode(user.getPassword()));
         userRepository.save(user);
     }
 
@@ -43,7 +41,7 @@ public class UserService implements IUserService {
         ValidationUtil.checkId(id, userRepository);
 
         User user = userRepository.findById(id).orElse(null);
-        return user.mapToResponse();
+        return user != null ? user.mapToResponse() : null;
     }
 
     @Override
@@ -62,22 +60,21 @@ public class UserService implements IUserService {
 
     @Override
     public void update(UpdateUserRequest request, Integer id) {
-        User user = new User();
-        user.setUsername(request.username());
-        user.setEmail(request.email());
-
-        validateUser(user);
         ValidationUtil.checkId(id, userRepository);
 
-        User existingUser = userRepository.findById(id).orElse(null);
-        if (!existingUser.getUsername().equals(user.getUsername())) {
-            checkUniqueUsername(user.getUsername());
-        }
-        if (!existingUser.getEmail().equals(user.getEmail())) {
-            checkUniqueEmail(user.getEmail());
-        }
+        User user = userRepository.findById(id).orElse(null);
+        assert user != null;
 
+        if (request.username() != null && !request.username().isEmpty() && !request.username().equals(user.getUsername())) {
+            checkUniqueUsername(request.username());
+            user.setUsername(request.username());
+        }
+        if (request.email() != null && !request.email().isEmpty() && !request.email().equals(user.getEmail())) {
+            checkUniqueEmail(request.email());
+            user.setEmail(request.email());
+        }
         user.setId(id);
+
         userRepository.save(user);
     }
 
@@ -88,7 +85,7 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public void loginUser(String usernameOrEmail, String password) {
+    public String loginUser(String usernameOrEmail, String password) {
         User user = userRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail);
         if (user == null) {
             throw new IllegalArgumentException("Неверно имя пользователя или почта");
@@ -97,11 +94,11 @@ public class UserService implements IUserService {
             throw new IllegalArgumentException("Неверный пароль");
         }
 
-        System.out.println("Вход выполнен");
+        return "Вход выполнен";
     }
 
     @Override
-    public void recoverPassword(String email) {
+    public String recoverPassword(String email) {
         User user = userRepository.findByEmail(email);
         if (user == null) {
             throw new IllegalArgumentException("Неверная почта, пользователь не найден");
@@ -109,7 +106,8 @@ public class UserService implements IUserService {
         String tempPassword = generateTemporaryPassword();
         user.setPassword(SimplePasswordEncoder.encode(tempPassword));
         userRepository.save(user);
-        System.out.println("Отправка временного пароля на почту " + email + ": " + tempPassword);
+
+        return "Отправка временного пароля на почту " + email + ": " + tempPassword;
     }
 
     @Override
@@ -123,21 +121,6 @@ public class UserService implements IUserService {
         }
         user.setPassword(SimplePasswordEncoder.encode(newPassword));
         userRepository.save(user);
-    }
-
-    private void validateUser(User user) {
-        if (user == null) {
-            throw new IllegalArgumentException("Пользователь не может отсутствовать");
-        }
-        if (user.getEmail() == null || user.getEmail().trim().isEmpty()) {
-            throw new IllegalArgumentException("Почта не может отсутствовать");
-        }
-        if (user.getPassword() == null || user.getPassword().trim().isEmpty()) {
-            throw new IllegalArgumentException("Пароль не может отсутствовать");
-        }
-        if (user.getUsername() == null || user.getUsername().trim().isEmpty()) {
-            throw new IllegalArgumentException("Имя не может отсутствовать");
-        }
     }
 
     private void checkUniqueUsername(String username) {

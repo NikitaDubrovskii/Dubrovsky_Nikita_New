@@ -24,6 +24,9 @@ public class CartItemService implements ICartItemService {
 
     @Override
     public void create(NewCartItemRequest request) {
+        ValidationUtil.checkEntityPresent(request.cartId(), cartRepository);
+        ValidationUtil.checkEntityPresent(request.productId(), productRepository);
+
         CartItem cartItem = new CartItem();
         cartItem.setQuantity(request.quantity());
         cartItem.setCart(cartRepository
@@ -33,10 +36,6 @@ public class CartItemService implements ICartItemService {
                 .findById(request.productId())
                 .orElse(null));
 
-        validateCartItem(cartItem);
-        ValidationUtil.checkEntityPresent(cartItem.getCart().getId(), cartRepository);
-        ValidationUtil.checkEntityPresent(cartItem.getProduct().getId(), productRepository);
-
         cartItemRepository.save(cartItem);
     }
 
@@ -45,7 +44,7 @@ public class CartItemService implements ICartItemService {
         ValidationUtil.checkId(id, cartItemRepository);
 
         CartItem cartItem = cartItemRepository.findById(id).orElse(null);
-        return cartItem.mapToResponse();
+        return cartItem != null ? cartItem.mapToResponse() : null;
     }
 
     @Override
@@ -64,21 +63,24 @@ public class CartItemService implements ICartItemService {
 
     @Override
     public void update(UpdateCartItemRequest request, Integer id) {
-        CartItem cartItem = new CartItem();
-        cartItem.setQuantity(request.quantity());
-        cartItem.setCart(cartRepository
-                .findById(request.cartId())
-                .orElse(null));
-        cartItem.setProduct(productRepository
-                .findById(request.productId())
-                .orElse(null));
-
-        validateCartItem(cartItem);
-        ValidationUtil.checkEntityPresent(cartItem.getCart().getId(), cartRepository);
-        ValidationUtil.checkEntityPresent(cartItem.getProduct().getId(), productRepository);
         ValidationUtil.checkId(id, cartItemRepository);
 
+        CartItem cartItem = cartItemRepository.findById(id).orElse(null);
+        assert cartItem != null;
+
+        if (request.quantity() != null && request.quantity() != 0) {
+            cartItem.setQuantity(request.quantity());
+        }
+        if (request.productId() != null && request.productId() != 0) {
+            ValidationUtil.checkEntityPresent(request.productId(), productRepository);
+            cartItem.setProduct(productRepository.findById(request.productId()).orElse(null));
+        }
+        if (request.cartId() != null && request.cartId() != 0) {
+            ValidationUtil.checkEntityPresent(request.cartId(), cartRepository);
+            cartItem.setCart(cartRepository.findById(request.cartId()).orElse(null));
+        }
         cartItem.setId(id);
+
         cartItemRepository.save(cartItem);
     }
 
@@ -86,15 +88,6 @@ public class CartItemService implements ICartItemService {
     public void delete(Integer id) {
         ValidationUtil.checkId(id, cartItemRepository);
         cartItemRepository.deleteById(id);
-    }
-
-    private void validateCartItem(CartItem cartItem) {
-        if (cartItem == null) {
-            throw new IllegalArgumentException("Предмет в корзине не может отсутствовать");
-        }
-        if (cartItem.getQuantity() == null || cartItem.getQuantity() <= 0) {
-            throw new IllegalArgumentException("Количество не может отсутствовать");
-        }
     }
 
 }

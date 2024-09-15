@@ -9,6 +9,7 @@ import dev.dubrovsky.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,9 +23,10 @@ public class LoyaltyProgramService implements ILoyaltyProgramService {
     public void create(NewLoyaltyProgramRequest request) {
         LoyaltyProgram loyaltyProgram = new LoyaltyProgram();
         loyaltyProgram.setName(request.name());
-        loyaltyProgram.setDescription(request.description());
-
-        validateLoyaltyProgram(loyaltyProgram);
+        if (request.description() != null && !request.description().isEmpty()) {
+            loyaltyProgram.setDescription(request.description());
+        }
+        loyaltyProgram.setCreatedAt(LocalDateTime.now());
 
         loyaltyProgramRepository.save(loyaltyProgram);
     }
@@ -34,7 +36,7 @@ public class LoyaltyProgramService implements ILoyaltyProgramService {
         ValidationUtil.checkId(id, loyaltyProgramRepository);
 
         LoyaltyProgram loyaltyProgram = loyaltyProgramRepository.findById(id).orElse(null);
-        return loyaltyProgram.mapToResponse();
+        return loyaltyProgram != null ? loyaltyProgram.mapToResponse() : null;
     }
 
     @Override
@@ -53,14 +55,19 @@ public class LoyaltyProgramService implements ILoyaltyProgramService {
 
     @Override
     public void update(UpdateLoyaltyProgramRequest request, Integer id) {
-        LoyaltyProgram loyaltyProgram = new LoyaltyProgram();
-        loyaltyProgram.setName(request.name());
-        loyaltyProgram.setDescription(request.description());
-
-        validateLoyaltyProgram(loyaltyProgram);
         ValidationUtil.checkId(id, loyaltyProgramRepository);
 
+        LoyaltyProgram loyaltyProgram = loyaltyProgramRepository.findById(id).orElse(null);
+        assert loyaltyProgram != null;
+
+        if (request.name() != null && !request.name().isEmpty()) {
+            loyaltyProgram.setName(request.name());
+        }
+        if (request.description() != null && !request.description().isEmpty()) {
+            loyaltyProgram.setDescription(request.description());
+        }
         loyaltyProgram.setId(id);
+
         loyaltyProgramRepository.save(loyaltyProgram);
     }
 
@@ -68,15 +75,6 @@ public class LoyaltyProgramService implements ILoyaltyProgramService {
     public void delete(Integer id) {
         ValidationUtil.checkId(id, loyaltyProgramRepository);
         loyaltyProgramRepository.deleteById(id);
-    }
-
-    private void validateLoyaltyProgram(LoyaltyProgram loyaltyProgram) {
-        if (loyaltyProgram == null) {
-            throw new IllegalArgumentException("Программа лояльности не может отсутствовать");
-        }
-        if (loyaltyProgram.getName() == null || loyaltyProgram.getName().trim().isEmpty()) {
-            throw new IllegalArgumentException("Название должно быть");
-        }
     }
 
 }

@@ -25,9 +25,14 @@ public class OrderService implements IOrderService {
 
     @Override
     public void create(NewOrderRequest request) {
+        ValidationUtil.checkEntityPresent(request.userId(), userRepository);
+        ValidationUtil.checkEntityPresent(request.paymentMethodId(), paymentMethodRepository);
+
         Order order = new Order();
         order.setTotalPrice(request.totalPrice());
-        order.setAddress(request.address());
+        if (request.address() != null && !request.address().isEmpty()) {
+            order.setAddress(request.address());
+        }
         order.setPaymentMethod(paymentMethodRepository
                 .findById(request.paymentMethodId())
                 .orElse(null));
@@ -35,11 +40,6 @@ public class OrderService implements IOrderService {
                 .findById(request.userId())
                 .orElse(null));
         order.setCreatedAt(LocalDateTime.now());
-
-
-        validateOrder(order);
-        ValidationUtil.checkEntityPresent(order.getUser().getId(), userRepository);
-        ValidationUtil.checkEntityPresent(order.getPaymentMethod().getId(), paymentMethodRepository);
 
         orderRepository.save(order);
     }
@@ -49,7 +49,7 @@ public class OrderService implements IOrderService {
         ValidationUtil.checkId(id, orderRepository);
 
         Order order = orderRepository.findById(id).orElse(null);
-        return order.mapToResponse();
+        return order != null ? order.mapToResponse() : null;
     }
 
     @Override
@@ -68,22 +68,27 @@ public class OrderService implements IOrderService {
 
     @Override
     public void update(UpdateOrderRequest request, Integer id) {
-        Order order = new Order();
-        order.setTotalPrice(request.totalPrice());
-        order.setAddress(request.address());
-        order.setPaymentMethod(paymentMethodRepository
-                .findById(request.paymentMethodId())
-                .orElse(null));
-        order.setUser(userRepository
-                .findById(request.userId())
-                .orElse(null));
-
-        validateOrder(order);
-        ValidationUtil.checkEntityPresent(order.getUser().getId(), userRepository);
-        ValidationUtil.checkEntityPresent(order.getPaymentMethod().getId(), paymentMethodRepository);
         ValidationUtil.checkId(id, orderRepository);
 
+        Order order = orderRepository.findById(id).orElse(null);
+        assert order != null;
+
+        if (request.totalPrice() != null && request.totalPrice() > 0) {
+            order.setTotalPrice(request.totalPrice());
+        }
+        if (request.address() != null && !request.address().isEmpty()) {
+            order.setAddress(request.address());
+        }
+        if (request.paymentMethodId() != null && request.paymentMethodId() > 0) {
+            ValidationUtil.checkEntityPresent(request.paymentMethodId(), paymentMethodRepository);
+            order.setPaymentMethod(paymentMethodRepository.findById(request.paymentMethodId()).orElse(null));
+        }
+        if (request.userId() != null && request.userId() > 0) {
+            ValidationUtil.checkEntityPresent(request.userId(), userRepository);
+            order.setUser(userRepository.findById(request.userId()).orElse(null));
+        }
         order.setId(id);
+
         orderRepository.save(order);
     }
 
@@ -91,18 +96,6 @@ public class OrderService implements IOrderService {
     public void delete(Integer id) {
         ValidationUtil.checkId(id, orderRepository);
         orderRepository.deleteById(id);
-    }
-
-    private void validateOrder(Order order) {
-        if (order == null) {
-            throw new IllegalArgumentException("Заказ не может отсутствовать");
-        }
-        if (order.getTotalPrice() == null || order.getTotalPrice() < 1) {
-            throw new IllegalArgumentException("Цена не может быть пустой");
-        }
-        if (order.getAddress() == null || order.getAddress().trim().isEmpty()) {
-            throw new IllegalArgumentException("Адрес не может быть пустой");
-        }
     }
 
 }

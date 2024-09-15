@@ -3,6 +3,7 @@ package dev.dubrovsky.service.cart;
 import dev.dubrovsky.dto.request.cart.NewCartRequest;
 import dev.dubrovsky.dto.request.cart.UpdateCartRequest;
 import dev.dubrovsky.dto.response.cart.CartResponse;
+import dev.dubrovsky.exception.EntityNotFoundException;
 import dev.dubrovsky.model.cart.Cart;
 import dev.dubrovsky.model.cart.CartItem;
 import dev.dubrovsky.model.product.Product;
@@ -28,13 +29,12 @@ public class CartService implements ICartService {
 
     @Override
     public void create(NewCartRequest request) {
+        ValidationUtil.checkEntityPresent(request.userId(), userRepository);
+
         Cart cart = new Cart();
         cart.setUser(userRepository.
                 findById(request.userId()).
                 orElse(null));
-
-        validateCart(cart);
-        ValidationUtil.checkEntityPresent(cart.getUser().getId(), userRepository);
 
         cartRepository.save(cart);
     }
@@ -44,7 +44,7 @@ public class CartService implements ICartService {
         ValidationUtil.checkId(id, cartRepository);
 
         Cart cart = cartRepository.findById(id).orElse(null);
-        return cart.mapToResponse();
+        return cart != null ? cart.mapToResponse() : null;
     }
 
     @Override
@@ -63,23 +63,23 @@ public class CartService implements ICartService {
 
     @Override
     public void update(UpdateCartRequest request, Integer id) {
-        Cart cart = new Cart();
-        cart.setUser(userRepository.
-                findById(request.userId()).
-                orElse(null));
-
-        validateCart(cart);
-        ValidationUtil.checkEntityPresent(cart.getUser().getId(), userRepository);
         ValidationUtil.checkId(id, cartRepository);
 
+        Cart cart = cartRepository.findById(id).orElse(null);
+        assert cart != null;
+
+        if (request.userId() != null && request.userId() != 0) {
+            ValidationUtil.checkEntityPresent(request.userId(), userRepository);
+            cart.setUser(userRepository.findById(request.userId()).orElse(null));
+        }
         cart.setId(id);
+
         cartRepository.save(cart);
     }
 
     @Override
     public void delete(Integer id) {
         ValidationUtil.checkId(id, cartRepository);
-
         cartRepository.deleteById(id);
     }
 
@@ -88,7 +88,7 @@ public class CartService implements ICartService {
         float totalPrice = 0;
         List<CartItem> allByCartId = cartItemRepository.findAllByCartId(id);
         if (allByCartId.isEmpty()) {
-            throw new IllegalArgumentException("Корзины не существует с id: " + id);
+            throw new EntityNotFoundException("Корзины не существует с id: " + id);
         }
         for (CartItem cartItem : allByCartId) {
             Integer productId = cartItem.getProduct().getId();
@@ -100,12 +100,6 @@ public class CartService implements ICartService {
         }
 
         return totalPrice;
-    }
-
-    private void validateCart(Cart cart) {
-        if (cart == null) {
-            throw new IllegalArgumentException("Корзина не может отсутствовать");
-        }
     }
 
 }

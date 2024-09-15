@@ -23,17 +23,18 @@ public class ProductService implements IProductService {
 
     @Override
     public void create(NewProductRequest request) {
+        ValidationUtil.checkEntityPresent(request.categoryId(), categoryRepository);
+
         Product product = new Product();
         product.setName(request.name());
-        product.setDescription(request.description());
+        if (request.description() != null && !request.description().isEmpty()) {
+            product.setDescription(request.description());
+        }
         product.setPrice(request.price());
         product.setCategory(categoryRepository
                 .findById(request.categoryId())
                 .orElse(null));
         product.setCreatedAt(LocalDateTime.now());
-
-        validateProduct(product);
-        ValidationUtil.checkEntityPresent(product.getCategory().getId(), categoryRepository);
 
         productRepository.save(product);
     }
@@ -43,7 +44,7 @@ public class ProductService implements IProductService {
         ValidationUtil.checkId(id, productRepository);
 
         Product product = productRepository.findById(id).orElse(null);
-        return product.mapToResponse();
+        return product != null ? product.mapToResponse() : null;
     }
 
     @Override
@@ -62,19 +63,26 @@ public class ProductService implements IProductService {
 
     @Override
     public void update(UpdateProductRequest request, Integer id) {
-        Product product = new Product();
-        product.setName(request.name());
-        product.setDescription(request.description());
-        product.setPrice(request.price());
-        product.setCategory(categoryRepository
-                .findById(request.categoryId())
-                .orElse(null));
-
-        validateProduct(product);
-        ValidationUtil.checkEntityPresent(product.getCategory().getId(), categoryRepository);
         ValidationUtil.checkId(id, productRepository);
 
+        Product product = productRepository.findById(id).orElse(null);
+        assert product != null;
+
+        if (request.name() != null && !request.name().isEmpty()) {
+            product.setName(request.name());
+        }
+        if (request.description() != null && !request.description().isEmpty()) {
+            product.setDescription(request.description());
+        }
+        if (request.price() != null && request.price() > 0) {
+            product.setPrice(request.price());
+        }
+        if (request.categoryId() != null && request.categoryId() > 0) {
+            ValidationUtil.checkEntityPresent(request.categoryId(), categoryRepository);
+            product.setCategory(categoryRepository.findById(request.categoryId()).orElse(null));
+        }
         product.setId(id);
+
         productRepository.save(product);
     }
 
@@ -82,18 +90,6 @@ public class ProductService implements IProductService {
     public void delete(Integer id) {
         ValidationUtil.checkId(id, productRepository);
         productRepository.deleteById(id);
-    }
-
-    private void validateProduct(Product product) {
-        if (product == null) {
-            throw new IllegalArgumentException("Товар не может отсутствовать");
-        }
-        if (product.getName() == null || product.getName().trim().isEmpty()) {
-            throw new IllegalArgumentException("Название не может отсутствовать");
-        }
-        if (product.getPrice() == null || product.getPrice() <= 0) {
-            throw new IllegalArgumentException("Цена не может отсутствовать");
-        }
     }
 
 }

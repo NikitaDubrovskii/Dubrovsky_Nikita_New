@@ -23,15 +23,14 @@ public class AnalyticsService implements IAnalyticsService {
 
     @Override
     public void create(NewAnalyticsRequest request) {
+        ValidationUtil.checkEntityPresent(request.userId(), userRepository);
+
         Analytics analytics = new Analytics();
         analytics.setActivity(request.activity());
         analytics.setUser(userRepository
                 .findById(request.userId())
                 .orElse(null));
         analytics.setTimestamp(LocalDateTime.now());
-
-        validateAnalytics(analytics);
-        ValidationUtil.checkEntityPresent(analytics.getUser().getId(), userRepository);
 
         analyticsRepository.save(analytics);
     }
@@ -41,7 +40,7 @@ public class AnalyticsService implements IAnalyticsService {
         ValidationUtil.checkId(id, analyticsRepository);
 
         Analytics analytics = analyticsRepository.findById(id).orElse(null);
-        return analytics.mapToResponse();
+        return analytics != null ? analytics.mapToResponse() : null;
     }
 
     @Override
@@ -60,16 +59,18 @@ public class AnalyticsService implements IAnalyticsService {
 
     @Override
     public void update(UpdateAnalyticsRequest request, Integer id) {
-        Analytics analytics = new Analytics();
-        analytics.setActivity(request.activity());
-        analytics.setUser(userRepository
-                .findById(request.userId())
-                .orElse(null));
-
-        validateAnalytics(analytics);
         ValidationUtil.checkId(id, analyticsRepository);
-        ValidationUtil.checkEntityPresent(analytics.getUser().getId(), userRepository);
 
+        Analytics analytics = analyticsRepository.findById(id).orElse(null);
+        assert analytics != null;
+
+        if (request.activity() != null && !request.activity().isEmpty()) {
+            analytics.setActivity(request.activity());
+        }
+        if (request.userId() != null && request.userId() != 0) {
+            ValidationUtil.checkEntityPresent(request.userId(), userRepository);
+            analytics.setUser(userRepository.findById(request.userId()).orElse(null));
+        }
         analytics.setId(id);
 
         analyticsRepository.save(analytics);
@@ -79,12 +80,6 @@ public class AnalyticsService implements IAnalyticsService {
     public void delete(Integer id) {
         ValidationUtil.checkId(id, analyticsRepository);
         analyticsRepository.deleteById(id);
-    }
-
-    private void validateAnalytics(Analytics analytics) {
-        if (analytics == null) {
-            throw new IllegalArgumentException("Аналитика не может отсутствовать");
-        }
     }
 
 }

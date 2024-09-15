@@ -22,16 +22,15 @@ public class BonusService implements IBonusService {
 
     @Override
     public void create(NewBonusRequest request) {
+        ValidationUtil.checkEntityPresent(request.programId(), loyaltyProgramRepository);
+
         Bonus bonus = new Bonus();
         bonus.setName(request.name());
-        bonus.setDescription(request.description());
+        bonus.setDescription(request.description() != null ? request.description() : "");
+        bonus.setPoints(request.points());
         bonus.setProgram(loyaltyProgramRepository
                 .findById(request.programId())
                 .orElse(null));
-        bonus.setPoints(request.points());
-
-        validateBonus(bonus);
-        ValidationUtil.checkEntityPresent(bonus.getProgram().getId(), loyaltyProgramRepository);
 
         bonusRepository.save(bonus);
     }
@@ -41,8 +40,7 @@ public class BonusService implements IBonusService {
         ValidationUtil.checkId(id, bonusRepository);
 
         Bonus bonus = bonusRepository.findById(id).orElse(null);
-
-        return bonus.mapToResponse();
+        return bonus != null ? bonus.mapToResponse() : null;
     }
 
     @Override
@@ -61,19 +59,26 @@ public class BonusService implements IBonusService {
 
     @Override
     public void update(UpdateBonusRequest request, Integer id) {
-        Bonus bonus = new Bonus();
-        bonus.setName(request.name());
-        bonus.setDescription(request.description());
-        bonus.setProgram(loyaltyProgramRepository
-                .findById(request.programId())
-                .orElse(null));
-        bonus.setPoints(request.points());
-
-        validateBonus(bonus);
         ValidationUtil.checkId(id, bonusRepository);
-        ValidationUtil.checkEntityPresent(bonus.getProgram().getId(), loyaltyProgramRepository);
+
+        Bonus bonus = bonusRepository.findById(id).orElse(null);
+        assert bonus != null;
+
+        if (request.name() != null && !request.name().isEmpty()) {
+            bonus.setName(request.name());
+        }
+        if (request.description() != null && !request.description().isEmpty()) {
+            bonus.setDescription(request.description());
+        }
+        if (request.points() != null) {
+            bonus.setPoints(request.points());
+        }
+        if (request.programId() != null && request.programId() != 0) {
+            bonus.setProgram(loyaltyProgramRepository.findById(request.programId()).orElse(null));
+        }
 
         bonus.setId(id);
+
         bonusRepository.save(bonus);
     }
 
@@ -81,18 +86,6 @@ public class BonusService implements IBonusService {
     public void delete(Integer id) {
         ValidationUtil.checkId(id, bonusRepository);
         bonusRepository.deleteById(id);
-    }
-
-    private void validateBonus(Bonus bonus) {
-        if (bonus == null) {
-            throw new IllegalArgumentException("Бонус не может отсутствовать");
-        }
-        if (bonus.getName() == null || bonus.getName().trim().isEmpty()) {
-            throw new IllegalArgumentException("Название должно быть");
-        }
-        if (bonus.getPoints() == null) {
-            throw new IllegalArgumentException("Количество очков должно быть");
-        }
     }
 
 }

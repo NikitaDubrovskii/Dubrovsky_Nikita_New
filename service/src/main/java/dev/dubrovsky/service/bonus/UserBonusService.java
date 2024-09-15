@@ -4,6 +4,7 @@ import dev.dubrovsky.dto.request.bonus.NewUserBonusRequest;
 import dev.dubrovsky.dto.response.bonus.BonusResponse;
 import dev.dubrovsky.dto.response.bonus.UserBonusResponse;
 import dev.dubrovsky.dto.response.user.UserResponse;
+import dev.dubrovsky.exception.EntityNotFoundException;
 import dev.dubrovsky.model.bonus.Bonus;
 import dev.dubrovsky.model.bonus.UserBonus;
 import dev.dubrovsky.model.bonus.UserBonusId;
@@ -17,7 +18,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 @AllArgsConstructor
@@ -29,15 +29,14 @@ public class UserBonusService implements IUserBonusService {
 
     @Override
     public void create(NewUserBonusRequest request) {
+        checkId(request.bonusId(), request.userId());
+
         UserBonus userBonus = new UserBonus();
         UserBonusId userBonusId = new UserBonusId();
         userBonusId.setBonusId(request.bonusId());
         userBonusId.setUserId(request.userId());
         userBonus.setUserBonusId(userBonusId);
         userBonus.setReceivedAt(LocalDateTime.now());
-
-        validateUserBonus(userBonus);
-        checkId(userBonus.getUserBonusId().getUserId(), userBonus.getUserBonusId().getBonusId());
 
         userBonusRepository.save(userBonus);
     }
@@ -64,22 +63,16 @@ public class UserBonusService implements IUserBonusService {
         userBonusRepository.deleteById(userBonusId);
     }
 
-    private void validateUserBonus(UserBonus userBonus) {
-        if (userBonus == null) {
-            throw new IllegalArgumentException("Бонус пользователя не может отсутствовать");
-        }
-    }
-
     private void checkId(Integer userId, Integer bonusId) {
         if (userId > 0) {
             userRepository
                     .findById(userId)
-                    .orElseThrow(() -> new NoSuchElementException("Пользователь не найден с id: " + userId));
+                    .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден с id: " + userId));
         }
         if (bonusId > 0) {
             bonusRepository
                     .findById(bonusId)
-                    .orElseThrow(() -> new NoSuchElementException("Бонус не найден с id: " + userId));
+                    .orElseThrow(() -> new EntityNotFoundException("Бонус не найден с id: " + userId));
         }
         if (userId < 1 || bonusId < 1) {
             throw new IllegalArgumentException("Id должен быть больше 0");
@@ -87,9 +80,11 @@ public class UserBonusService implements IUserBonusService {
     }
 
     private UserBonusResponse mapToResponse(UserBonus userBonus) {
-        User user = userRepository.findById(userBonus.getUserBonusId().getUserId()).get();
-        Bonus bonus = bonusRepository.findById(userBonus.getUserBonusId().getBonusId()).get();
+        User user = userRepository.findById(userBonus.getUserBonusId().getUserId()).orElse(null);
+        Bonus bonus = bonusRepository.findById(userBonus.getUserBonusId().getBonusId()).orElse(null);
 
+        assert user != null;
+        assert bonus != null;
         UserResponse userResponse = user.mapToResponse();
         BonusResponse bonusResponse = bonus.mapToResponse();
 

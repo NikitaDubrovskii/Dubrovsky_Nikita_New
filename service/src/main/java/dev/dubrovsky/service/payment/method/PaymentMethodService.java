@@ -23,8 +23,6 @@ public class PaymentMethodService implements IPaymentMethodService {
         PaymentMethod paymentMethod = new PaymentMethod();
         paymentMethod.setMethod(request.method());
 
-        validatePaymentMethod(paymentMethod);
-
         paymentMethodRepository.save(paymentMethod);
     }
 
@@ -33,7 +31,7 @@ public class PaymentMethodService implements IPaymentMethodService {
         ValidationUtil.checkId(id, paymentMethodRepository);
 
         PaymentMethod paymentMethod = paymentMethodRepository.findById(id).orElse(null);
-        return paymentMethod.mapToResponse();
+        return paymentMethod != null ? paymentMethod.mapToResponse() : null;
     }
 
     @Override
@@ -52,13 +50,16 @@ public class PaymentMethodService implements IPaymentMethodService {
 
     @Override
     public void update(UpdatePaymentMethodRequest request, Integer id) {
-        PaymentMethod paymentMethod = new PaymentMethod();
-        paymentMethod.setMethod(request.method());
-
-        validatePaymentMethod(paymentMethod);
         ValidationUtil.checkId(id, paymentMethodRepository);
 
+        PaymentMethod paymentMethod = paymentMethodRepository.findById(id).orElse(null);
+        assert paymentMethod != null;
+
+        if (request.method() != null && !request.method().isEmpty()) {
+            paymentMethod.setMethod(request.method());
+        }
         paymentMethod.setId(id);
+
         paymentMethodRepository.save(paymentMethod);
     }
 
@@ -66,12 +67,6 @@ public class PaymentMethodService implements IPaymentMethodService {
     public void delete(Integer id) {
         ValidationUtil.checkId(id, paymentMethodRepository);
         paymentMethodRepository.deleteById(id);
-    }
-
-    private void validatePaymentMethod(PaymentMethod paymentMethod) {
-        if (paymentMethod == null) {
-            throw new IllegalArgumentException("Способ оплаты не может отсутствовать");
-        }
     }
 
 }

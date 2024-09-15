@@ -22,9 +22,9 @@ public class CategoryService implements ICategoryService {
     public void create(NewCategoryRequest request) {
         Category category = new Category();
         category.setName(request.name());
-        category.setDescription(request.description());
-
-        validateCategory(category);
+        if (request.description() != null && !request.description().isEmpty()) {
+            category.setDescription(request.description());
+        }
 
         categoryRepository.save(category);
     }
@@ -34,7 +34,7 @@ public class CategoryService implements ICategoryService {
         ValidationUtil.checkId(id, categoryRepository);
 
         Category category = categoryRepository.findById(id).orElse(null);
-        return category.mapToResponse();
+        return category != null ? category.mapToResponse() : null;
     }
 
     @Override
@@ -53,12 +53,18 @@ public class CategoryService implements ICategoryService {
 
     @Override
     public void update(UpdateCategoryRequest request, Integer id) {
-        Category category = new Category();
-        category.setName(request.name());
-        category.setDescription(request.description());
-
-        validateCategory(category);
         ValidationUtil.checkId(id, categoryRepository);
+
+        Category category = categoryRepository.findById(id).orElse(null);
+        assert category != null;
+
+        if (request.name() != null && !request.name().isEmpty()) {
+            category.setName(request.name());
+        }
+        if (request.description() != null && !request.description().isEmpty()) {
+            category.setDescription(request.description());
+        }
+        category.setId(id);
 
         categoryRepository.save(category);
     }
@@ -67,15 +73,6 @@ public class CategoryService implements ICategoryService {
     public void delete(Integer id) {
         ValidationUtil.checkId(id, categoryRepository);
         categoryRepository.deleteById(id);
-    }
-
-    private void validateCategory(Category category) {
-        if (category == null) {
-            throw new IllegalArgumentException("Категория не может отсутствовать");
-        }
-        if (category.getName() == null || category.getName().trim().isEmpty()) {
-            throw new IllegalArgumentException("Название должно быть");
-        }
     }
 
 }
