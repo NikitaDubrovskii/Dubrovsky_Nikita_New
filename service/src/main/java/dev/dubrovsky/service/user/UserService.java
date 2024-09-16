@@ -2,6 +2,8 @@ package dev.dubrovsky.service.user;
 
 import dev.dubrovsky.dto.request.user.NewUserRequest;
 import dev.dubrovsky.dto.request.user.UpdateUserRequest;
+import dev.dubrovsky.dto.request.user.UserLoginRequest;
+import dev.dubrovsky.dto.request.user.UserResetPasswordRequest;
 import dev.dubrovsky.dto.response.user.UserResponse;
 import dev.dubrovsky.model.user.User;
 import dev.dubrovsky.repository.user.UserRepository;
@@ -85,12 +87,13 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public String loginUser(String usernameOrEmail, String password) {
-        User user = userRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail);
+    public String loginUser(UserLoginRequest request) {
+
+        User user = userRepository.findByUsernameOrEmail(request.usernameOrEmail(), request.usernameOrEmail());
         if (user == null) {
             throw new IllegalArgumentException("Неверно имя пользователя или почта");
         }
-        if (!SimplePasswordEncoder.matches(password, user.getPassword())) {
+        if (!SimplePasswordEncoder.matches(request.password(), user.getPassword())) {
             throw new IllegalArgumentException("Неверный пароль");
         }
 
@@ -111,15 +114,15 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public void resetPassword(String usernameOrEmail, String oldPassword, String newPassword) {
-        User user = userRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail);
+    public void resetPassword(UserResetPasswordRequest request) {
+        User user = userRepository.findByUsernameOrEmail(request.usernameOrEmail(), request.usernameOrEmail());
         if (user == null) {
             throw new IllegalArgumentException("Неверно имя пользователя или почта");
         }
-        if (!SimplePasswordEncoder.matches(oldPassword, user.getPassword())) {
+        if (!SimplePasswordEncoder.matches(request.oldPassword(), user.getPassword())) {
             throw new IllegalArgumentException("Неверный пароль");
         }
-        user.setPassword(SimplePasswordEncoder.encode(newPassword));
+        user.setPassword(SimplePasswordEncoder.encode(request.newPassword()));
         userRepository.save(user);
     }
 

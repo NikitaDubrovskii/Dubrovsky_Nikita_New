@@ -76,7 +76,7 @@ public class UserController {
                     .toList();
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         } else {
-            return new ResponseEntity<>(userService.loginUser(request.usernameOrEmail(), request.password()), HttpStatus.OK);
+            return new ResponseEntity<>(userService.loginUser(request), HttpStatus.OK);
         }
     }
 
@@ -94,7 +94,7 @@ public class UserController {
                     .toList();
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         } else {
-            userService.resetPassword(request.usernameOrEmail(), request.oldPassword(), request.newPassword());
+            userService.resetPassword(request);
             return new ResponseEntity<>("Пароль изменен!", HttpStatus.OK);
         }
     }
