@@ -4,6 +4,7 @@ import dev.dubrovsky.dto.request.bonus.NewUserBonusRequest;
 import dev.dubrovsky.dto.response.bonus.BonusResponse;
 import dev.dubrovsky.dto.response.bonus.UserBonusResponse;
 import dev.dubrovsky.dto.response.user.UserResponse;
+import dev.dubrovsky.exception.DbResponseErrorException;
 import dev.dubrovsky.exception.EntityNotFoundException;
 import dev.dubrovsky.model.bonus.Bonus;
 import dev.dubrovsky.model.bonus.UserBonus;
@@ -44,7 +45,7 @@ public class UserBonusService implements IUserBonusService {
     @Override
     public List<UserBonusResponse> getAll() {
         if (userBonusRepository.findAll().isEmpty()) {
-            return null;
+            throw new EntityNotFoundException("По запросу ничего не найдено :(");
         } else {
             List<UserBonusResponse> responses = new ArrayList<>();
             List<UserBonus> all = userBonusRepository.findAll();
@@ -80,11 +81,9 @@ public class UserBonusService implements IUserBonusService {
     }
 
     private UserBonusResponse mapToResponse(UserBonus userBonus) {
-        User user = userRepository.findById(userBonus.getUserBonusId().getUserId()).orElse(null);
-        Bonus bonus = bonusRepository.findById(userBonus.getUserBonusId().getBonusId()).orElse(null);
+        User user = userRepository.findById(userBonus.getUserBonusId().getUserId()).orElseThrow(DbResponseErrorException::new);
+        Bonus bonus = bonusRepository.findById(userBonus.getUserBonusId().getBonusId()).orElseThrow(DbResponseErrorException::new);
 
-        assert user != null;
-        assert bonus != null;
         UserResponse userResponse = user.mapToResponse();
         BonusResponse bonusResponse = bonus.mapToResponse();
 

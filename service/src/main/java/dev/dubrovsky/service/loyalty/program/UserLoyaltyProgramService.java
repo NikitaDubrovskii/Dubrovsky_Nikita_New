@@ -4,6 +4,7 @@ import dev.dubrovsky.dto.request.loyalty.program.NewUserLoyaltyProgramRequest;
 import dev.dubrovsky.dto.response.loyalty.program.LoyaltyProgramResponse;
 import dev.dubrovsky.dto.response.loyalty.program.UserLoyaltyProgramResponse;
 import dev.dubrovsky.dto.response.user.UserResponse;
+import dev.dubrovsky.exception.DbResponseErrorException;
 import dev.dubrovsky.exception.EntityNotFoundException;
 import dev.dubrovsky.model.loyalty.program.LoyaltyProgram;
 import dev.dubrovsky.model.loyalty.program.UserLoyaltyProgram;
@@ -44,7 +45,7 @@ public class UserLoyaltyProgramService implements IUserLoyaltyProgramService {
     @Override
     public List<UserLoyaltyProgramResponse> getAll() {
         if (userLoyaltyProgramRepository.findAll().isEmpty()) {
-            return null;
+            throw new EntityNotFoundException("По запросу ничего не найдено :(");
         } else {
             List<UserLoyaltyProgramResponse> responses = new ArrayList<>();
             List<UserLoyaltyProgram> all = userLoyaltyProgramRepository.findAll();
@@ -80,11 +81,9 @@ public class UserLoyaltyProgramService implements IUserLoyaltyProgramService {
     }
 
     private UserLoyaltyProgramResponse mapToResponse(UserLoyaltyProgram userLoyaltyProgram) {
-        User user = userRepository.findById(userLoyaltyProgram.getUserLoyaltyProgramId().getUserId()).orElse(null);
-        LoyaltyProgram loyaltyProgram = loyaltyProgramRepository.findById(userLoyaltyProgram.getUserLoyaltyProgramId().getProgramId()).orElse(null);
+        User user = userRepository.findById(userLoyaltyProgram.getUserLoyaltyProgramId().getUserId()).orElseThrow(DbResponseErrorException::new);
+        LoyaltyProgram loyaltyProgram = loyaltyProgramRepository.findById(userLoyaltyProgram.getUserLoyaltyProgramId().getProgramId()).orElseThrow(DbResponseErrorException::new);
 
-        assert user != null;
-        assert loyaltyProgram != null;
         UserResponse userResponse = user.mapToResponse();
         LoyaltyProgramResponse loyaltyProgramResponse = loyaltyProgram.mapToResponse();
 

@@ -3,6 +3,8 @@ package dev.dubrovsky.service.loyalty.program;
 import dev.dubrovsky.dto.request.loyalty.program.NewLoyaltyProgramRequest;
 import dev.dubrovsky.dto.request.loyalty.program.UpdateLoyaltyProgramRequest;
 import dev.dubrovsky.dto.response.loyalty.program.LoyaltyProgramResponse;
+import dev.dubrovsky.exception.DbResponseErrorException;
+import dev.dubrovsky.exception.EntityNotFoundException;
 import dev.dubrovsky.model.loyalty.program.LoyaltyProgram;
 import dev.dubrovsky.repository.loyalty.program.LoyaltyProgramRepository;
 import dev.dubrovsky.util.validation.ValidationUtil;
@@ -35,14 +37,14 @@ public class LoyaltyProgramService implements ILoyaltyProgramService {
     public LoyaltyProgramResponse getById(Integer id) {
         ValidationUtil.checkId(id, loyaltyProgramRepository);
 
-        LoyaltyProgram loyaltyProgram = loyaltyProgramRepository.findById(id).orElse(null);
-        return loyaltyProgram != null ? loyaltyProgram.mapToResponse() : null;
+        LoyaltyProgram loyaltyProgram = loyaltyProgramRepository.findById(id).orElseThrow(DbResponseErrorException::new);
+        return loyaltyProgram.mapToResponse();
     }
 
     @Override
     public List<LoyaltyProgramResponse> getAll() {
         if (loyaltyProgramRepository.findAll().isEmpty()) {
-            return null;
+            throw new EntityNotFoundException("По запросу ничего не найдено :(");
         } else {
             List<LoyaltyProgramResponse> responses = new ArrayList<>();
             List<LoyaltyProgram> all = loyaltyProgramRepository.findAll();
@@ -57,8 +59,7 @@ public class LoyaltyProgramService implements ILoyaltyProgramService {
     public void update(UpdateLoyaltyProgramRequest request, Integer id) {
         ValidationUtil.checkId(id, loyaltyProgramRepository);
 
-        LoyaltyProgram loyaltyProgram = loyaltyProgramRepository.findById(id).orElse(null);
-        assert loyaltyProgram != null;
+        LoyaltyProgram loyaltyProgram = loyaltyProgramRepository.findById(id).orElseThrow(DbResponseErrorException::new);
 
         if (request.name() != null && !request.name().isEmpty()) {
             loyaltyProgram.setName(request.name());

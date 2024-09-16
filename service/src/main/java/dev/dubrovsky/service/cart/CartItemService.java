@@ -3,6 +3,8 @@ package dev.dubrovsky.service.cart;
 import dev.dubrovsky.dto.request.cart.NewCartItemRequest;
 import dev.dubrovsky.dto.request.cart.UpdateCartItemRequest;
 import dev.dubrovsky.dto.response.cart.CartItemResponse;
+import dev.dubrovsky.exception.DbResponseErrorException;
+import dev.dubrovsky.exception.EntityNotFoundException;
 import dev.dubrovsky.model.cart.CartItem;
 import dev.dubrovsky.repository.cart.CartItemRepository;
 import dev.dubrovsky.repository.cart.CartRepository;
@@ -31,10 +33,10 @@ public class CartItemService implements ICartItemService {
         cartItem.setQuantity(request.quantity());
         cartItem.setCart(cartRepository
                 .findById(request.cartId())
-                .orElse(null));
+                .orElseThrow(DbResponseErrorException::new));
         cartItem.setProduct(productRepository
                 .findById(request.productId())
-                .orElse(null));
+                .orElseThrow(DbResponseErrorException::new));
 
         cartItemRepository.save(cartItem);
     }
@@ -43,14 +45,14 @@ public class CartItemService implements ICartItemService {
     public CartItemResponse getById(Integer id) {
         ValidationUtil.checkId(id, cartItemRepository);
 
-        CartItem cartItem = cartItemRepository.findById(id).orElse(null);
-        return cartItem != null ? cartItem.mapToResponse() : null;
+        CartItem cartItem = cartItemRepository.findById(id).orElseThrow(DbResponseErrorException::new);
+        return cartItem.mapToResponse();
     }
 
     @Override
     public List<CartItemResponse> getAll() {
         if (cartItemRepository.findAll().isEmpty()) {
-            return null;
+            throw new EntityNotFoundException("По запросу ничего не найдено :(");
         } else {
             List<CartItemResponse> responses = new ArrayList<>();
             List<CartItem> all = cartItemRepository.findAll();
@@ -65,19 +67,18 @@ public class CartItemService implements ICartItemService {
     public void update(UpdateCartItemRequest request, Integer id) {
         ValidationUtil.checkId(id, cartItemRepository);
 
-        CartItem cartItem = cartItemRepository.findById(id).orElse(null);
-        assert cartItem != null;
+        CartItem cartItem = cartItemRepository.findById(id).orElseThrow(DbResponseErrorException::new);
 
         if (request.quantity() != null && request.quantity() != 0) {
             cartItem.setQuantity(request.quantity());
         }
         if (request.productId() != null && request.productId() != 0) {
             ValidationUtil.checkEntityPresent(request.productId(), productRepository);
-            cartItem.setProduct(productRepository.findById(request.productId()).orElse(null));
+            cartItem.setProduct(productRepository.findById(request.productId()).orElseThrow(DbResponseErrorException::new));
         }
         if (request.cartId() != null && request.cartId() != 0) {
             ValidationUtil.checkEntityPresent(request.cartId(), cartRepository);
-            cartItem.setCart(cartRepository.findById(request.cartId()).orElse(null));
+            cartItem.setCart(cartRepository.findById(request.cartId()).orElseThrow(DbResponseErrorException::new));
         }
         cartItem.setId(id);
 

@@ -1,5 +1,6 @@
 package dev.dubrovsky.exception.handler;
 
+import dev.dubrovsky.exception.DbResponseErrorException;
 import dev.dubrovsky.exception.EntityNotFoundException;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -17,6 +18,12 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 @AllArgsConstructor
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
+
+    @ExceptionHandler(DbResponseErrorException.class)
+    public ResponseEntity<Object> handleInternalDboException(DbResponseErrorException ex) {
+        return new ResponseEntity<>(ex.getMessage(),
+                HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<Object> handleInternalDboException(EntityNotFoundException ex) {

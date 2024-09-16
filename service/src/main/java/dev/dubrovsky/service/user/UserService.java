@@ -5,6 +5,8 @@ import dev.dubrovsky.dto.request.user.UpdateUserRequest;
 import dev.dubrovsky.dto.request.user.UserLoginRequest;
 import dev.dubrovsky.dto.request.user.UserResetPasswordRequest;
 import dev.dubrovsky.dto.response.user.UserResponse;
+import dev.dubrovsky.exception.DbResponseErrorException;
+import dev.dubrovsky.exception.EntityNotFoundException;
 import dev.dubrovsky.model.user.User;
 import dev.dubrovsky.repository.user.UserRepository;
 import dev.dubrovsky.util.encoder.SimplePasswordEncoder;
@@ -42,14 +44,14 @@ public class UserService implements IUserService {
     public UserResponse getById(Integer id) {
         ValidationUtil.checkId(id, userRepository);
 
-        User user = userRepository.findById(id).orElse(null);
-        return user != null ? user.mapToResponse() : null;
+        User user = userRepository.findById(id).orElseThrow(DbResponseErrorException::new);
+        return user.mapToResponse();
     }
 
     @Override
     public List<UserResponse> getAll() {
         if (userRepository.findAll().isEmpty()) {
-            return null;
+            throw new EntityNotFoundException("По запросу ничего не найдено :(");
         } else {
             List<UserResponse> responses = new ArrayList<>();
             List<User> all = userRepository.findAll();
@@ -64,8 +66,7 @@ public class UserService implements IUserService {
     public void update(UpdateUserRequest request, Integer id) {
         ValidationUtil.checkId(id, userRepository);
 
-        User user = userRepository.findById(id).orElse(null);
-        assert user != null;
+        User user = userRepository.findById(id).orElseThrow(DbResponseErrorException::new);
 
         if (request.username() != null && !request.username().isEmpty() && !request.username().equals(user.getUsername())) {
             checkUniqueUsername(request.username());

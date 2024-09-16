@@ -3,6 +3,8 @@ package dev.dubrovsky.service.category;
 import dev.dubrovsky.dto.request.category.NewCategoryRequest;
 import dev.dubrovsky.dto.request.category.UpdateCategoryRequest;
 import dev.dubrovsky.dto.response.category.CategoryResponse;
+import dev.dubrovsky.exception.DbResponseErrorException;
+import dev.dubrovsky.exception.EntityNotFoundException;
 import dev.dubrovsky.model.category.Category;
 import dev.dubrovsky.repository.category.CategoryRepository;
 import dev.dubrovsky.util.validation.ValidationUtil;
@@ -33,14 +35,14 @@ public class CategoryService implements ICategoryService {
     public CategoryResponse getById(Integer id) {
         ValidationUtil.checkId(id, categoryRepository);
 
-        Category category = categoryRepository.findById(id).orElse(null);
-        return category != null ? category.mapToResponse() : null;
+        Category category = categoryRepository.findById(id).orElseThrow(DbResponseErrorException::new);
+        return category.mapToResponse();
     }
 
     @Override
     public List<CategoryResponse> getAll() {
         if (categoryRepository.findAll().isEmpty()) {
-            return null;
+            throw new EntityNotFoundException("По запросу ничего не найдено :(");
         } else {
             List<CategoryResponse> responses = new ArrayList<>();
             List<Category> all = categoryRepository.findAll();
@@ -55,8 +57,7 @@ public class CategoryService implements ICategoryService {
     public void update(UpdateCategoryRequest request, Integer id) {
         ValidationUtil.checkId(id, categoryRepository);
 
-        Category category = categoryRepository.findById(id).orElse(null);
-        assert category != null;
+        Category category = categoryRepository.findById(id).orElseThrow(DbResponseErrorException::new);
 
         if (request.name() != null && !request.name().isEmpty()) {
             category.setName(request.name());

@@ -3,6 +3,8 @@ package dev.dubrovsky.service.order;
 import dev.dubrovsky.dto.request.order.NewOrderRequest;
 import dev.dubrovsky.dto.request.order.UpdateOrderRequest;
 import dev.dubrovsky.dto.response.order.OrderResponse;
+import dev.dubrovsky.exception.DbResponseErrorException;
+import dev.dubrovsky.exception.EntityNotFoundException;
 import dev.dubrovsky.model.order.Order;
 import dev.dubrovsky.repository.order.OrderRepository;
 import dev.dubrovsky.repository.payment.method.PaymentMethodRepository;
@@ -35,10 +37,10 @@ public class OrderService implements IOrderService {
         }
         order.setPaymentMethod(paymentMethodRepository
                 .findById(request.paymentMethodId())
-                .orElse(null));
+                .orElseThrow(DbResponseErrorException::new));
         order.setUser(userRepository
                 .findById(request.userId())
-                .orElse(null));
+                .orElseThrow(DbResponseErrorException::new));
         order.setCreatedAt(LocalDateTime.now());
 
         orderRepository.save(order);
@@ -48,14 +50,14 @@ public class OrderService implements IOrderService {
     public OrderResponse getById(Integer id) {
         ValidationUtil.checkId(id, orderRepository);
 
-        Order order = orderRepository.findById(id).orElse(null);
-        return order != null ? order.mapToResponse() : null;
+        Order order = orderRepository.findById(id).orElseThrow(DbResponseErrorException::new);
+        return order.mapToResponse();
     }
 
     @Override
     public List<OrderResponse> getAll() {
         if (orderRepository.findAll().isEmpty()) {
-            return null;
+            throw new EntityNotFoundException("По запросу ничего не найдено :(");
         } else {
             List<OrderResponse> responses = new ArrayList<>();
             List<Order> all = orderRepository.findAll();
@@ -70,8 +72,7 @@ public class OrderService implements IOrderService {
     public void update(UpdateOrderRequest request, Integer id) {
         ValidationUtil.checkId(id, orderRepository);
 
-        Order order = orderRepository.findById(id).orElse(null);
-        assert order != null;
+        Order order = orderRepository.findById(id).orElseThrow(DbResponseErrorException::new);
 
         if (request.totalPrice() != null && request.totalPrice() > 0) {
             order.setTotalPrice(request.totalPrice());
@@ -81,11 +82,11 @@ public class OrderService implements IOrderService {
         }
         if (request.paymentMethodId() != null && request.paymentMethodId() > 0) {
             ValidationUtil.checkEntityPresent(request.paymentMethodId(), paymentMethodRepository);
-            order.setPaymentMethod(paymentMethodRepository.findById(request.paymentMethodId()).orElse(null));
+            order.setPaymentMethod(paymentMethodRepository.findById(request.paymentMethodId()).orElseThrow(DbResponseErrorException::new));
         }
         if (request.userId() != null && request.userId() > 0) {
             ValidationUtil.checkEntityPresent(request.userId(), userRepository);
-            order.setUser(userRepository.findById(request.userId()).orElse(null));
+            order.setUser(userRepository.findById(request.userId()).orElseThrow(DbResponseErrorException::new));
         }
         order.setId(id);
 

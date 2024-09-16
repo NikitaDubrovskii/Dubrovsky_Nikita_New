@@ -3,6 +3,8 @@ package dev.dubrovsky.service.product;
 import dev.dubrovsky.dto.request.product.NewProductRequest;
 import dev.dubrovsky.dto.request.product.UpdateProductRequest;
 import dev.dubrovsky.dto.response.product.ProductResponse;
+import dev.dubrovsky.exception.DbResponseErrorException;
+import dev.dubrovsky.exception.EntityNotFoundException;
 import dev.dubrovsky.model.product.Product;
 import dev.dubrovsky.repository.category.CategoryRepository;
 import dev.dubrovsky.repository.product.ProductRepository;
@@ -33,7 +35,7 @@ public class ProductService implements IProductService {
         product.setPrice(request.price());
         product.setCategory(categoryRepository
                 .findById(request.categoryId())
-                .orElse(null));
+                .orElseThrow(DbResponseErrorException::new));
         product.setCreatedAt(LocalDateTime.now());
 
         productRepository.save(product);
@@ -43,14 +45,14 @@ public class ProductService implements IProductService {
     public ProductResponse getById(Integer id) {
         ValidationUtil.checkId(id, productRepository);
 
-        Product product = productRepository.findById(id).orElse(null);
-        return product != null ? product.mapToResponse() : null;
+        Product product = productRepository.findById(id).orElseThrow(DbResponseErrorException::new);
+        return product.mapToResponse();
     }
 
     @Override
     public List<ProductResponse> getAll() {
         if (productRepository.findAll().isEmpty()) {
-            return null;
+            throw new EntityNotFoundException("По запросу ничего не найдено :(");
         } else {
             List<ProductResponse> responses = new ArrayList<>();
             List<Product> all = productRepository.findAll();
@@ -65,8 +67,7 @@ public class ProductService implements IProductService {
     public void update(UpdateProductRequest request, Integer id) {
         ValidationUtil.checkId(id, productRepository);
 
-        Product product = productRepository.findById(id).orElse(null);
-        assert product != null;
+        Product product = productRepository.findById(id).orElseThrow(DbResponseErrorException::new);
 
         if (request.name() != null && !request.name().isEmpty()) {
             product.setName(request.name());
@@ -79,7 +80,7 @@ public class ProductService implements IProductService {
         }
         if (request.categoryId() != null && request.categoryId() > 0) {
             ValidationUtil.checkEntityPresent(request.categoryId(), categoryRepository);
-            product.setCategory(categoryRepository.findById(request.categoryId()).orElse(null));
+            product.setCategory(categoryRepository.findById(request.categoryId()).orElseThrow(DbResponseErrorException::new));
         }
         product.setId(id);
 

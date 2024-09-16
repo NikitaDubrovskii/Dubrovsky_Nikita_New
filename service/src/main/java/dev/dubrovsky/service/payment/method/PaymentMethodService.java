@@ -3,6 +3,8 @@ package dev.dubrovsky.service.payment.method;
 import dev.dubrovsky.dto.request.payment.method.NewPaymentMethodRequest;
 import dev.dubrovsky.dto.request.payment.method.UpdatePaymentMethodRequest;
 import dev.dubrovsky.dto.response.payment.method.PaymentMethodResponse;
+import dev.dubrovsky.exception.DbResponseErrorException;
+import dev.dubrovsky.exception.EntityNotFoundException;
 import dev.dubrovsky.model.payment.method.PaymentMethod;
 import dev.dubrovsky.repository.payment.method.PaymentMethodRepository;
 import dev.dubrovsky.util.validation.ValidationUtil;
@@ -30,14 +32,14 @@ public class PaymentMethodService implements IPaymentMethodService {
     public PaymentMethodResponse getById(Integer id) {
         ValidationUtil.checkId(id, paymentMethodRepository);
 
-        PaymentMethod paymentMethod = paymentMethodRepository.findById(id).orElse(null);
-        return paymentMethod != null ? paymentMethod.mapToResponse() : null;
+        PaymentMethod paymentMethod = paymentMethodRepository.findById(id).orElseThrow(DbResponseErrorException::new);
+        return paymentMethod.mapToResponse();
     }
 
     @Override
     public List<PaymentMethodResponse> getAll() {
         if (paymentMethodRepository.findAll().isEmpty()) {
-            return null;
+            throw new EntityNotFoundException("По запросу ничего не найдено :(");
         } else {
             List<PaymentMethodResponse> responses = new ArrayList<>();
             List<PaymentMethod> all = paymentMethodRepository.findAll();
@@ -52,8 +54,7 @@ public class PaymentMethodService implements IPaymentMethodService {
     public void update(UpdatePaymentMethodRequest request, Integer id) {
         ValidationUtil.checkId(id, paymentMethodRepository);
 
-        PaymentMethod paymentMethod = paymentMethodRepository.findById(id).orElse(null);
-        assert paymentMethod != null;
+        PaymentMethod paymentMethod = paymentMethodRepository.findById(id).orElseThrow(DbResponseErrorException::new);
 
         if (request.method() != null && !request.method().isEmpty()) {
             paymentMethod.setMethod(request.method());

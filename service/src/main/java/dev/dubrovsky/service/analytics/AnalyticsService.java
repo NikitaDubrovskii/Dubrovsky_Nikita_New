@@ -3,6 +3,8 @@ package dev.dubrovsky.service.analytics;
 import dev.dubrovsky.dto.request.analytics.NewAnalyticsRequest;
 import dev.dubrovsky.dto.request.analytics.UpdateAnalyticsRequest;
 import dev.dubrovsky.dto.response.analytics.AnalyticsResponse;
+import dev.dubrovsky.exception.DbResponseErrorException;
+import dev.dubrovsky.exception.EntityNotFoundException;
 import dev.dubrovsky.model.analytics.Analytics;
 import dev.dubrovsky.repository.analytics.AnalyticsRepository;
 import dev.dubrovsky.repository.user.UserRepository;
@@ -29,7 +31,7 @@ public class AnalyticsService implements IAnalyticsService {
         analytics.setActivity(request.activity());
         analytics.setUser(userRepository
                 .findById(request.userId())
-                .orElse(null));
+                .orElseThrow(DbResponseErrorException::new));
         analytics.setTimestamp(LocalDateTime.now());
 
         analyticsRepository.save(analytics);
@@ -39,14 +41,14 @@ public class AnalyticsService implements IAnalyticsService {
     public AnalyticsResponse getById(Integer id) {
         ValidationUtil.checkId(id, analyticsRepository);
 
-        Analytics analytics = analyticsRepository.findById(id).orElse(null);
-        return analytics != null ? analytics.mapToResponse() : null;
+        Analytics analytics = analyticsRepository.findById(id).orElseThrow(DbResponseErrorException::new);
+        return analytics.mapToResponse();
     }
 
     @Override
     public List<AnalyticsResponse> getAll() {
         if (analyticsRepository.findAll().isEmpty()) {
-            return null;
+            throw new EntityNotFoundException("По запросу ничего не найдено :(");
         } else {
             List<AnalyticsResponse> responses = new ArrayList<>();
             List<Analytics> all = analyticsRepository.findAll();
@@ -61,15 +63,14 @@ public class AnalyticsService implements IAnalyticsService {
     public void update(UpdateAnalyticsRequest request, Integer id) {
         ValidationUtil.checkId(id, analyticsRepository);
 
-        Analytics analytics = analyticsRepository.findById(id).orElse(null);
-        assert analytics != null;
+        Analytics analytics = analyticsRepository.findById(id).orElseThrow(DbResponseErrorException::new);
 
         if (request.activity() != null && !request.activity().isEmpty()) {
             analytics.setActivity(request.activity());
         }
         if (request.userId() != null && request.userId() != 0) {
             ValidationUtil.checkEntityPresent(request.userId(), userRepository);
-            analytics.setUser(userRepository.findById(request.userId()).orElse(null));
+            analytics.setUser(userRepository.findById(request.userId()).orElseThrow(DbResponseErrorException::new));
         }
         analytics.setId(id);
 

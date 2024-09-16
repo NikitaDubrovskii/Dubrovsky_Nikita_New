@@ -3,6 +3,7 @@ package dev.dubrovsky.service.cart;
 import dev.dubrovsky.dto.request.cart.NewCartRequest;
 import dev.dubrovsky.dto.request.cart.UpdateCartRequest;
 import dev.dubrovsky.dto.response.cart.CartResponse;
+import dev.dubrovsky.exception.DbResponseErrorException;
 import dev.dubrovsky.exception.EntityNotFoundException;
 import dev.dubrovsky.model.cart.Cart;
 import dev.dubrovsky.model.cart.CartItem;
@@ -34,7 +35,7 @@ public class CartService implements ICartService {
         Cart cart = new Cart();
         cart.setUser(userRepository.
                 findById(request.userId()).
-                orElse(null));
+                orElseThrow(DbResponseErrorException::new));
 
         cartRepository.save(cart);
     }
@@ -43,14 +44,14 @@ public class CartService implements ICartService {
     public CartResponse getById(Integer id) {
         ValidationUtil.checkId(id, cartRepository);
 
-        Cart cart = cartRepository.findById(id).orElse(null);
-        return cart != null ? cart.mapToResponse() : null;
+        Cart cart = cartRepository.findById(id).orElseThrow(DbResponseErrorException::new);
+        return cart.mapToResponse();
     }
 
     @Override
     public List<CartResponse> getAll() {
         if (cartRepository.findAll().isEmpty()) {
-            return null;
+            throw new EntityNotFoundException("По запросу ничего не найдено :(");
         } else {
             List<CartResponse> responses = new ArrayList<>();
             List<Cart> all = cartRepository.findAll();
@@ -65,12 +66,11 @@ public class CartService implements ICartService {
     public void update(UpdateCartRequest request, Integer id) {
         ValidationUtil.checkId(id, cartRepository);
 
-        Cart cart = cartRepository.findById(id).orElse(null);
-        assert cart != null;
+        Cart cart = cartRepository.findById(id).orElseThrow(DbResponseErrorException::new);
 
         if (request.userId() != null && request.userId() != 0) {
             ValidationUtil.checkEntityPresent(request.userId(), userRepository);
-            cart.setUser(userRepository.findById(request.userId()).orElse(null));
+            cart.setUser(userRepository.findById(request.userId()).orElseThrow(DbResponseErrorException::new));
         }
         cart.setId(id);
 
@@ -92,7 +92,7 @@ public class CartService implements ICartService {
         }
         for (CartItem cartItem : allByCartId) {
             Integer productId = cartItem.getProduct().getId();
-            Product product = productRepository.findById(productId).orElse(null);
+            Product product = productRepository.findById(productId).orElseThrow(DbResponseErrorException::new);
             if (product != null) {
                 float i = product.getPrice() * cartItem.getQuantity();
                 totalPrice += i;

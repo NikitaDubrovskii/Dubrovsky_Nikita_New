@@ -3,6 +3,8 @@ package dev.dubrovsky.service.bonus;
 import dev.dubrovsky.dto.request.bonus.NewBonusRequest;
 import dev.dubrovsky.dto.request.bonus.UpdateBonusRequest;
 import dev.dubrovsky.dto.response.bonus.BonusResponse;
+import dev.dubrovsky.exception.DbResponseErrorException;
+import dev.dubrovsky.exception.EntityNotFoundException;
 import dev.dubrovsky.model.bonus.Bonus;
 import dev.dubrovsky.repository.bonus.BonusRepository;
 import dev.dubrovsky.repository.loyalty.program.LoyaltyProgramRepository;
@@ -30,7 +32,7 @@ public class BonusService implements IBonusService {
         bonus.setPoints(request.points());
         bonus.setProgram(loyaltyProgramRepository
                 .findById(request.programId())
-                .orElse(null));
+                .orElseThrow(DbResponseErrorException::new));
 
         bonusRepository.save(bonus);
     }
@@ -39,14 +41,14 @@ public class BonusService implements IBonusService {
     public BonusResponse getById(Integer id) {
         ValidationUtil.checkId(id, bonusRepository);
 
-        Bonus bonus = bonusRepository.findById(id).orElse(null);
-        return bonus != null ? bonus.mapToResponse() : null;
+        Bonus bonus = bonusRepository.findById(id).orElseThrow(DbResponseErrorException::new);
+        return bonus.mapToResponse();
     }
 
     @Override
     public List<BonusResponse> getAll() {
         if (bonusRepository.findAll().isEmpty()) {
-            return null;
+            throw new EntityNotFoundException("По запросу ничего не найдено :(");
         } else {
             List<BonusResponse> responses = new ArrayList<>();
             List<Bonus> all = bonusRepository.findAll();
@@ -61,8 +63,7 @@ public class BonusService implements IBonusService {
     public void update(UpdateBonusRequest request, Integer id) {
         ValidationUtil.checkId(id, bonusRepository);
 
-        Bonus bonus = bonusRepository.findById(id).orElse(null);
-        assert bonus != null;
+        Bonus bonus = bonusRepository.findById(id).orElseThrow(DbResponseErrorException::new);
 
         if (request.name() != null && !request.name().isEmpty()) {
             bonus.setName(request.name());
@@ -74,9 +75,8 @@ public class BonusService implements IBonusService {
             bonus.setPoints(request.points());
         }
         if (request.programId() != null && request.programId() != 0) {
-            bonus.setProgram(loyaltyProgramRepository.findById(request.programId()).orElse(null));
+            bonus.setProgram(loyaltyProgramRepository.findById(request.programId()).orElseThrow(DbResponseErrorException::new));
         }
-
         bonus.setId(id);
 
         bonusRepository.save(bonus);

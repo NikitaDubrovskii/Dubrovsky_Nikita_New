@@ -3,6 +3,8 @@ package dev.dubrovsky.service.order;
 import dev.dubrovsky.dto.request.order.NewOrderItemRequest;
 import dev.dubrovsky.dto.request.order.UpdateOrderItemRequest;
 import dev.dubrovsky.dto.response.order.OrderItemResponse;
+import dev.dubrovsky.exception.DbResponseErrorException;
+import dev.dubrovsky.exception.EntityNotFoundException;
 import dev.dubrovsky.model.order.OrderItem;
 import dev.dubrovsky.repository.order.OrderItemRepository;
 import dev.dubrovsky.repository.order.OrderRepository;
@@ -31,10 +33,10 @@ public class OrderItemService implements IOrderItemService {
         orderItem.setQuantity(request.quantity());
         orderItem.setOrder(orderRepository
                 .findById(request.orderId())
-                .orElse(null));
+                .orElseThrow(DbResponseErrorException::new));
         orderItem.setProduct(productRepository
                 .findById(request.productId())
-                .orElse(null));
+                .orElseThrow(DbResponseErrorException::new));
 
         orderItemRepository.save(orderItem);
     }
@@ -43,14 +45,14 @@ public class OrderItemService implements IOrderItemService {
     public OrderItemResponse getById(Integer id) {
         ValidationUtil.checkId(id, orderItemRepository);
 
-        OrderItem orderItem = orderItemRepository.findById(id).orElse(null);
-        return orderItem != null ? orderItem.mapToResponse() : null;
+        OrderItem orderItem = orderItemRepository.findById(id).orElseThrow(DbResponseErrorException::new);
+        return orderItem.mapToResponse();
     }
 
     @Override
     public List<OrderItemResponse> getAll() {
         if (orderItemRepository.findAll().isEmpty()) {
-            return null;
+            throw new EntityNotFoundException("По запросу ничего не найдено :(");
         } else {
             List<OrderItemResponse> responses = new ArrayList<>();
             List<OrderItem> all = orderItemRepository.findAll();
@@ -65,19 +67,18 @@ public class OrderItemService implements IOrderItemService {
     public void update(UpdateOrderItemRequest request, Integer id) {
         ValidationUtil.checkId(id, orderItemRepository);
 
-        OrderItem orderItem = orderItemRepository.findById(id).orElse(null);
-        assert orderItem != null;
+        OrderItem orderItem = orderItemRepository.findById(id).orElseThrow(DbResponseErrorException::new);
 
         if (request.quantity() != null && request.quantity() > 0) {
             orderItem.setQuantity(request.quantity());
         }
         if (request.productId() != null && request.productId() > 0) {
             ValidationUtil.checkEntityPresent(request.productId(), productRepository);
-            orderItem.setProduct(productRepository.findById(request.productId()).orElse(null));
+            orderItem.setProduct(productRepository.findById(request.productId()).orElseThrow(DbResponseErrorException::new));
         }
         if (request.orderId() != null && request.orderId() > 0) {
             ValidationUtil.checkEntityPresent(request.orderId(), orderRepository);
-            orderItem.setOrder(orderRepository.findById(request.orderId()).orElse(null));
+            orderItem.setOrder(orderRepository.findById(request.orderId()).orElseThrow(DbResponseErrorException::new));
         }
         orderItem.setId(id);
 
