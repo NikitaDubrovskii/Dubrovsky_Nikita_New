@@ -26,6 +26,7 @@
         <module>repository</module>
         <module>controller</module>
         <module>dto</module>
+        <module>config</module>
     </modules>
 
     <properties>
