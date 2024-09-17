@@ -1,5 +1,6 @@
 package dev.dubrovsky.controller.cart;
 
+import dev.dubrovsky.controller.ResponseStatus;
 import dev.dubrovsky.dto.request.cart.NewCartRequest;
 import dev.dubrovsky.dto.request.cart.UpdateCartRequest;
 import dev.dubrovsky.service.cart.CartService;
@@ -34,7 +35,7 @@ public class CartController {
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         } else {
             cartService.create(request);
-            return new ResponseEntity<>("Создано!", HttpStatus.CREATED);
+            return new ResponseEntity<>(ResponseStatus.CREATED.getDescription(), HttpStatus.CREATED);
         }
     }
 
@@ -62,7 +63,7 @@ public class CartController {
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         } else {
             cartService.update(request, id);
-            return new ResponseEntity<>("Обновлено!", HttpStatus.OK);
+            return new ResponseEntity<>(ResponseStatus.UPDATED.getDescription(), HttpStatus.OK);
         }
     }
 
@@ -70,7 +71,7 @@ public class CartController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Integer id) {
         cartService.delete(id);
-        return new ResponseEntity<>("Удалено!", HttpStatus.OK);
+        return new ResponseEntity<>(ResponseStatus.DELETED.getDescription(), HttpStatus.OK);
     }
 
 }

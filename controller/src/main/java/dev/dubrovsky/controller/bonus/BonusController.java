@@ -1,5 +1,6 @@
 package dev.dubrovsky.controller.bonus;
 
+import dev.dubrovsky.controller.ResponseStatus;
 import dev.dubrovsky.dto.request.bonus.NewBonusRequest;
 import dev.dubrovsky.dto.request.bonus.UpdateBonusRequest;
 import dev.dubrovsky.service.bonus.BonusService;
@@ -34,7 +35,7 @@ public class BonusController {
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         } else {
             bonusService.create(request);
-            return new ResponseEntity<>("Создано!", HttpStatus.CREATED);
+            return new ResponseEntity<>(ResponseStatus.CREATED.getDescription(), HttpStatus.CREATED);
         }
     }
 
@@ -55,14 +56,14 @@ public class BonusController {
     public ResponseEntity<?> update(@RequestBody UpdateBonusRequest request,
                                     @PathVariable Integer id) {
         bonusService.update(request, id);
-        return new ResponseEntity<>("Обновлено!", HttpStatus.OK);
+        return new ResponseEntity<>(ResponseStatus.UPDATED.getDescription(), HttpStatus.OK);
     }
 
     @Operation(summary = "Удаление бонуса", description = "Удаление бонуса по id")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Integer id) {
         bonusService.delete(id);
-        return new ResponseEntity<>("Удалено!", HttpStatus.OK);
+        return new ResponseEntity<>(ResponseStatus.DELETED.getDescription(), HttpStatus.OK);
     }
 
 }

@@ -1,5 +1,6 @@
 package dev.dubrovsky.controller.loyalty.program;
 
+import dev.dubrovsky.controller.ResponseStatus;
 import dev.dubrovsky.dto.request.loyalty.program.NewLoyaltyProgramRequest;
 import dev.dubrovsky.dto.request.loyalty.program.UpdateLoyaltyProgramRequest;
 import dev.dubrovsky.service.loyalty.program.LoyaltyProgramService;
@@ -34,7 +35,7 @@ public class LoyaltyProgramController {
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         } else {
             loyaltyProgramService.create(request);
-            return new ResponseEntity<>("Создано!", HttpStatus.CREATED);
+            return new ResponseEntity<>(ResponseStatus.CREATED.getDescription(), HttpStatus.CREATED);
         }
     }
 
@@ -62,7 +63,7 @@ public class LoyaltyProgramController {
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         } else {
             loyaltyProgramService.update(request, id);
-            return new ResponseEntity<>("Обновлено!", HttpStatus.OK);
+            return new ResponseEntity<>(ResponseStatus.UPDATED.getDescription(), HttpStatus.OK);
         }
     }
 
@@ -70,7 +71,7 @@ public class LoyaltyProgramController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Integer id) {
         loyaltyProgramService.delete(id);
-        return new ResponseEntity<>("Удалено!", HttpStatus.OK);
+        return new ResponseEntity<>(ResponseStatus.DELETED.getDescription(), HttpStatus.OK);
     }
 
 }

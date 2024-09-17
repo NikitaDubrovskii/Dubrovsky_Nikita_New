@@ -1,5 +1,6 @@
 package dev.dubrovsky.controller.category;
 
+import dev.dubrovsky.controller.ResponseStatus;
 import dev.dubrovsky.dto.request.category.NewCategoryRequest;
 import dev.dubrovsky.dto.request.category.UpdateCategoryRequest;
 import dev.dubrovsky.service.category.CategoryService;
@@ -34,7 +35,7 @@ public class CategoryController {
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         } else {
             categoryService.create(request);
-            return new ResponseEntity<>("Создано!", HttpStatus.CREATED);
+            return new ResponseEntity<>(ResponseStatus.CREATED.getDescription(), HttpStatus.CREATED);
         }
     }
 
@@ -62,7 +63,7 @@ public class CategoryController {
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         } else {
             categoryService.update(request, id);
-            return new ResponseEntity<>("Обновлено!", HttpStatus.OK);
+            return new ResponseEntity<>(ResponseStatus.UPDATED.getDescription(), HttpStatus.OK);
         }
     }
 
@@ -70,7 +71,7 @@ public class CategoryController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Integer id) {
         categoryService.delete(id);
-        return new ResponseEntity<>("Удалено!", HttpStatus.OK);
+        return new ResponseEntity<>(ResponseStatus.DELETED.getDescription(), HttpStatus.OK);
     }
 
 }

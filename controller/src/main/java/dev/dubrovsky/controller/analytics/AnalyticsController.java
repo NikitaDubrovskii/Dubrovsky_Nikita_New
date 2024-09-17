@@ -1,5 +1,6 @@
 package dev.dubrovsky.controller.analytics;
 
+import dev.dubrovsky.controller.ResponseStatus;
 import dev.dubrovsky.dto.request.analytics.NewAnalyticsRequest;
 import dev.dubrovsky.dto.request.analytics.UpdateAnalyticsRequest;
 import dev.dubrovsky.service.analytics.AnalyticsService;
@@ -34,7 +35,7 @@ public class AnalyticsController {
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         } else {
             analyticsService.create(request);
-            return new ResponseEntity<>("Создано!", HttpStatus.CREATED);
+            return new ResponseEntity<>(ResponseStatus.CREATED.getDescription(), HttpStatus.CREATED);
         }
     }
 
@@ -62,7 +63,7 @@ public class AnalyticsController {
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         } else {
             analyticsService.update(request, id);
-            return new ResponseEntity<>("Обновлено!", HttpStatus.OK);
+            return new ResponseEntity<>(ResponseStatus.UPDATED.getDescription(), HttpStatus.OK);
         }
     }
 
@@ -70,7 +71,7 @@ public class AnalyticsController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Integer id) {
         analyticsService.delete(id);
-        return new ResponseEntity<>("Удалено!", HttpStatus.OK);
+        return new ResponseEntity<>(ResponseStatus.DELETED.getDescription(), HttpStatus.OK);
     }
 
 }

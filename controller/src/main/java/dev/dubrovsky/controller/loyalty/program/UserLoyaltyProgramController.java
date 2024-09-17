@@ -1,5 +1,6 @@
 package dev.dubrovsky.controller.loyalty.program;
 
+import dev.dubrovsky.controller.ResponseStatus;
 import dev.dubrovsky.dto.request.loyalty.program.NewUserLoyaltyProgramRequest;
 import dev.dubrovsky.service.loyalty.program.UserLoyaltyProgramService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,7 +34,7 @@ public class UserLoyaltyProgramController {
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         } else {
             loyaltyProgramService.create(request);
-            return new ResponseEntity<>("Создано!", HttpStatus.CREATED);
+            return new ResponseEntity<>(ResponseStatus.CREATED.getDescription(), HttpStatus.CREATED);
         }
     }
 
@@ -48,7 +49,7 @@ public class UserLoyaltyProgramController {
     public ResponseEntity<?> delete(@PathVariable Integer userId,
                                     @PathVariable Integer programId) {
         loyaltyProgramService.delete(userId, programId);
-        return new ResponseEntity<>("Удалено!", HttpStatus.OK);
+        return new ResponseEntity<>(ResponseStatus.DELETED.getDescription(), HttpStatus.OK);
     }
 
 }

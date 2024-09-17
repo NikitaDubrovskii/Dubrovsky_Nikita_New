@@ -1,5 +1,6 @@
 package dev.dubrovsky.controller.user;
 
+import dev.dubrovsky.controller.ResponseStatus;
 import dev.dubrovsky.dto.request.user.NewUserRequest;
 import dev.dubrovsky.dto.request.user.UpdateUserRequest;
 import dev.dubrovsky.dto.request.user.UserLoginRequest;
@@ -36,7 +37,7 @@ public class UserController {
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         } else {
             userService.create(request);
-            return new ResponseEntity<>("Создано!", HttpStatus.CREATED);
+            return new ResponseEntity<>(ResponseStatus.CREATED.getDescription(), HttpStatus.CREATED);
         }
     }
 
@@ -64,7 +65,7 @@ public class UserController {
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         } else {
             userService.update(request, id);
-            return new ResponseEntity<>("Обновлено!", HttpStatus.OK);
+            return new ResponseEntity<>(ResponseStatus.UPDATED.getDescription(), HttpStatus.OK);
         }
     }
 
@@ -72,7 +73,7 @@ public class UserController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Integer id) {
         userService.delete(id);
-        return new ResponseEntity<>("Удалено!", HttpStatus.OK);
+        return new ResponseEntity<>(ResponseStatus.DELETED.getDescription(), HttpStatus.OK);
     }
 
     @Operation(summary = "Вход пользователя", description = "Вход пользователя по username/email и password")

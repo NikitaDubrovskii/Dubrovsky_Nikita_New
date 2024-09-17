@@ -1,5 +1,6 @@
 package dev.dubrovsky.controller.product;
 
+import dev.dubrovsky.controller.ResponseStatus;
 import dev.dubrovsky.dto.request.product.NewProductRequest;
 import dev.dubrovsky.dto.request.product.UpdateProductRequest;
 import dev.dubrovsky.service.product.ProductService;
@@ -34,7 +35,7 @@ public class ProductController {
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         } else {
             productService.create(request);
-            return new ResponseEntity<>("Создано!", HttpStatus.CREATED);
+            return new ResponseEntity<>(ResponseStatus.CREATED.getDescription(), HttpStatus.CREATED);
         }
     }
 
@@ -62,7 +63,7 @@ public class ProductController {
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         } else {
             productService.update(request, id);
-            return new ResponseEntity<>("Обновлено!", HttpStatus.OK);
+            return new ResponseEntity<>(ResponseStatus.UPDATED.getDescription(), HttpStatus.OK);
         }
     }
 
@@ -70,7 +71,7 @@ public class ProductController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Integer id) {
         productService.delete(id);
-        return new ResponseEntity<>("Удалено!", HttpStatus.OK);
+        return new ResponseEntity<>(ResponseStatus.DELETED.getDescription(), HttpStatus.OK);
     }
 
 }

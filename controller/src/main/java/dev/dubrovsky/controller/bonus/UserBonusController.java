@@ -1,5 +1,6 @@
 package dev.dubrovsky.controller.bonus;
 
+import dev.dubrovsky.controller.ResponseStatus;
 import dev.dubrovsky.dto.request.bonus.NewUserBonusRequest;
 import dev.dubrovsky.service.bonus.UserBonusService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,7 +34,7 @@ public class UserBonusController {
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         } else {
             userBonusService.create(request);
-            return new ResponseEntity<>("Создано!", HttpStatus.CREATED);
+            return new ResponseEntity<>(ResponseStatus.CREATED.getDescription(), HttpStatus.CREATED);
         }
     }
 
@@ -48,7 +49,7 @@ public class UserBonusController {
     public ResponseEntity<?> delete(@PathVariable Integer userId,
                                     @PathVariable Integer bonusId) {
         userBonusService.delete(userId, bonusId);
-        return new ResponseEntity<>("Удалено!", HttpStatus.OK);
+        return new ResponseEntity<>(ResponseStatus.DELETED.getDescription(), HttpStatus.OK);
     }
 
 }
