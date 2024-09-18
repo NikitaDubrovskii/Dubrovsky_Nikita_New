@@ -1,77 +1,58 @@
 package dev.dubrovsky.controller.payment.method;
 
-import dev.dubrovsky.controller.ResponseStatus;
 import dev.dubrovsky.dto.request.payment.method.NewPaymentMethodRequest;
 import dev.dubrovsky.dto.request.payment.method.UpdatePaymentMethodRequest;
 import dev.dubrovsky.service.payment.method.PaymentMethodService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("api/v1/payment-method")
-@AllArgsConstructor
-@Tag(name="Способы оплаты", description="Взаимодействие со способами оплаты")
-public class PaymentMethodController {
+@Tag(name = "Способы оплаты", description = "Взаимодействие со способами оплаты")
+public class PaymentMethodController extends AbstractPaymentMethodController {
 
     private final PaymentMethodService paymentMethodService;
 
+    public PaymentMethodController(PaymentMethodService paymentMethodService) {
+        super(paymentMethodService);
+        this.paymentMethodService = paymentMethodService;
+    }
+
+    @Override
     @Operation(summary = "Создание способа оплаты", description = "Создание способа оплаты")
-    @PostMapping
-    public ResponseEntity<?> create(@RequestBody @Valid NewPaymentMethodRequest request,
+    public ResponseEntity<?> create(NewPaymentMethodRequest request,
                                     BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            List<String> errors = bindingResult.getAllErrors().stream()
-                    .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                    .toList();
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-        } else {
-            paymentMethodService.create(request);
-            return new ResponseEntity<>(ResponseStatus.CREATED.getDescription(), HttpStatus.CREATED);
-        }
+        return super.create(request, bindingResult);
     }
 
+    @Override
     @Operation(summary = "Получение способа оплаты", description = "Получение способа оплаты по id")
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getById(@PathVariable Integer id) {
-        return new ResponseEntity<>(paymentMethodService.getById(id), HttpStatus.OK);
+    public ResponseEntity<?> getById(Integer id) {
+        return super.getById(id);
     }
 
+    @Override
     @Operation(summary = "Получение списка способов оплаты", description = "Получение списка способов оплаты")
-    @GetMapping
     public ResponseEntity<?> getAll() {
-        return new ResponseEntity<>(paymentMethodService.getAll(), HttpStatus.OK);
+        return super.getAll();
     }
 
+    @Override
     @Operation(summary = "Обновление способа оплаты", description = "Обновление способа оплаты по id")
-    @PutMapping("/{id}")
-    public ResponseEntity<?> update(@RequestBody @Valid UpdatePaymentMethodRequest request,
-                                    @PathVariable Integer id,
+    public ResponseEntity<?> update(UpdatePaymentMethodRequest request,
+                                    Integer id,
                                     BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            List<String> errors = bindingResult.getAllErrors().stream()
-                    .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                    .toList();
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-        } else {
-            paymentMethodService.update(request, id);
-            return new ResponseEntity<>(ResponseStatus.UPDATED.getDescription(), HttpStatus.OK);
-        }
+        return super.update(request, id, bindingResult);
     }
 
+    @Override
     @Operation(summary = "Удаление способа оплаты", description = "Удаление способа оплаты по id")
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Integer id) {
-        paymentMethodService.delete(id);
-        return new ResponseEntity<>(ResponseStatus.DELETED.getDescription(), HttpStatus.OK);
+    public ResponseEntity<?> delete(Integer id) {
+        return super.delete(id);
     }
 
 }

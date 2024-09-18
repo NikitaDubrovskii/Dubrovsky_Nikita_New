@@ -1,77 +1,58 @@
 package dev.dubrovsky.controller.cart;
 
-import dev.dubrovsky.controller.ResponseStatus;
 import dev.dubrovsky.dto.request.cart.NewCartItemRequest;
 import dev.dubrovsky.dto.request.cart.UpdateCartItemRequest;
 import dev.dubrovsky.service.cart.CartItemService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("api/v1/cart-item")
-@AllArgsConstructor
-@Tag(name="Товары в корзине", description="Взаимодействие с товарами в корзине")
-public class CartItemController {
+@Tag(name = "Товары в корзине", description = "Взаимодействие с товарами в корзине")
+public class CartItemController extends AbstractCartItemController {
 
     private final CartItemService cartItemService;
 
-    @PostMapping
+    public CartItemController(CartItemService cartItemService) {
+        super(cartItemService);
+        this.cartItemService = cartItemService;
+    }
+
+    @Override
     @Operation(summary = "Создание товара в корзине", description = "Создание товара в корзине")
-    public ResponseEntity<?> create(@RequestBody @Valid NewCartItemRequest request,
+    public ResponseEntity<?> create(NewCartItemRequest request,
                                     BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            List<String> errors = bindingResult.getAllErrors().stream()
-                    .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                    .toList();
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-        } else {
-            cartItemService.create(request);
-            return new ResponseEntity<>(ResponseStatus.CREATED.getDescription(), HttpStatus.CREATED);
-        }
+        return super.create(request, bindingResult);
     }
 
+    @Override
     @Operation(summary = "Получение товара в корзине", description = "Получение товара в корзине по id товара")
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getById(@PathVariable Integer id) {
-        return new ResponseEntity<>(cartItemService.getById(id), HttpStatus.OK);
+    public ResponseEntity<?> getById(Integer id) {
+        return super.getById(id);
     }
 
+    @Override
     @Operation(summary = "Получение списка товаров в корзинах", description = "Получение списка товаров в корзинах")
-    @GetMapping
     public ResponseEntity<?> getAll() {
-        return new ResponseEntity<>(cartItemService.getAll(), HttpStatus.OK);
+        return super.getAll();
     }
 
+    @Override
     @Operation(summary = "Обновление товаров в корзине", description = "Обновление товаров в корзине по id товара")
-    @PutMapping("/{id}")
-    public ResponseEntity<?> update(@RequestBody @Valid UpdateCartItemRequest request,
-                                    @PathVariable Integer id,
+    public ResponseEntity<?> update(UpdateCartItemRequest request,
+                                    Integer id,
                                     BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            List<String> errors = bindingResult.getAllErrors().stream()
-                    .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                    .toList();
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-        } else {
-            cartItemService.update(request, id);
-            return new ResponseEntity<>(ResponseStatus.UPDATED.getDescription(), HttpStatus.OK);
-        }
+        return super.update(request, id, bindingResult);
     }
 
+    @Override
     @Operation(summary = "Удаление товара из корзины", description = "Удаление товара из корзины по id товара")
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Integer id) {
-        cartItemService.delete(id);
-        return new ResponseEntity<>(ResponseStatus.DELETED.getDescription(), HttpStatus.OK);
+    public ResponseEntity<?> delete(Integer id) {
+        return super.delete(id);
     }
 
 }

@@ -1,69 +1,58 @@
 package dev.dubrovsky.controller.bonus;
 
-import dev.dubrovsky.controller.ResponseStatus;
 import dev.dubrovsky.dto.request.bonus.NewBonusRequest;
 import dev.dubrovsky.dto.request.bonus.UpdateBonusRequest;
 import dev.dubrovsky.service.bonus.BonusService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("api/v1/bonus")
-@AllArgsConstructor
-@Tag(name="Бонусы", description="Взаимодействие с бонусами")
-public class BonusController {
+@Tag(name = "Бонусы", description = "Взаимодействие с бонусами")
+public class BonusController extends AbstractBonusController {
 
     private final BonusService bonusService;
 
+    public BonusController(BonusService bonusService) {
+        super(bonusService);
+        this.bonusService = bonusService;
+    }
+
+    @Override
     @Operation(summary = "Создание бонусов", description = "Создание бонусов")
-    @PostMapping
-    public ResponseEntity<?> create(@RequestBody @Valid NewBonusRequest request,
+    public ResponseEntity<?> create(NewBonusRequest request,
                                     BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            List<String> errors = bindingResult.getAllErrors().stream()
-                    .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                    .toList();
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-        } else {
-            bonusService.create(request);
-            return new ResponseEntity<>(ResponseStatus.CREATED.getDescription(), HttpStatus.CREATED);
-        }
+        return super.create(request, bindingResult);
     }
 
+    @Override
     @Operation(summary = "Получение бонусов", description = "Получение бонусов по id")
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getById(@PathVariable Integer id) {
-        return new ResponseEntity<>(bonusService.getById(id), HttpStatus.OK);
+    public ResponseEntity<?> getById(Integer id) {
+        return super.getById(id);
     }
 
+    @Override
     @Operation(summary = "Получение списка бонусов", description = "Получение списка бонусов")
-    @GetMapping
     public ResponseEntity<?> getAll() {
-        return new ResponseEntity<>(bonusService.getAll(), HttpStatus.OK);
+        return super.getAll();
     }
 
+    @Override
     @Operation(summary = "Обновление бонуса", description = "Обновление бонуса по id")
-    @PutMapping("/{id}")
-    public ResponseEntity<?> update(@RequestBody UpdateBonusRequest request,
-                                    @PathVariable Integer id) {
-        bonusService.update(request, id);
-        return new ResponseEntity<>(ResponseStatus.UPDATED.getDescription(), HttpStatus.OK);
+    public ResponseEntity<?> update(UpdateBonusRequest request,
+                                    Integer id,
+                                    BindingResult bindingResult) {
+        return super.update(request, id, bindingResult);
     }
 
+    @Override
     @Operation(summary = "Удаление бонуса", description = "Удаление бонуса по id")
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Integer id) {
-        bonusService.delete(id);
-        return new ResponseEntity<>(ResponseStatus.DELETED.getDescription(), HttpStatus.OK);
+    public ResponseEntity<?> delete(Integer id) {
+        return super.delete(id);
     }
 
 }

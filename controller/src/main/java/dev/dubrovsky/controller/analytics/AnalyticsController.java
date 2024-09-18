@@ -1,77 +1,55 @@
 package dev.dubrovsky.controller.analytics;
 
-import dev.dubrovsky.controller.ResponseStatus;
 import dev.dubrovsky.dto.request.analytics.NewAnalyticsRequest;
 import dev.dubrovsky.dto.request.analytics.UpdateAnalyticsRequest;
 import dev.dubrovsky.service.analytics.AnalyticsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("api/v1/analytics")
-@AllArgsConstructor
-@Tag(name="Аналитика", description="Взаимодействие с аналитикой")
-public class AnalyticsController {
+@Tag(name = "Аналитика", description = "Взаимодействие с аналитикой")
+public class AnalyticsController extends AbstractAnalyticsController {
 
     private final AnalyticsService analyticsService;
 
+    public AnalyticsController(AnalyticsService analyticsService) {
+        super(analyticsService);
+        this.analyticsService = analyticsService;
+    }
+
+    @Override
     @Operation(summary = "Создание аналитики", description = "Создание аналитики")
-    @PostMapping
-    public ResponseEntity<?> create(@RequestBody @Valid NewAnalyticsRequest request,
-                                    BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            List<String> errors = bindingResult.getAllErrors().stream()
-                    .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                    .toList();
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-        } else {
-            analyticsService.create(request);
-            return new ResponseEntity<>(ResponseStatus.CREATED.getDescription(), HttpStatus.CREATED);
-        }
+    public ResponseEntity<?> create(NewAnalyticsRequest request, BindingResult bindingResult) {
+        return super.create(request, bindingResult);
     }
 
+    @Override
     @Operation(summary = "Получение аналитики", description = "Получение аналитики по id")
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getById(@PathVariable Integer id) {
-        return new ResponseEntity<>(analyticsService.getById(id), HttpStatus.OK);
+    public ResponseEntity<?> getById(Integer id) {
+        return super.getById(id);
     }
 
+    @Override
     @Operation(summary = "Получение списка аналитики", description = "Получение списка аналитики")
-    @GetMapping
     public ResponseEntity<?> getAll() {
-        return new ResponseEntity<>(analyticsService.getAll(), HttpStatus.OK);
+        return super.getAll();
     }
 
+    @Override
     @Operation(summary = "Обновление аналитики", description = "Обновление аналитики по id")
-    @PutMapping("/{id}")
-    public ResponseEntity<?> update(@RequestBody @Valid UpdateAnalyticsRequest request,
-                                    @PathVariable Integer id,
-                                    BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            List<String> errors = bindingResult.getAllErrors().stream()
-                    .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                    .toList();
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-        } else {
-            analyticsService.update(request, id);
-            return new ResponseEntity<>(ResponseStatus.UPDATED.getDescription(), HttpStatus.OK);
-        }
+    public ResponseEntity<?> update(UpdateAnalyticsRequest request, Integer id, BindingResult bindingResult) {
+        return super.update(request, id, bindingResult);
     }
 
+    @Override
     @Operation(summary = "Удаление аналитики", description = "Удаление аналитики по id")
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Integer id) {
-        analyticsService.delete(id);
-        return new ResponseEntity<>(ResponseStatus.DELETED.getDescription(), HttpStatus.OK);
+    public ResponseEntity<?> delete(Integer id) {
+        return super.delete(id);
     }
 
 }
