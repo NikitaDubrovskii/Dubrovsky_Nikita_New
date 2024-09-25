@@ -5,10 +5,10 @@ import dev.dubrovsky.dto.request.user.UpdateUserRequest;
 import dev.dubrovsky.dto.request.user.UserLoginRequest;
 import dev.dubrovsky.dto.request.user.UserResetPasswordRequest;
 import dev.dubrovsky.service.user.UserService;
+import dev.dubrovsky.util.response.ResponseUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -16,8 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("api/v1/user")
@@ -69,10 +67,7 @@ public class UserController extends AbstractUserController {
     public ResponseEntity<?> login(UserLoginRequest request,
                                    BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            List<String> errors = bindingResult.getAllErrors().stream()
-                    .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                    .toList();
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+            return ResponseUtil.generateErrorResponse(bindingResult);
         } else {
             return new ResponseEntity<>(userService.loginUser(request), HttpStatus.OK);
         }
@@ -89,10 +84,7 @@ public class UserController extends AbstractUserController {
     public ResponseEntity<?> resetPassword(@RequestBody @Valid UserResetPasswordRequest request,
                                            BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            List<String> errors = bindingResult.getAllErrors().stream()
-                    .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                    .toList();
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+            return ResponseUtil.generateErrorResponse(bindingResult);
         } else {
             userService.resetPassword(request);
             return new ResponseEntity<>("Пароль изменен!", HttpStatus.OK);

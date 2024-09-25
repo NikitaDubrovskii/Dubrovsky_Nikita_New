@@ -15,11 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Товары", description = "Взаимодействие с товарами")
 public class ProductController extends AbstractProductController {
 
-    private final ProductService productService;
-
     public ProductController(ProductService productService) {
         super(productService);
-        this.productService = productService;
     }
 
     @Override

@@ -15,11 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Заказы", description = "Взаимодействие с заказами")
 public class OrderController extends AbstractOrderController {
 
-    private final OrderService orderService;
-
     public OrderController(OrderService orderService) {
         super(orderService);
-        this.orderService = orderService;
     }
 
     @Override

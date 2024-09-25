@@ -15,11 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Способы оплаты", description = "Взаимодействие со способами оплаты")
 public class PaymentMethodController extends AbstractPaymentMethodController {
 
-    private final PaymentMethodService paymentMethodService;
-
     public PaymentMethodController(PaymentMethodService paymentMethodService) {
         super(paymentMethodService);
-        this.paymentMethodService = paymentMethodService;
     }
 
     @Override

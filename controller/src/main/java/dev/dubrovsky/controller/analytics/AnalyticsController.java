@@ -15,11 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Аналитика", description = "Взаимодействие с аналитикой")
 public class AnalyticsController extends AbstractAnalyticsController {
 
-    private final AnalyticsService analyticsService;
-
     public AnalyticsController(AnalyticsService analyticsService) {
         super(analyticsService);
-        this.analyticsService = analyticsService;
     }
 
     @Override

@@ -15,11 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Товары в корзине", description = "Взаимодействие с товарами в корзине")
 public class CartItemController extends AbstractCartItemController {
 
-    private final CartItemService cartItemService;
-
     public CartItemController(CartItemService cartItemService) {
         super(cartItemService);
-        this.cartItemService = cartItemService;
     }
 
     @Override

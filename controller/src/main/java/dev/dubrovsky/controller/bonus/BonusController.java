@@ -15,11 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Бонусы", description = "Взаимодействие с бонусами")
 public class BonusController extends AbstractBonusController {
 
-    private final BonusService bonusService;
-
     public BonusController(BonusService bonusService) {
         super(bonusService);
-        this.bonusService = bonusService;
     }
 
     @Override

@@ -15,11 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Категории", description = "Взаимодействие с категориями")
 public class CategoryController extends AbstractCategoryController {
 
-    private final CategoryService categoryService;
-
     public CategoryController(CategoryService categoryService) {
         super(categoryService);
-        this.categoryService = categoryService;
     }
 
     @Override

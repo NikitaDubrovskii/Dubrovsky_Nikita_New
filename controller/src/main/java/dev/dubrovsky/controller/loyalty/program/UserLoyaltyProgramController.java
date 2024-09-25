@@ -3,17 +3,15 @@ package dev.dubrovsky.controller.loyalty.program;
 import dev.dubrovsky.controller.ResponseStatus;
 import dev.dubrovsky.dto.request.loyalty.program.NewUserLoyaltyProgramRequest;
 import dev.dubrovsky.service.loyalty.program.UserLoyaltyProgramService;
+import dev.dubrovsky.util.response.ResponseUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("api/v1/user-loyalty-program")
@@ -28,10 +26,7 @@ public class UserLoyaltyProgramController extends AbstractUserLoyaltyProgramCont
     public ResponseEntity<?> create(NewUserLoyaltyProgramRequest request,
                                     BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            List<String> errors = bindingResult.getAllErrors().stream()
-                    .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                    .toList();
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+            return ResponseUtil.generateErrorResponse(bindingResult);
         } else {
             loyaltyProgramService.create(request);
             return new ResponseEntity<>(ResponseStatus.CREATED.getDescription(), HttpStatus.CREATED);

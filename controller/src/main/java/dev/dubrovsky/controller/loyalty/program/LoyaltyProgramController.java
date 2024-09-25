@@ -15,11 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Программы лояльности", description = "Взаимодействие с программой лояльности")
 public class LoyaltyProgramController extends AbstractLoyaltyProgramController {
 
-    private final LoyaltyProgramService loyaltyProgramService;
-
     public LoyaltyProgramController(LoyaltyProgramService loyaltyProgramService) {
         super(loyaltyProgramService);
-        this.loyaltyProgramService = loyaltyProgramService;
     }
 
     @Override
