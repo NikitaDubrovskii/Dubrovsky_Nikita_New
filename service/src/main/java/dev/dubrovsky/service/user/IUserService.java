@@ -1,5 +1,6 @@
 package dev.dubrovsky.service.user;
 
+import dev.dubrovsky.dto.SimpleTextResponse;
 import dev.dubrovsky.dto.request.user.NewUserRequest;
 import dev.dubrovsky.dto.request.user.UpdateUserRequest;
 import dev.dubrovsky.dto.request.user.UserLoginRequest;
@@ -9,9 +10,9 @@ import dev.dubrovsky.service.ICommonService;
 
 public interface IUserService extends ICommonService<UserResponse, NewUserRequest, UpdateUserRequest> {
 
-    String loginUser(UserLoginRequest request);
+    SimpleTextResponse loginUser(UserLoginRequest request);
 
-    String recoverPassword(String email);
+    SimpleTextResponse recoverPassword(String email);
 
     void resetPassword(UserResetPasswordRequest request);
 

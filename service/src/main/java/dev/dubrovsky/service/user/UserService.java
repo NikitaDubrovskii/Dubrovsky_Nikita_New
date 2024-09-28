@@ -1,5 +1,6 @@
 package dev.dubrovsky.service.user;
 
+import dev.dubrovsky.dto.SimpleTextResponse;
 import dev.dubrovsky.dto.request.user.NewUserRequest;
 import dev.dubrovsky.dto.request.user.UpdateUserRequest;
 import dev.dubrovsky.dto.request.user.UserLoginRequest;
@@ -88,7 +89,7 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public String loginUser(UserLoginRequest request) {
+    public SimpleTextResponse loginUser(UserLoginRequest request) {
 
         User user = userRepository.findByUsernameOrEmail(request.usernameOrEmail(), request.usernameOrEmail());
         if (user == null) {
@@ -98,11 +99,11 @@ public class UserService implements IUserService {
             throw new IllegalArgumentException("Неверный пароль");
         }
 
-        return "Вход выполнен";
+        return new SimpleTextResponse("Вход выполнен");
     }
 
     @Override
-    public String recoverPassword(String email) {
+    public SimpleTextResponse recoverPassword(String email) {
         User user = userRepository.findByEmail(email);
         if (user == null) {
             throw new IllegalArgumentException("Неверная почта, пользователь не найден");
@@ -111,7 +112,7 @@ public class UserService implements IUserService {
         user.setPassword(SimplePasswordEncoder.encode(tempPassword));
         userRepository.save(user);
 
-        return "Отправка временного пароля на почту " + email + ": " + tempPassword;
+        return new SimpleTextResponse("Отправка временного пароля на почту " + email + ": " + tempPassword);
     }
 
     @Override
