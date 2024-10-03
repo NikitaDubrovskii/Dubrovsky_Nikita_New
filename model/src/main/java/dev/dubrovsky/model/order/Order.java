@@ -1,5 +1,6 @@
 package dev.dubrovsky.model.order;
 
+import dev.dubrovsky.dto.response.order.OrderResponse;
 import dev.dubrovsky.model.payment.method.PaymentMethod;
 import dev.dubrovsky.model.user.User;
 import jakarta.persistence.*;
@@ -24,7 +25,7 @@ public class Order {
     private Integer id;
 
     @Column(name = "total_price")
-    private Integer totalPrice;
+    private Float totalPrice;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -43,7 +44,7 @@ public class Order {
     @OneToMany(mappedBy = "order")
     private List<OrderItem> orderItems;
 
-    public Order(Integer totalPrice, String address,
+    public Order(Float totalPrice, String address,
                  PaymentMethod paymentMethod, User user) {
         this.totalPrice = totalPrice;
         this.createdAt = LocalDateTime.now();
@@ -77,6 +78,10 @@ public class Order {
                 ", paymentMethodId='" + paymentMethod + '\'' +
                 ", userId=" + user +
                 '}';
+    }
+
+    public OrderResponse mapToResponse() {
+        return new OrderResponse(id, totalPrice, createdAt, address, paymentMethod.mapToResponse(), user.mapToResponse());
     }
 
 }

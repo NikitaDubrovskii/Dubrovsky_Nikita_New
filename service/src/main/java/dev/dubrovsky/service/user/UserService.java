@@ -1,5 +1,13 @@
 package dev.dubrovsky.service.user;
 
+import dev.dubrovsky.dto.SimpleTextResponse;
+import dev.dubrovsky.dto.request.user.NewUserRequest;
+import dev.dubrovsky.dto.request.user.UpdateUserRequest;
+import dev.dubrovsky.dto.request.user.UserLoginRequest;
+import dev.dubrovsky.dto.request.user.UserResetPasswordRequest;
+import dev.dubrovsky.dto.response.user.UserResponse;
+import dev.dubrovsky.exception.DbResponseErrorException;
+import dev.dubrovsky.exception.EntityNotFoundException;
 import dev.dubrovsky.model.user.User;
 import dev.dubrovsky.repository.user.UserRepository;
 import dev.dubrovsky.util.encoder.SimplePasswordEncoder;
@@ -8,6 +16,8 @@ import jakarta.persistence.NonUniqueResultException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,71 +28,82 @@ public class UserService implements IUserService {
     private final UserRepository userRepository;
 
     @Override
-    public User create(User user) {
-        validateUser(user);
-        checkUniqueUsername(user.getUsername());
-        checkUniqueEmail(user.getEmail());
+    public void create(NewUserRequest request) {
+        checkUniqueUsername(request.username());
+        checkUniqueEmail(request.email());
 
-        user.setPassword(SimplePasswordEncoder.encode(user.getPassword()));
-        return userRepository.save(user);
+        User user = new User();
+        user.setUsername(request.username());
+        user.setPassword(SimplePasswordEncoder.encode(request.password()));
+        user.setEmail(request.email());
+        user.setCreatedAt(LocalDateTime.now());
+
+        userRepository.save(user);
     }
 
     @Override
-    public User getById(Integer id) {
+    public UserResponse getById(Integer id) {
         ValidationUtil.checkId(id, userRepository);
 
-        return userRepository.findById(id).orElse(null);
+        User user = userRepository.findById(id).orElseThrow(DbResponseErrorException::new);
+        return user.mapToResponse();
     }
 
     @Override
-    public List<User> getAll() {
+    public List<UserResponse> getAll() {
         if (userRepository.findAll().isEmpty()) {
-            return null;
+            throw new EntityNotFoundException("По запросу ничего не найдено :(");
         } else {
-            return userRepository.findAll();
+            List<UserResponse> responses = new ArrayList<>();
+            List<User> all = userRepository.findAll();
+
+            all.forEach(user -> responses.add(user.mapToResponse()));
+
+            return responses;
         }
     }
 
     @Override
-    public User update(User user, Integer id) {
-        validateUser(user);
+    public void update(UpdateUserRequest request, Integer id) {
         ValidationUtil.checkId(id, userRepository);
 
-        User existingUser = userRepository.findById(id).orElse(null);
-        if (!existingUser.getUsername().equals(user.getUsername())) {
-            checkUniqueUsername(user.getUsername());
-        }
-        if (!existingUser.getEmail().equals(user.getEmail())) {
-            checkUniqueEmail(user.getEmail());
-        }
+        User user = userRepository.findById(id).orElseThrow(DbResponseErrorException::new);
 
+        if (request.username() != null && !request.username().isEmpty() && !request.username().equals(user.getUsername())) {
+            checkUniqueUsername(request.username());
+            user.setUsername(request.username());
+        }
+        if (request.email() != null && !request.email().isEmpty() && !request.email().equals(user.getEmail())) {
+            checkUniqueEmail(request.email());
+            user.setEmail(request.email());
+        }
         user.setId(id);
-        return userRepository.save(user);
+
+        userRepository.save(user);
     }
 
     @Override
-    public String delete(Integer id) {
+    public void delete(Integer id) {
         ValidationUtil.checkId(id, userRepository);
         userRepository.deleteById(id);
-
-        return "Удалено!";
     }
 
     @Override
-    public void loginUser(String usernameOrEmail, String password) {
-        User user = userRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail);
+    public SimpleTextResponse loginUser(UserLoginRequest request) {
+
+        User user = userRepository.findByUsernameOrEmail(request.usernameOrEmail(), request.usernameOrEmail());
         if (user == null) {
             throw new IllegalArgumentException("Неверно имя пользователя или почта");
         }
-        if (!SimplePasswordEncoder.matches(password, user.getPassword())) {
+        if (!SimplePasswordEncoder.matches(request.password(), user.getPassword())) {
             throw new IllegalArgumentException("Неверный пароль");
         }
 
-        System.out.println("Вход выполнен");
+        return new SimpleTextResponse("Вход выполнен");
     }
 
     @Override
-    public void recoverPassword(String email) {
+    public SimpleTextResponse recoverPassword(String email) {
         User user = userRepository.findByEmail(email);
         if (user == null) {
             throw new IllegalArgumentException("Неверная почта, пользователь не найден");
@@ -90,35 +111,21 @@ public class UserService implements IUserService {
         String tempPassword = generateTemporaryPassword();
         user.setPassword(SimplePasswordEncoder.encode(tempPassword));
         userRepository.save(user);
-        System.out.println("Отправка временного пароля на почту " + email + ": " + tempPassword);
+
+        return new SimpleTextResponse("Отправка временного пароля на почту " + email + ": " + tempPassword);
     }
 
     @Override
-    public void resetPassword(String usernameOrEmail, String oldPassword, String newPassword) {
-        User user = userRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail);
+    public void resetPassword(UserResetPasswordRequest request) {
+        User user = userRepository.findByUsernameOrEmail(request.usernameOrEmail(), request.usernameOrEmail());
         if (user == null) {
             throw new IllegalArgumentException("Неверно имя пользователя или почта");
         }
-        if (!SimplePasswordEncoder.matches(oldPassword, user.getPassword())) {
+        if (!SimplePasswordEncoder.matches(request.oldPassword(), user.getPassword())) {
             throw new IllegalArgumentException("Неверный пароль");
         }
-        user.setPassword(SimplePasswordEncoder.encode(newPassword));
+        user.setPassword(SimplePasswordEncoder.encode(request.newPassword()));
         userRepository.save(user);
-    }
-
-    private void validateUser(User user) {
-        if (user == null) {
-            throw new IllegalArgumentException("Пользователь не может отсутствовать");
-        }
-        if (user.getEmail() == null || user.getEmail().trim().isEmpty()) {
-            throw new IllegalArgumentException("Почта не может отсутствовать");
-        }
-        if (user.getPassword() == null || user.getPassword().trim().isEmpty()) {
-            throw new IllegalArgumentException("Пароль не может отсутствовать");
-        }
-        if (user.getUsername() == null || user.getUsername().trim().isEmpty()) {
-            throw new IllegalArgumentException("Имя не может отсутствовать");
-        }
     }
 
     private void checkUniqueUsername(String username) {

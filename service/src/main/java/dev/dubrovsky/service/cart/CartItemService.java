@@ -1,5 +1,10 @@
 package dev.dubrovsky.service.cart;
 
+import dev.dubrovsky.dto.request.cart.NewCartItemRequest;
+import dev.dubrovsky.dto.request.cart.UpdateCartItemRequest;
+import dev.dubrovsky.dto.response.cart.CartItemResponse;
+import dev.dubrovsky.exception.DbResponseErrorException;
+import dev.dubrovsky.exception.EntityNotFoundException;
 import dev.dubrovsky.model.cart.CartItem;
 import dev.dubrovsky.repository.cart.CartItemRepository;
 import dev.dubrovsky.repository.cart.CartRepository;
@@ -8,6 +13,7 @@ import dev.dubrovsky.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -19,56 +25,70 @@ public class CartItemService implements ICartItemService {
     private final ProductRepository productRepository;
 
     @Override
-    public CartItem create(CartItem cartItem) {
-        validateCartItem(cartItem);
-        ValidationUtil.checkEntityPresent(cartItem.getCart().getId(), cartRepository);
-        ValidationUtil.checkEntityPresent(cartItem.getProduct().getId(), productRepository);
+    public void create(NewCartItemRequest request) {
+        ValidationUtil.checkEntityPresent(request.cartId(), cartRepository);
+        ValidationUtil.checkEntityPresent(request.productId(), productRepository);
 
-        return cartItemRepository.save(cartItem);
+        CartItem cartItem = new CartItem();
+        cartItem.setQuantity(request.quantity());
+        cartItem.setCart(cartRepository
+                .findById(request.cartId())
+                .orElseThrow(DbResponseErrorException::new));
+        cartItem.setProduct(productRepository
+                .findById(request.productId())
+                .orElseThrow(DbResponseErrorException::new));
+
+        cartItemRepository.save(cartItem);
     }
 
     @Override
-    public CartItem getById(Integer id) {
+    public CartItemResponse getById(Integer id) {
         ValidationUtil.checkId(id, cartItemRepository);
 
-        return cartItemRepository.findById(id).orElse(null);
+        CartItem cartItem = cartItemRepository.findById(id).orElseThrow(DbResponseErrorException::new);
+        return cartItem.mapToResponse();
     }
 
     @Override
-    public List<CartItem> getAll() {
+    public List<CartItemResponse> getAll() {
         if (cartItemRepository.findAll().isEmpty()) {
-            return null;
+            throw new EntityNotFoundException("По запросу ничего не найдено :(");
         } else {
-            return cartItemRepository.findAll();
+            List<CartItemResponse> responses = new ArrayList<>();
+            List<CartItem> all = cartItemRepository.findAll();
+
+            all.forEach(cartItem -> responses.add(cartItem.mapToResponse()));
+
+            return responses;
         }
     }
 
     @Override
-    public CartItem update(CartItem cartItem, Integer id) {
-        validateCartItem(cartItem);
-        ValidationUtil.checkEntityPresent(cartItem.getCart().getId(), cartRepository);
-        ValidationUtil.checkEntityPresent(cartItem.getProduct().getId(), productRepository);
+    public void update(UpdateCartItemRequest request, Integer id) {
         ValidationUtil.checkId(id, cartItemRepository);
 
+        CartItem cartItem = cartItemRepository.findById(id).orElseThrow(DbResponseErrorException::new);
+
+        if (request.quantity() != null && request.quantity() != 0) {
+            cartItem.setQuantity(request.quantity());
+        }
+        if (request.productId() != null && request.productId() != 0) {
+            ValidationUtil.checkEntityPresent(request.productId(), productRepository);
+            cartItem.setProduct(productRepository.findById(request.productId()).orElseThrow(DbResponseErrorException::new));
+        }
+        if (request.cartId() != null && request.cartId() != 0) {
+            ValidationUtil.checkEntityPresent(request.cartId(), cartRepository);
+            cartItem.setCart(cartRepository.findById(request.cartId()).orElseThrow(DbResponseErrorException::new));
+        }
         cartItem.setId(id);
-        return cartItemRepository.save(cartItem);
+
+        cartItemRepository.save(cartItem);
     }
 
     @Override
-    public String delete(Integer id) {
+    public void delete(Integer id) {
         ValidationUtil.checkId(id, cartItemRepository);
         cartItemRepository.deleteById(id);
-
-        return "Удалено!";
-    }
-
-    private void validateCartItem(CartItem cartItem) {
-        if (cartItem == null) {
-            throw new IllegalArgumentException("Предмет в корзине не может отсутствовать");
-        }
-        if (cartItem.getQuantity() == null || cartItem.getQuantity() <= 0) {
-            throw new IllegalArgumentException("Количество не может отсутствовать");
-        }
     }
 
 }

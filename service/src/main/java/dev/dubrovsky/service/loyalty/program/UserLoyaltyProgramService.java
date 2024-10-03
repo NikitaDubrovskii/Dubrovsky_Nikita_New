@@ -1,15 +1,24 @@
 package dev.dubrovsky.service.loyalty.program;
 
+import dev.dubrovsky.dto.request.loyalty.program.NewUserLoyaltyProgramRequest;
+import dev.dubrovsky.dto.response.loyalty.program.LoyaltyProgramResponse;
+import dev.dubrovsky.dto.response.loyalty.program.UserLoyaltyProgramResponse;
+import dev.dubrovsky.dto.response.user.UserResponse;
+import dev.dubrovsky.exception.DbResponseErrorException;
+import dev.dubrovsky.exception.EntityNotFoundException;
+import dev.dubrovsky.model.loyalty.program.LoyaltyProgram;
 import dev.dubrovsky.model.loyalty.program.UserLoyaltyProgram;
 import dev.dubrovsky.model.loyalty.program.UserLoyaltyProgramId;
+import dev.dubrovsky.model.user.User;
 import dev.dubrovsky.repository.loyalty.program.LoyaltyProgramRepository;
 import dev.dubrovsky.repository.loyalty.program.UserLoyaltyProgramRepository;
 import dev.dubrovsky.repository.user.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -20,19 +29,30 @@ public class UserLoyaltyProgramService implements IUserLoyaltyProgramService {
     private final LoyaltyProgramRepository loyaltyProgramRepository;
 
     @Override
-    public void create(UserLoyaltyProgram userLoyaltyProgram) {
-        validateUserLoyaltyProgram(userLoyaltyProgram);
-        checkId(userLoyaltyProgram.getUserLoyaltyProgramId().getUserId(), userLoyaltyProgram.getUserLoyaltyProgramId().getProgramId());
+    public void create(NewUserLoyaltyProgramRequest request) {
+        checkId(request.userId(), request.programId());
+
+        UserLoyaltyProgram userLoyaltyProgram = new UserLoyaltyProgram();
+        UserLoyaltyProgramId userLoyaltyProgramId = new UserLoyaltyProgramId();
+        userLoyaltyProgramId.setProgramId(request.programId());
+        userLoyaltyProgramId.setUserId(request.userId());
+        userLoyaltyProgram.setUserLoyaltyProgramId(userLoyaltyProgramId);
+        userLoyaltyProgram.setReceivedAt(LocalDateTime.now());
 
         userLoyaltyProgramRepository.save(userLoyaltyProgram);
     }
 
     @Override
-    public void getAll() {
+    public List<UserLoyaltyProgramResponse> getAll() {
         if (userLoyaltyProgramRepository.findAll().isEmpty()) {
-            System.out.println("Таблица программ лояльности пользователя пустая");
+            throw new EntityNotFoundException("По запросу ничего не найдено :(");
         } else {
-            userLoyaltyProgramRepository.findAll().forEach(System.out::println);
+            List<UserLoyaltyProgramResponse> responses = new ArrayList<>();
+            List<UserLoyaltyProgram> all = userLoyaltyProgramRepository.findAll();
+
+            all.forEach(userLoyaltyProgram -> responses.add(mapToResponse(userLoyaltyProgram)));
+
+            return responses;
         }
     }
 
@@ -44,32 +64,30 @@ public class UserLoyaltyProgramService implements IUserLoyaltyProgramService {
         userLoyaltyProgramRepository.deleteById(userLoyaltyProgramId);
     }
 
-    private void validateUserLoyaltyProgram(UserLoyaltyProgram userLoyaltyProgram) {
-        if (userLoyaltyProgram == null) {
-            throw new IllegalArgumentException("Программа лояльности пользователя не может быть пустой");
-        }
-    }
-
     private void checkId(Integer userId, Integer programId) {
         if (userId > 0) {
             userRepository
                     .findById(userId)
-                    .orElseThrow(() -> new NoSuchElementException("Пользователь не найден с id: " + userId));
-            /*Optional
-                    .ofNullable(userRepository.getById(userId))
-                    .orElseThrow(() -> new NoSuchElementException("Пользователь не найден с id: " + userId));*/
+                    .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден с id: " + userId));
         }
         if (programId > 0) {
             loyaltyProgramRepository
                     .findById(programId)
-                    .orElseThrow(() -> new NoSuchElementException("Программа лояльности не найдена с id: " + programId));
-            /*Optional
-                    .ofNullable(loyaltyProgramRepository.getById(programId))
-                    .orElseThrow(() -> new NoSuchElementException("Программа лояльности не найдена с id: " + programId));*/
+                    .orElseThrow(() -> new EntityNotFoundException("Программа лояльности не найдена с id: " + programId));
         }
         if (userId < 1 || programId < 1) {
             throw new IllegalArgumentException("Id должен быть больше 0");
         }
+    }
+
+    private UserLoyaltyProgramResponse mapToResponse(UserLoyaltyProgram userLoyaltyProgram) {
+        User user = userRepository.findById(userLoyaltyProgram.getUserLoyaltyProgramId().getUserId()).orElseThrow(DbResponseErrorException::new);
+        LoyaltyProgram loyaltyProgram = loyaltyProgramRepository.findById(userLoyaltyProgram.getUserLoyaltyProgramId().getProgramId()).orElseThrow(DbResponseErrorException::new);
+
+        UserResponse userResponse = user.mapToResponse();
+        LoyaltyProgramResponse loyaltyProgramResponse = loyaltyProgram.mapToResponse();
+
+        return new UserLoyaltyProgramResponse(userResponse, loyaltyProgramResponse, userLoyaltyProgram.getReceivedAt());
     }
 
 }

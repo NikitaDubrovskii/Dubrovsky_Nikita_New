@@ -1,5 +1,10 @@
 package dev.dubrovsky.service.analytics;
 
+import dev.dubrovsky.dto.request.analytics.NewAnalyticsRequest;
+import dev.dubrovsky.dto.request.analytics.UpdateAnalyticsRequest;
+import dev.dubrovsky.dto.response.analytics.AnalyticsResponse;
+import dev.dubrovsky.exception.DbResponseErrorException;
+import dev.dubrovsky.exception.EntityNotFoundException;
 import dev.dubrovsky.model.analytics.Analytics;
 import dev.dubrovsky.repository.analytics.AnalyticsRepository;
 import dev.dubrovsky.repository.user.UserRepository;
@@ -7,8 +12,9 @@ import dev.dubrovsky.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -18,52 +24,63 @@ public class AnalyticsService implements IAnalyticsService {
     private final UserRepository userRepository;
 
     @Override
-    public Analytics create(Analytics analytics) {
-        validateAnalytics(analytics);
-        ValidationUtil.checkEntityPresent(analytics.getUser().getId(), userRepository);
+    public void create(NewAnalyticsRequest request) {
+        ValidationUtil.checkEntityPresent(request.userId(), userRepository);
 
-        return analyticsRepository.save(analytics);
+        Analytics analytics = new Analytics();
+        analytics.setActivity(request.activity());
+        analytics.setUser(userRepository
+                .findById(request.userId())
+                .orElseThrow(DbResponseErrorException::new));
+        analytics.setTimestamp(LocalDateTime.now());
+
+        analyticsRepository.save(analytics);
     }
 
     @Override
-    public Analytics getById(Integer id) {
+    public AnalyticsResponse getById(Integer id) {
         ValidationUtil.checkId(id, analyticsRepository);
 
-        return analyticsRepository.findById(id).orElse(null);
+        Analytics analytics = analyticsRepository.findById(id).orElseThrow(DbResponseErrorException::new);
+        return analytics.mapToResponse();
     }
 
     @Override
-    public List<Analytics> getAll() {
+    public List<AnalyticsResponse> getAll() {
         if (analyticsRepository.findAll().isEmpty()) {
-            return null;
+            throw new EntityNotFoundException("По запросу ничего не найдено :(");
         } else {
-            return analyticsRepository.findAll();
+            List<AnalyticsResponse> responses = new ArrayList<>();
+            List<Analytics> all = analyticsRepository.findAll();
+
+            all.forEach(analytics -> responses.add(analytics.mapToResponse()));
+
+            return responses;
         }
     }
 
     @Override
-    public Analytics update(Analytics analytics, Integer id) {
-        validateAnalytics(analytics);
+    public void update(UpdateAnalyticsRequest request, Integer id) {
         ValidationUtil.checkId(id, analyticsRepository);
-        ValidationUtil.checkEntityPresent(analytics.getUser().getId(), userRepository);
 
+        Analytics analytics = analyticsRepository.findById(id).orElseThrow(DbResponseErrorException::new);
+
+        if (request.activity() != null && !request.activity().isEmpty()) {
+            analytics.setActivity(request.activity());
+        }
+        if (request.userId() != null && request.userId() != 0) {
+            ValidationUtil.checkEntityPresent(request.userId(), userRepository);
+            analytics.setUser(userRepository.findById(request.userId()).orElseThrow(DbResponseErrorException::new));
+        }
         analytics.setId(id);
 
-        return analyticsRepository.save(analytics);
+        analyticsRepository.save(analytics);
     }
 
     @Override
-    public String delete(Integer id) {
+    public void delete(Integer id) {
         ValidationUtil.checkId(id, analyticsRepository);
-
         analyticsRepository.deleteById(id);
-        return "Удалено!";
-    }
-
-    private void validateAnalytics(Analytics analytics) {
-        if (analytics == null) {
-            throw new IllegalArgumentException("Аналитика не может отсутствовать");
-        }
     }
 
 }

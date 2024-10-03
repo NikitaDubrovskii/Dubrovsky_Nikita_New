@@ -1,5 +1,10 @@
 package dev.dubrovsky.service.order;
 
+import dev.dubrovsky.dto.request.order.NewOrderItemRequest;
+import dev.dubrovsky.dto.request.order.UpdateOrderItemRequest;
+import dev.dubrovsky.dto.response.order.OrderItemResponse;
+import dev.dubrovsky.exception.DbResponseErrorException;
+import dev.dubrovsky.exception.EntityNotFoundException;
 import dev.dubrovsky.model.order.OrderItem;
 import dev.dubrovsky.repository.order.OrderItemRepository;
 import dev.dubrovsky.repository.order.OrderRepository;
@@ -8,6 +13,7 @@ import dev.dubrovsky.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -19,56 +25,70 @@ public class OrderItemService implements IOrderItemService {
     private final ProductRepository productRepository;
 
     @Override
-    public OrderItem create(OrderItem orderItem) {
-        validateOrderItem(orderItem);
-        ValidationUtil.checkEntityPresent(orderItem.getOrder().getId(), orderRepository);
-        ValidationUtil.checkEntityPresent(orderItem.getProduct().getId(), productRepository);
+    public void create(NewOrderItemRequest request) {
+        ValidationUtil.checkEntityPresent(request.orderId(), orderRepository);
+        ValidationUtil.checkEntityPresent(request.productId(), productRepository);
 
-        return orderItemRepository.save(orderItem);
+        OrderItem orderItem = new OrderItem();
+        orderItem.setQuantity(request.quantity());
+        orderItem.setOrder(orderRepository
+                .findById(request.orderId())
+                .orElseThrow(DbResponseErrorException::new));
+        orderItem.setProduct(productRepository
+                .findById(request.productId())
+                .orElseThrow(DbResponseErrorException::new));
+
+        orderItemRepository.save(orderItem);
     }
 
     @Override
-    public OrderItem getById(Integer id) {
+    public OrderItemResponse getById(Integer id) {
         ValidationUtil.checkId(id, orderItemRepository);
 
-        return orderItemRepository.findById(id).orElse(null);
+        OrderItem orderItem = orderItemRepository.findById(id).orElseThrow(DbResponseErrorException::new);
+        return orderItem.mapToResponse();
     }
 
     @Override
-    public List<OrderItem> getAll() {
+    public List<OrderItemResponse> getAll() {
         if (orderItemRepository.findAll().isEmpty()) {
-            return null;
+            throw new EntityNotFoundException("По запросу ничего не найдено :(");
         } else {
-            return orderItemRepository.findAll();
+            List<OrderItemResponse> responses = new ArrayList<>();
+            List<OrderItem> all = orderItemRepository.findAll();
+
+            all.forEach(orderItem -> responses.add(orderItem.mapToResponse()));
+
+            return responses;
         }
     }
 
     @Override
-    public OrderItem update(OrderItem orderItem, Integer id) {
-        validateOrderItem(orderItem);
-        ValidationUtil.checkEntityPresent(orderItem.getOrder().getId(), orderRepository);
-        ValidationUtil.checkEntityPresent(orderItem.getProduct().getId(), productRepository);
+    public void update(UpdateOrderItemRequest request, Integer id) {
         ValidationUtil.checkId(id, orderItemRepository);
 
+        OrderItem orderItem = orderItemRepository.findById(id).orElseThrow(DbResponseErrorException::new);
+
+        if (request.quantity() != null && request.quantity() > 0) {
+            orderItem.setQuantity(request.quantity());
+        }
+        if (request.productId() != null && request.productId() > 0) {
+            ValidationUtil.checkEntityPresent(request.productId(), productRepository);
+            orderItem.setProduct(productRepository.findById(request.productId()).orElseThrow(DbResponseErrorException::new));
+        }
+        if (request.orderId() != null && request.orderId() > 0) {
+            ValidationUtil.checkEntityPresent(request.orderId(), orderRepository);
+            orderItem.setOrder(orderRepository.findById(request.orderId()).orElseThrow(DbResponseErrorException::new));
+        }
         orderItem.setId(id);
-        return orderItemRepository.save(orderItem);
+
+        orderItemRepository.save(orderItem);
     }
 
     @Override
-    public String delete(Integer id) {
+    public void delete(Integer id) {
         ValidationUtil.checkId(id, orderItemRepository);
         orderItemRepository.deleteById(id);
-
-        return "Удалено!";
-    }
-
-    private void validateOrderItem(OrderItem orderItem) {
-        if (orderItem == null) {
-            throw new IllegalArgumentException("Предмет в заказе не может отсутствовать");
-        }
-        if (orderItem.getQuantity() == null || orderItem.getQuantity() <= 0) {
-            throw new IllegalArgumentException("Количество не может отсутствовать");
-        }
     }
 
 }

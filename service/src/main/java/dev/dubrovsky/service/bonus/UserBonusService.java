@@ -1,14 +1,24 @@
 package dev.dubrovsky.service.bonus;
 
+import dev.dubrovsky.dto.request.bonus.NewUserBonusRequest;
+import dev.dubrovsky.dto.response.bonus.BonusResponse;
+import dev.dubrovsky.dto.response.bonus.UserBonusResponse;
+import dev.dubrovsky.dto.response.user.UserResponse;
+import dev.dubrovsky.exception.DbResponseErrorException;
+import dev.dubrovsky.exception.EntityNotFoundException;
+import dev.dubrovsky.model.bonus.Bonus;
 import dev.dubrovsky.model.bonus.UserBonus;
 import dev.dubrovsky.model.bonus.UserBonusId;
+import dev.dubrovsky.model.user.User;
 import dev.dubrovsky.repository.bonus.BonusRepository;
 import dev.dubrovsky.repository.bonus.UserBonusRepository;
 import dev.dubrovsky.repository.user.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.NoSuchElementException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -19,19 +29,30 @@ public class UserBonusService implements IUserBonusService {
     private final BonusRepository bonusRepository;
 
     @Override
-    public void create(UserBonus userBonus) {
-        validateUserBonus(userBonus);
-        checkId(userBonus.getUserBonusId().getUserId(), userBonus.getUserBonusId().getBonusId());
+    public void create(NewUserBonusRequest request) {
+        checkId(request.bonusId(), request.userId());
+
+        UserBonus userBonus = new UserBonus();
+        UserBonusId userBonusId = new UserBonusId();
+        userBonusId.setBonusId(request.bonusId());
+        userBonusId.setUserId(request.userId());
+        userBonus.setUserBonusId(userBonusId);
+        userBonus.setReceivedAt(LocalDateTime.now());
 
         userBonusRepository.save(userBonus);
     }
 
     @Override
-    public void getAll() {
+    public List<UserBonusResponse> getAll() {
         if (userBonusRepository.findAll().isEmpty()) {
-            System.out.println("Таблица бонусов пользователей пустая");
+            throw new EntityNotFoundException("По запросу ничего не найдено :(");
         } else {
-            userBonusRepository.findAll().forEach(System.out::println);
+            List<UserBonusResponse> responses = new ArrayList<>();
+            List<UserBonus> all = userBonusRepository.findAll();
+
+            all.forEach(userBonus -> responses.add(mapToResponse(userBonus)));
+
+            return responses;
         }
     }
 
@@ -43,32 +64,30 @@ public class UserBonusService implements IUserBonusService {
         userBonusRepository.deleteById(userBonusId);
     }
 
-    private void validateUserBonus(UserBonus userBonus) {
-        if (userBonus == null) {
-            throw new IllegalArgumentException("Бонус пользователя не может отсутствовать");
-        }
-    }
-
     private void checkId(Integer userId, Integer bonusId) {
         if (userId > 0) {
             userRepository
                     .findById(userId)
-                    .orElseThrow(() -> new NoSuchElementException("Пользователь не найден с id: " + userId));
-            /*Optional
-                    .of(userRepository.getById(userId))
-                    .orElseThrow(() -> new NoSuchElementException("Пользователь не найден с id: " + userId));*/
+                    .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден с id: " + userId));
         }
         if (bonusId > 0) {
             bonusRepository
                     .findById(bonusId)
-                    .orElseThrow(() -> new NoSuchElementException("Бонус не найден с id: " + userId));
-            /*Optional
-                    .ofNullable(bonusRepository.getById(bonusId))
-                    .orElseThrow(() -> new NoSuchElementException("Бонус не найден с id: " + userId));*/
+                    .orElseThrow(() -> new EntityNotFoundException("Бонус не найден с id: " + userId));
         }
         if (userId < 1 || bonusId < 1) {
             throw new IllegalArgumentException("Id должен быть больше 0");
         }
+    }
+
+    private UserBonusResponse mapToResponse(UserBonus userBonus) {
+        User user = userRepository.findById(userBonus.getUserBonusId().getUserId()).orElseThrow(DbResponseErrorException::new);
+        Bonus bonus = bonusRepository.findById(userBonus.getUserBonusId().getBonusId()).orElseThrow(DbResponseErrorException::new);
+
+        UserResponse userResponse = user.mapToResponse();
+        BonusResponse bonusResponse = bonus.mapToResponse();
+
+        return new UserBonusResponse(userResponse, bonusResponse, userBonus.getReceivedAt());
     }
 
 }

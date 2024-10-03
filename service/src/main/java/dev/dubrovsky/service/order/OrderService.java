@@ -1,5 +1,10 @@
 package dev.dubrovsky.service.order;
 
+import dev.dubrovsky.dto.request.order.NewOrderRequest;
+import dev.dubrovsky.dto.request.order.UpdateOrderRequest;
+import dev.dubrovsky.dto.response.order.OrderResponse;
+import dev.dubrovsky.exception.DbResponseErrorException;
+import dev.dubrovsky.exception.EntityNotFoundException;
 import dev.dubrovsky.model.order.Order;
 import dev.dubrovsky.repository.order.OrderRepository;
 import dev.dubrovsky.repository.payment.method.PaymentMethodRepository;
@@ -8,6 +13,8 @@ import dev.dubrovsky.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -19,59 +26,77 @@ public class OrderService implements IOrderService {
     private final UserRepository userRepository;
 
     @Override
-    public Order create(Order order) {
-        validateOrder(order);
-        ValidationUtil.checkEntityPresent(order.getUser().getId(), userRepository);
-        ValidationUtil.checkEntityPresent(order.getPaymentMethod().getId(), paymentMethodRepository);
+    public void create(NewOrderRequest request) {
+        ValidationUtil.checkEntityPresent(request.userId(), userRepository);
+        ValidationUtil.checkEntityPresent(request.paymentMethodId(), paymentMethodRepository);
 
-        return orderRepository.save(order);
+        Order order = new Order();
+        order.setTotalPrice(request.totalPrice());
+        if (request.address() != null && !request.address().isEmpty()) {
+            order.setAddress(request.address());
+        }
+        order.setPaymentMethod(paymentMethodRepository
+                .findById(request.paymentMethodId())
+                .orElseThrow(DbResponseErrorException::new));
+        order.setUser(userRepository
+                .findById(request.userId())
+                .orElseThrow(DbResponseErrorException::new));
+        order.setCreatedAt(LocalDateTime.now());
+
+        orderRepository.save(order);
     }
 
     @Override
-    public Order getById(Integer id) {
+    public OrderResponse getById(Integer id) {
         ValidationUtil.checkId(id, orderRepository);
 
-        return orderRepository.findById(id).orElse(null);
+        Order order = orderRepository.findById(id).orElseThrow(DbResponseErrorException::new);
+        return order.mapToResponse();
     }
 
     @Override
-    public List<Order> getAll() {
+    public List<OrderResponse> getAll() {
         if (orderRepository.findAll().isEmpty()) {
-            return null;
+            throw new EntityNotFoundException("По запросу ничего не найдено :(");
         } else {
-            return orderRepository.findAll();
+            List<OrderResponse> responses = new ArrayList<>();
+            List<Order> all = orderRepository.findAll();
+
+            all.forEach(order -> responses.add(order.mapToResponse()));
+
+            return responses;
         }
     }
 
     @Override
-    public Order update(Order order, Integer id) {
-        validateOrder(order);
-        ValidationUtil.checkEntityPresent(order.getUser().getId(), userRepository);
-        ValidationUtil.checkEntityPresent(order.getPaymentMethod().getId(), paymentMethodRepository);
+    public void update(UpdateOrderRequest request, Integer id) {
         ValidationUtil.checkId(id, orderRepository);
 
+        Order order = orderRepository.findById(id).orElseThrow(DbResponseErrorException::new);
+
+        if (request.totalPrice() != null && request.totalPrice() > 0) {
+            order.setTotalPrice(request.totalPrice());
+        }
+        if (request.address() != null && !request.address().isEmpty()) {
+            order.setAddress(request.address());
+        }
+        if (request.paymentMethodId() != null && request.paymentMethodId() > 0) {
+            ValidationUtil.checkEntityPresent(request.paymentMethodId(), paymentMethodRepository);
+            order.setPaymentMethod(paymentMethodRepository.findById(request.paymentMethodId()).orElseThrow(DbResponseErrorException::new));
+        }
+        if (request.userId() != null && request.userId() > 0) {
+            ValidationUtil.checkEntityPresent(request.userId(), userRepository);
+            order.setUser(userRepository.findById(request.userId()).orElseThrow(DbResponseErrorException::new));
+        }
         order.setId(id);
-        return orderRepository.save(order);
+
+        orderRepository.save(order);
     }
 
     @Override
-    public String delete(Integer id) {
+    public void delete(Integer id) {
         ValidationUtil.checkId(id, orderRepository);
         orderRepository.deleteById(id);
-
-        return "Удалено!";
-    }
-
-    private void validateOrder(Order order) {
-        if (order == null) {
-            throw new IllegalArgumentException("Заказ не может отсутствовать");
-        }
-        if (order.getTotalPrice() == null || order.getTotalPrice() < 1) {
-            throw new IllegalArgumentException("Цена не может быть пустой");
-        }
-        if (order.getAddress() == null || order.getAddress().trim().isEmpty()) {
-            throw new IllegalArgumentException("Адрес не может быть пустой");
-        }
     }
 
 }

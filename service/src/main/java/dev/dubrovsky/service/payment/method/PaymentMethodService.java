@@ -1,11 +1,17 @@
 package dev.dubrovsky.service.payment.method;
 
+import dev.dubrovsky.dto.request.payment.method.NewPaymentMethodRequest;
+import dev.dubrovsky.dto.request.payment.method.UpdatePaymentMethodRequest;
+import dev.dubrovsky.dto.response.payment.method.PaymentMethodResponse;
+import dev.dubrovsky.exception.DbResponseErrorException;
+import dev.dubrovsky.exception.EntityNotFoundException;
 import dev.dubrovsky.model.payment.method.PaymentMethod;
 import dev.dubrovsky.repository.payment.method.PaymentMethodRepository;
 import dev.dubrovsky.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -15,49 +21,53 @@ public class PaymentMethodService implements IPaymentMethodService {
     private final PaymentMethodRepository paymentMethodRepository;
 
     @Override
-    public PaymentMethod create(PaymentMethod paymentMethod) {
-        validatePaymentMethod(paymentMethod);
+    public void create(NewPaymentMethodRequest request) {
+        PaymentMethod paymentMethod = new PaymentMethod();
+        paymentMethod.setMethod(request.method());
 
-        return paymentMethodRepository.save(paymentMethod);
+        paymentMethodRepository.save(paymentMethod);
     }
 
     @Override
-    public PaymentMethod getById(Integer id) {
+    public PaymentMethodResponse getById(Integer id) {
         ValidationUtil.checkId(id, paymentMethodRepository);
 
-        return paymentMethodRepository.findById(id).orElse(null);
+        PaymentMethod paymentMethod = paymentMethodRepository.findById(id).orElseThrow(DbResponseErrorException::new);
+        return paymentMethod.mapToResponse();
     }
 
     @Override
-    public List<PaymentMethod> getAll() {
+    public List<PaymentMethodResponse> getAll() {
         if (paymentMethodRepository.findAll().isEmpty()) {
-            return null;
+            throw new EntityNotFoundException("По запросу ничего не найдено :(");
         } else {
-            return paymentMethodRepository.findAll();
+            List<PaymentMethodResponse> responses = new ArrayList<>();
+            List<PaymentMethod> all = paymentMethodRepository.findAll();
+
+            all.forEach(paymentMethod -> responses.add(paymentMethod.mapToResponse()));
+
+            return responses;
         }
     }
 
     @Override
-    public PaymentMethod update(PaymentMethod paymentMethod, Integer id) {
-        validatePaymentMethod(paymentMethod);
+    public void update(UpdatePaymentMethodRequest request, Integer id) {
         ValidationUtil.checkId(id, paymentMethodRepository);
 
+        PaymentMethod paymentMethod = paymentMethodRepository.findById(id).orElseThrow(DbResponseErrorException::new);
+
+        if (request.method() != null && !request.method().isEmpty()) {
+            paymentMethod.setMethod(request.method());
+        }
         paymentMethod.setId(id);
-        return paymentMethodRepository.save(paymentMethod);
+
+        paymentMethodRepository.save(paymentMethod);
     }
 
     @Override
-    public String delete(Integer id) {
+    public void delete(Integer id) {
         ValidationUtil.checkId(id, paymentMethodRepository);
         paymentMethodRepository.deleteById(id);
-
-        return "Удалено!";
-    }
-
-    private void validatePaymentMethod(PaymentMethod paymentMethod) {
-        if (paymentMethod == null) {
-            throw new IllegalArgumentException("Способ оплаты не может отсутствовать");
-        }
     }
 
 }

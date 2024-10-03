@@ -1,5 +1,10 @@
 package dev.dubrovsky.service.cart;
 
+import dev.dubrovsky.dto.request.cart.NewCartRequest;
+import dev.dubrovsky.dto.request.cart.UpdateCartRequest;
+import dev.dubrovsky.dto.response.cart.CartResponse;
+import dev.dubrovsky.exception.DbResponseErrorException;
+import dev.dubrovsky.exception.EntityNotFoundException;
 import dev.dubrovsky.model.cart.Cart;
 import dev.dubrovsky.model.cart.CartItem;
 import dev.dubrovsky.model.product.Product;
@@ -11,6 +16,7 @@ import dev.dubrovsky.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -23,70 +29,77 @@ public class CartService implements ICartService {
     private final ProductRepository productRepository;
 
     @Override
-    public Cart create(Cart cart) {
-        validateCart(cart);
-        ValidationUtil.checkEntityPresent(cart.getUser().getId(), userRepository);
+    public void create(NewCartRequest request) {
+        ValidationUtil.checkEntityPresent(request.userId(), userRepository);
 
-        return cartRepository.save(cart);
+        Cart cart = new Cart();
+        cart.setUser(userRepository.
+                findById(request.userId()).
+                orElseThrow(DbResponseErrorException::new));
+
+        cartRepository.save(cart);
     }
 
     @Override
-    public Cart getById(Integer id) {
+    public CartResponse getById(Integer id) {
         ValidationUtil.checkId(id, cartRepository);
 
-        return cartRepository.findById(id).orElse(null);
+        Cart cart = cartRepository.findById(id).orElseThrow(DbResponseErrorException::new);
+        return cart.mapToResponse();
     }
 
     @Override
-    public List<Cart> getAll() {
+    public List<CartResponse> getAll() {
         if (cartRepository.findAll().isEmpty()) {
-            return null;
+            throw new EntityNotFoundException("По запросу ничего не найдено :(");
         } else {
-            return cartRepository.findAll();
+            List<CartResponse> responses = new ArrayList<>();
+            List<Cart> all = cartRepository.findAll();
+
+            all.forEach(cart -> responses.add(cart.mapToResponse()));
+
+            return responses;
         }
     }
 
     @Override
-    public Cart update(Cart cart, Integer id) {
-        validateCart(cart);
-        ValidationUtil.checkEntityPresent(cart.getUser().getId(), userRepository);
+    public void update(UpdateCartRequest request, Integer id) {
         ValidationUtil.checkId(id, cartRepository);
 
+        Cart cart = cartRepository.findById(id).orElseThrow(DbResponseErrorException::new);
+
+        if (request.userId() != null && request.userId() != 0) {
+            ValidationUtil.checkEntityPresent(request.userId(), userRepository);
+            cart.setUser(userRepository.findById(request.userId()).orElseThrow(DbResponseErrorException::new));
+        }
         cart.setId(id);
-        return cartRepository.save(cart);
+
+        cartRepository.save(cart);
     }
 
     @Override
-    public String delete(Integer id) {
+    public void delete(Integer id) {
         ValidationUtil.checkId(id, cartRepository);
-
         cartRepository.deleteById(id);
-        return "Удалено";
     }
 
     @Override
-    public void getTotalPrice(Integer id) {
+    public Float getTotalPrice(Integer id) {
         float totalPrice = 0;
         List<CartItem> allByCartId = cartItemRepository.findAllByCartId(id);
         if (allByCartId.isEmpty()) {
-            throw new IllegalArgumentException("Корзины не существует с id: " + id);
+            throw new EntityNotFoundException("Корзины не существует с id: " + id);
         }
         for (CartItem cartItem : allByCartId) {
             Integer productId = cartItem.getProduct().getId();
-            Product product = productRepository.findById(productId).orElse(null);
+            Product product = productRepository.findById(productId).orElseThrow(DbResponseErrorException::new);
             if (product != null) {
                 float i = product.getPrice() * cartItem.getQuantity();
                 totalPrice += i;
             }
         }
 
-        System.out.println(totalPrice);
-    }
-
-    private void validateCart(Cart cart) {
-        if (cart == null) {
-            throw new IllegalArgumentException("Корзина не может отсутствовать");
-        }
+        return totalPrice;
     }
 
 }
