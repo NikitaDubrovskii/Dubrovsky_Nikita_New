@@ -1,10 +1,18 @@
 package dev.dubrovsky.dto.request.category;
 
-public record UpdateCategoryRequest(
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-        String name,
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class UpdateCategoryRequest {
 
-        String description
+    String name;
 
-) {
+    String description;
+
 }

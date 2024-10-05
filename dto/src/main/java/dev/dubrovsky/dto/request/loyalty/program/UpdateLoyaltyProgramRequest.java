@@ -1,10 +1,18 @@
 package dev.dubrovsky.dto.request.loyalty.program;
 
-public record UpdateLoyaltyProgramRequest(
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-        String name,
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class UpdateLoyaltyProgramRequest {
 
-        String description
+    String name;
 
-) {
+    String description;
+
 }

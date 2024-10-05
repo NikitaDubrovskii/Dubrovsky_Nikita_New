@@ -1,14 +1,22 @@
 package dev.dubrovsky.dto.request.bonus;
 
-public record UpdateBonusRequest(
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-        String name,
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class UpdateBonusRequest{
 
-        String description,
+    String name;
 
-        Integer points,
+    String description;
 
-        Integer programId
+    Integer points;
 
-) {
+    Integer programId;
+
 }
