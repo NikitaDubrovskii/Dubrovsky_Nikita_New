@@ -11,6 +11,7 @@ import dev.dubrovsky.repository.cart.CartRepository;
 import dev.dubrovsky.repository.product.ProductRepository;
 import dev.dubrovsky.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -24,18 +25,19 @@ public class CartItemService implements ICartItemService {
     private final CartRepository cartRepository;
     private final ProductRepository productRepository;
 
+    private final ModelMapper mapper = new ModelMapper();
+
     @Override
     public void create(NewCartItemRequest request) {
-        ValidationUtil.checkEntityPresent(request.cartId(), cartRepository);
-        ValidationUtil.checkEntityPresent(request.productId(), productRepository);
+        ValidationUtil.checkEntityPresent(request.getCartId(), cartRepository);
+        ValidationUtil.checkEntityPresent(request.getProductId(), productRepository);
 
-        CartItem cartItem = new CartItem();
-        cartItem.setQuantity(request.quantity());
+        CartItem cartItem = mapper.map(request, CartItem.class);
         cartItem.setCart(cartRepository
-                .findById(request.cartId())
+                .findById(request.getCartId())
                 .orElseThrow(DbResponseErrorException::new));
         cartItem.setProduct(productRepository
-                .findById(request.productId())
+                .findById(request.getProductId())
                 .orElseThrow(DbResponseErrorException::new));
 
         cartItemRepository.save(cartItem);
@@ -69,16 +71,16 @@ public class CartItemService implements ICartItemService {
 
         CartItem cartItem = cartItemRepository.findById(id).orElseThrow(DbResponseErrorException::new);
 
-        if (request.quantity() != null && request.quantity() != 0) {
-            cartItem.setQuantity(request.quantity());
+        if (request.getQuantity() != null && request.getQuantity() != 0) {
+            cartItem.setQuantity(request.getQuantity());
         }
-        if (request.productId() != null && request.productId() != 0) {
-            ValidationUtil.checkEntityPresent(request.productId(), productRepository);
-            cartItem.setProduct(productRepository.findById(request.productId()).orElseThrow(DbResponseErrorException::new));
+        if (request.getProductId() != null && request.getProductId() != 0) {
+            ValidationUtil.checkEntityPresent(request.getProductId(), productRepository);
+            cartItem.setProduct(productRepository.findById(request.getProductId()).orElseThrow(DbResponseErrorException::new));
         }
-        if (request.cartId() != null && request.cartId() != 0) {
-            ValidationUtil.checkEntityPresent(request.cartId(), cartRepository);
-            cartItem.setCart(cartRepository.findById(request.cartId()).orElseThrow(DbResponseErrorException::new));
+        if (request.getCartId() != null && request.getCartId() != 0) {
+            ValidationUtil.checkEntityPresent(request.getCartId(), cartRepository);
+            cartItem.setCart(cartRepository.findById(request.getCartId()).orElseThrow(DbResponseErrorException::new));
         }
         cartItem.setId(id);
 

@@ -14,6 +14,7 @@ import dev.dubrovsky.util.encoder.SimplePasswordEncoder;
 import dev.dubrovsky.util.validation.ValidationUtil;
 import jakarta.persistence.NonUniqueResultException;
 import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -27,15 +28,15 @@ public class UserService implements IUserService {
 
     private final UserRepository userRepository;
 
+    private final ModelMapper mapper = new ModelMapper();
+
     @Override
     public void create(NewUserRequest request) {
-        checkUniqueUsername(request.username());
-        checkUniqueEmail(request.email());
+        checkUniqueUsername(request.getUsername());
+        checkUniqueEmail(request.getEmail());
 
-        User user = new User();
-        user.setUsername(request.username());
-        user.setPassword(SimplePasswordEncoder.encode(request.password()));
-        user.setEmail(request.email());
+        User user = mapper.map(request, User.class);
+        user.setPassword(SimplePasswordEncoder.encode(request.getPassword()));
         user.setCreatedAt(LocalDateTime.now());
 
         userRepository.save(user);
@@ -69,13 +70,13 @@ public class UserService implements IUserService {
 
         User user = userRepository.findById(id).orElseThrow(DbResponseErrorException::new);
 
-        if (request.username() != null && !request.username().isEmpty() && !request.username().equals(user.getUsername())) {
-            checkUniqueUsername(request.username());
-            user.setUsername(request.username());
+        if (request.getUsername() != null && !request.getUsername().isEmpty() && !request.getUsername().equals(user.getUsername())) {
+            checkUniqueUsername(request.getUsername());
+            user.setUsername(request.getUsername());
         }
-        if (request.email() != null && !request.email().isEmpty() && !request.email().equals(user.getEmail())) {
-            checkUniqueEmail(request.email());
-            user.setEmail(request.email());
+        if (request.getEmail() != null && !request.getEmail().isEmpty() && !request.getEmail().equals(user.getEmail())) {
+            checkUniqueEmail(request.getEmail());
+            user.setEmail(request.getEmail());
         }
         user.setId(id);
 
@@ -91,11 +92,11 @@ public class UserService implements IUserService {
     @Override
     public SimpleTextResponse loginUser(UserLoginRequest request) {
 
-        User user = userRepository.findByUsernameOrEmail(request.usernameOrEmail(), request.usernameOrEmail());
+        User user = userRepository.findByUsernameOrEmail(request.getUsernameOrEmail(), request.getUsernameOrEmail());
         if (user == null) {
             throw new IllegalArgumentException("Неверно имя пользователя или почта");
         }
-        if (!SimplePasswordEncoder.matches(request.password(), user.getPassword())) {
+        if (!SimplePasswordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new IllegalArgumentException("Неверный пароль");
         }
 
@@ -117,14 +118,14 @@ public class UserService implements IUserService {
 
     @Override
     public void resetPassword(UserResetPasswordRequest request) {
-        User user = userRepository.findByUsernameOrEmail(request.usernameOrEmail(), request.usernameOrEmail());
+        User user = userRepository.findByUsernameOrEmail(request.getUsernameOrEmail(), request.getUsernameOrEmail());
         if (user == null) {
             throw new IllegalArgumentException("Неверно имя пользователя или почта");
         }
-        if (!SimplePasswordEncoder.matches(request.oldPassword(), user.getPassword())) {
+        if (!SimplePasswordEncoder.matches(request.getOldPassword(), user.getPassword())) {
             throw new IllegalArgumentException("Неверный пароль");
         }
-        user.setPassword(SimplePasswordEncoder.encode(request.newPassword()));
+        user.setPassword(SimplePasswordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
     }
 

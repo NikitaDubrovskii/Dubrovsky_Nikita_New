@@ -14,6 +14,7 @@ import dev.dubrovsky.repository.product.ProductRepository;
 import dev.dubrovsky.repository.user.UserRepository;
 import dev.dubrovsky.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -28,14 +29,16 @@ public class CartService implements ICartService {
     private final CartItemRepository cartItemRepository;
     private final ProductRepository productRepository;
 
+    private final ModelMapper mapper = new ModelMapper();
+
     @Override
     public void create(NewCartRequest request) {
-        ValidationUtil.checkEntityPresent(request.userId(), userRepository);
+        ValidationUtil.checkEntityPresent(request.getUserId(), userRepository);
 
-        Cart cart = new Cart();
-        cart.setUser(userRepository.
-                findById(request.userId()).
-                orElseThrow(DbResponseErrorException::new));
+        Cart cart = mapper.map(request, Cart.class);
+        cart.setUser(userRepository
+                .findById(request.getUserId())
+                .orElseThrow(DbResponseErrorException::new));
 
         cartRepository.save(cart);
     }
@@ -68,9 +71,9 @@ public class CartService implements ICartService {
 
         Cart cart = cartRepository.findById(id).orElseThrow(DbResponseErrorException::new);
 
-        if (request.userId() != null && request.userId() != 0) {
-            ValidationUtil.checkEntityPresent(request.userId(), userRepository);
-            cart.setUser(userRepository.findById(request.userId()).orElseThrow(DbResponseErrorException::new));
+        if (request.getUserId() != null && request.getUserId() != 0) {
+            ValidationUtil.checkEntityPresent(request.getUserId(), userRepository);
+            cart.setUser(userRepository.findById(request.getUserId()).orElseThrow(DbResponseErrorException::new));
         }
         cart.setId(id);
 

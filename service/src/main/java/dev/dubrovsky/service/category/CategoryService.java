@@ -9,6 +9,7 @@ import dev.dubrovsky.model.category.Category;
 import dev.dubrovsky.repository.category.CategoryRepository;
 import dev.dubrovsky.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -20,12 +21,13 @@ public class CategoryService implements ICategoryService {
 
     private final CategoryRepository categoryRepository;
 
+    private final ModelMapper mapper = new ModelMapper();
+
     @Override
     public void create(NewCategoryRequest request) {
-        Category category = new Category();
-        category.setName(request.name());
-        if (request.description() != null && !request.description().isEmpty()) {
-            category.setDescription(request.description());
+        Category category = mapper.map(request, Category.class);
+        if (request.getDescription() != null && !request.getDescription().isEmpty()) {
+            category.setDescription(request.getDescription());
         }
 
         categoryRepository.save(category);
@@ -59,11 +61,11 @@ public class CategoryService implements ICategoryService {
 
         Category category = categoryRepository.findById(id).orElseThrow(DbResponseErrorException::new);
 
-        if (request.name() != null && !request.name().isEmpty()) {
-            category.setName(request.name());
+        if (request.getName() != null && !request.getName().isEmpty()) {
+            category.setName(request.getName());
         }
-        if (request.description() != null && !request.description().isEmpty()) {
-            category.setDescription(request.description());
+        if (request.getDescription() != null && !request.getDescription().isEmpty()) {
+            category.setDescription(request.getDescription());
         }
         category.setId(id);
 

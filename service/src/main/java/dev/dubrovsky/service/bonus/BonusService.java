@@ -10,6 +10,7 @@ import dev.dubrovsky.repository.bonus.BonusRepository;
 import dev.dubrovsky.repository.loyalty.program.LoyaltyProgramRepository;
 import dev.dubrovsky.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -22,16 +23,16 @@ public class BonusService implements IBonusService {
     private final BonusRepository bonusRepository;
     private final LoyaltyProgramRepository loyaltyProgramRepository;
 
+    private final ModelMapper mapper = new ModelMapper();
+
     @Override
     public void create(NewBonusRequest request) {
-        ValidationUtil.checkEntityPresent(request.programId(), loyaltyProgramRepository);
+        ValidationUtil.checkEntityPresent(request.getProgramId(), loyaltyProgramRepository);
 
-        Bonus bonus = new Bonus();
-        bonus.setName(request.name());
-        bonus.setDescription(request.description() != null ? request.description() : "");
-        bonus.setPoints(request.points());
+        Bonus bonus = mapper.map(request, Bonus.class);
+        bonus.setDescription(request.getDescription() != null ? request.getDescription() : "");
         bonus.setProgram(loyaltyProgramRepository
-                .findById(request.programId())
+                .findById(request.getProgramId())
                 .orElseThrow(DbResponseErrorException::new));
 
         bonusRepository.save(bonus);
@@ -65,17 +66,17 @@ public class BonusService implements IBonusService {
 
         Bonus bonus = bonusRepository.findById(id).orElseThrow(DbResponseErrorException::new);
 
-        if (request.name() != null && !request.name().isEmpty()) {
-            bonus.setName(request.name());
+        if (request.getName() != null && !request.getName().isEmpty()) {
+            bonus.setName(request.getName());
         }
-        if (request.description() != null && !request.description().isEmpty()) {
-            bonus.setDescription(request.description());
+        if (request.getDescription() != null && !request.getDescription().isEmpty()) {
+            bonus.setDescription(request.getDescription());
         }
-        if (request.points() != null) {
-            bonus.setPoints(request.points());
+        if (request.getPoints() != null) {
+            bonus.setPoints(request.getPoints());
         }
-        if (request.programId() != null && request.programId() != 0) {
-            bonus.setProgram(loyaltyProgramRepository.findById(request.programId()).orElseThrow(DbResponseErrorException::new));
+        if (request.getProgramId() != null && request.getProgramId() != 0) {
+            bonus.setProgram(loyaltyProgramRepository.findById(request.getProgramId()).orElseThrow(DbResponseErrorException::new));
         }
         bonus.setId(id);
 

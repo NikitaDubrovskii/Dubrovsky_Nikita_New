@@ -9,6 +9,7 @@ import dev.dubrovsky.model.payment.method.PaymentMethod;
 import dev.dubrovsky.repository.payment.method.PaymentMethodRepository;
 import dev.dubrovsky.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -20,10 +21,11 @@ public class PaymentMethodService implements IPaymentMethodService {
 
     private final PaymentMethodRepository paymentMethodRepository;
 
+    private final ModelMapper mapper = new ModelMapper();
+
     @Override
     public void create(NewPaymentMethodRequest request) {
-        PaymentMethod paymentMethod = new PaymentMethod();
-        paymentMethod.setMethod(request.method());
+        PaymentMethod paymentMethod = mapper.map(request, PaymentMethod.class);
 
         paymentMethodRepository.save(paymentMethod);
     }
@@ -56,8 +58,8 @@ public class PaymentMethodService implements IPaymentMethodService {
 
         PaymentMethod paymentMethod = paymentMethodRepository.findById(id).orElseThrow(DbResponseErrorException::new);
 
-        if (request.method() != null && !request.method().isEmpty()) {
-            paymentMethod.setMethod(request.method());
+        if (request.getMethod() != null && !request.getMethod().isEmpty()) {
+            paymentMethod.setMethod(request.getMethod());
         }
         paymentMethod.setId(id);
 

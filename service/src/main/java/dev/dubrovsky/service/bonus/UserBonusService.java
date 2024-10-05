@@ -30,12 +30,12 @@ public class UserBonusService implements IUserBonusService {
 
     @Override
     public void create(NewUserBonusRequest request) {
-        checkId(request.bonusId(), request.userId());
+        checkId(request.getBonusId(), request.getUserId());
 
         UserBonus userBonus = new UserBonus();
         UserBonusId userBonusId = new UserBonusId();
-        userBonusId.setBonusId(request.bonusId());
-        userBonusId.setUserId(request.userId());
+        userBonusId.setBonusId(request.getBonusId());
+        userBonusId.setUserId(request.getUserId());
         userBonus.setUserBonusId(userBonusId);
         userBonus.setReceivedAt(LocalDateTime.now());
 

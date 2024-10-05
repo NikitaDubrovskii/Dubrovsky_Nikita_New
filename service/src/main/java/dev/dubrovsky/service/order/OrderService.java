@@ -11,6 +11,7 @@ import dev.dubrovsky.repository.payment.method.PaymentMethodRepository;
 import dev.dubrovsky.repository.user.UserRepository;
 import dev.dubrovsky.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -25,21 +26,22 @@ public class OrderService implements IOrderService {
     private final PaymentMethodRepository paymentMethodRepository;
     private final UserRepository userRepository;
 
+    private final ModelMapper mapper = new ModelMapper();
+
     @Override
     public void create(NewOrderRequest request) {
-        ValidationUtil.checkEntityPresent(request.userId(), userRepository);
-        ValidationUtil.checkEntityPresent(request.paymentMethodId(), paymentMethodRepository);
+        ValidationUtil.checkEntityPresent(request.getUserId(), userRepository);
+        ValidationUtil.checkEntityPresent(request.getPaymentMethodId(), paymentMethodRepository);
 
-        Order order = new Order();
-        order.setTotalPrice(request.totalPrice());
-        if (request.address() != null && !request.address().isEmpty()) {
-            order.setAddress(request.address());
+        Order order = mapper.map(request, Order.class);
+        if (request.getAddress() != null && !request.getAddress().isEmpty()) {
+            order.setAddress(request.getAddress());
         }
         order.setPaymentMethod(paymentMethodRepository
-                .findById(request.paymentMethodId())
+                .findById(request.getPaymentMethodId())
                 .orElseThrow(DbResponseErrorException::new));
         order.setUser(userRepository
-                .findById(request.userId())
+                .findById(request.getUserId())
                 .orElseThrow(DbResponseErrorException::new));
         order.setCreatedAt(LocalDateTime.now());
 
@@ -74,19 +76,19 @@ public class OrderService implements IOrderService {
 
         Order order = orderRepository.findById(id).orElseThrow(DbResponseErrorException::new);
 
-        if (request.totalPrice() != null && request.totalPrice() > 0) {
-            order.setTotalPrice(request.totalPrice());
+        if (request.getTotalPrice() != null && request.getTotalPrice() > 0) {
+            order.setTotalPrice(request.getTotalPrice());
         }
-        if (request.address() != null && !request.address().isEmpty()) {
-            order.setAddress(request.address());
+        if (request.getAddress() != null && !request.getAddress().isEmpty()) {
+            order.setAddress(request.getAddress());
         }
-        if (request.paymentMethodId() != null && request.paymentMethodId() > 0) {
-            ValidationUtil.checkEntityPresent(request.paymentMethodId(), paymentMethodRepository);
-            order.setPaymentMethod(paymentMethodRepository.findById(request.paymentMethodId()).orElseThrow(DbResponseErrorException::new));
+        if (request.getPaymentMethodId() != null && request.getPaymentMethodId() > 0) {
+            ValidationUtil.checkEntityPresent(request.getPaymentMethodId(), paymentMethodRepository);
+            order.setPaymentMethod(paymentMethodRepository.findById(request.getPaymentMethodId()).orElseThrow(DbResponseErrorException::new));
         }
-        if (request.userId() != null && request.userId() > 0) {
-            ValidationUtil.checkEntityPresent(request.userId(), userRepository);
-            order.setUser(userRepository.findById(request.userId()).orElseThrow(DbResponseErrorException::new));
+        if (request.getUserId() != null && request.getUserId() > 0) {
+            ValidationUtil.checkEntityPresent(request.getUserId(), userRepository);
+            order.setUser(userRepository.findById(request.getUserId()).orElseThrow(DbResponseErrorException::new));
         }
         order.setId(id);
 

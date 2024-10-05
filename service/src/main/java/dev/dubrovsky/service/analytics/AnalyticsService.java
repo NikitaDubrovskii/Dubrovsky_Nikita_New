@@ -10,6 +10,7 @@ import dev.dubrovsky.repository.analytics.AnalyticsRepository;
 import dev.dubrovsky.repository.user.UserRepository;
 import dev.dubrovsky.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -23,14 +24,15 @@ public class AnalyticsService implements IAnalyticsService {
     private final AnalyticsRepository analyticsRepository;
     private final UserRepository userRepository;
 
+    private final ModelMapper mapper = new ModelMapper();
+
     @Override
     public void create(NewAnalyticsRequest request) {
-        ValidationUtil.checkEntityPresent(request.userId(), userRepository);
+        ValidationUtil.checkEntityPresent(request.getUserId(), userRepository);
 
-        Analytics analytics = new Analytics();
-        analytics.setActivity(request.activity());
+        Analytics analytics = mapper.map(request, Analytics.class);
         analytics.setUser(userRepository
-                .findById(request.userId())
+                .findById(request.getUserId())
                 .orElseThrow(DbResponseErrorException::new));
         analytics.setTimestamp(LocalDateTime.now());
 
@@ -65,12 +67,12 @@ public class AnalyticsService implements IAnalyticsService {
 
         Analytics analytics = analyticsRepository.findById(id).orElseThrow(DbResponseErrorException::new);
 
-        if (request.activity() != null && !request.activity().isEmpty()) {
-            analytics.setActivity(request.activity());
+        if (request.getActivity() != null && !request.getActivity().isEmpty()) {
+            analytics.setActivity(request.getActivity());
         }
-        if (request.userId() != null && request.userId() != 0) {
-            ValidationUtil.checkEntityPresent(request.userId(), userRepository);
-            analytics.setUser(userRepository.findById(request.userId()).orElseThrow(DbResponseErrorException::new));
+        if (request.getUserId() != null && request.getUserId() != 0) {
+            ValidationUtil.checkEntityPresent(request.getUserId(), userRepository);
+            analytics.setUser(userRepository.findById(request.getUserId()).orElseThrow(DbResponseErrorException::new));
         }
         analytics.setId(id);
 
