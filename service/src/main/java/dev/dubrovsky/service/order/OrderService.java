@@ -26,14 +26,17 @@ public class OrderService implements IOrderService {
     private final PaymentMethodRepository paymentMethodRepository;
     private final UserRepository userRepository;
 
-    private final ModelMapper mapper = new ModelMapper();
+    private final ModelMapper mapper;
 
     @Override
     public void create(NewOrderRequest request) {
         ValidationUtil.checkEntityPresent(request.getUserId(), userRepository);
         ValidationUtil.checkEntityPresent(request.getPaymentMethodId(), paymentMethodRepository);
 
-        Order order = mapper.map(request, Order.class);
+        Order order = mapper
+                .typeMap(NewOrderRequest.class, Order.class)
+                .addMappings(mapper -> mapper.skip(Order::setId))
+                .map(request);
         if (request.getAddress() != null && !request.getAddress().isEmpty()) {
             order.setAddress(request.getAddress());
         }

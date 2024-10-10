@@ -25,14 +25,17 @@ public class CartItemService implements ICartItemService {
     private final CartRepository cartRepository;
     private final ProductRepository productRepository;
 
-    private final ModelMapper mapper = new ModelMapper();
+    private final ModelMapper mapper;
 
     @Override
     public void create(NewCartItemRequest request) {
         ValidationUtil.checkEntityPresent(request.getCartId(), cartRepository);
         ValidationUtil.checkEntityPresent(request.getProductId(), productRepository);
 
-        CartItem cartItem = mapper.map(request, CartItem.class);
+        CartItem cartItem = mapper
+                .typeMap(NewCartItemRequest.class, CartItem.class)
+                .addMappings(mapper -> mapper.skip(CartItem::setId))
+                .map(request);
         cartItem.setCart(cartRepository
                 .findById(request.getCartId())
                 .orElseThrow(DbResponseErrorException::new));

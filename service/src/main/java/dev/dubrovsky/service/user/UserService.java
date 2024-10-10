@@ -28,14 +28,17 @@ public class UserService implements IUserService {
 
     private final UserRepository userRepository;
 
-    private final ModelMapper mapper = new ModelMapper();
+    private final ModelMapper mapper;
 
     @Override
     public void create(NewUserRequest request) {
         checkUniqueUsername(request.getUsername());
         checkUniqueEmail(request.getEmail());
 
-        User user = mapper.map(request, User.class);
+        User user = mapper
+                .typeMap(NewUserRequest.class, User.class)
+                .addMappings(mapper -> mapper.skip(User::setId))
+                .map(request);
         user.setPassword(SimplePasswordEncoder.encode(request.getPassword()));
         user.setCreatedAt(LocalDateTime.now());
 

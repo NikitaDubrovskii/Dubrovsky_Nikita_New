@@ -25,14 +25,17 @@ public class OrderItemService implements IOrderItemService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
 
-    private final ModelMapper mapper = new ModelMapper();
+    private final ModelMapper mapper;
 
     @Override
     public void create(NewOrderItemRequest request) {
         ValidationUtil.checkEntityPresent(request.getOrderId(), orderRepository);
         ValidationUtil.checkEntityPresent(request.getProductId(), productRepository);
 
-        OrderItem orderItem = mapper.map(request, OrderItem.class);
+        OrderItem orderItem = mapper
+                .typeMap(NewOrderItemRequest.class, OrderItem.class)
+                .addMappings(mapper -> mapper.skip(OrderItem::setId))
+                .map(request);
         orderItem.setOrder(orderRepository
                 .findById(request.getOrderId())
                 .orElseThrow(DbResponseErrorException::new));

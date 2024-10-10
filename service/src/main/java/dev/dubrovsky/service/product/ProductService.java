@@ -24,13 +24,16 @@ public class ProductService implements IProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
 
-    private final ModelMapper mapper = new ModelMapper();
+    private final ModelMapper mapper;
 
     @Override
     public void create(NewProductRequest request) {
         ValidationUtil.checkEntityPresent(request.getCategoryId(), categoryRepository);
 
-        Product product = new Product();
+        Product product = mapper
+                .typeMap(NewProductRequest.class, Product.class)
+                .addMappings(mapper -> mapper.skip(Product::setId))
+                .map(request);
         if (request.getDescription() != null && !request.getDescription().isEmpty()) {
             product.setDescription(request.getDescription());
         }

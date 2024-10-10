@@ -21,11 +21,14 @@ public class PaymentMethodService implements IPaymentMethodService {
 
     private final PaymentMethodRepository paymentMethodRepository;
 
-    private final ModelMapper mapper = new ModelMapper();
+    private final ModelMapper mapper;
 
     @Override
     public void create(NewPaymentMethodRequest request) {
-        PaymentMethod paymentMethod = mapper.map(request, PaymentMethod.class);
+        PaymentMethod paymentMethod = mapper
+                .typeMap(NewPaymentMethodRequest.class, PaymentMethod.class)
+                .addMappings(mapper -> mapper.skip(PaymentMethod::setId))
+                .map(request);
 
         paymentMethodRepository.save(paymentMethod);
     }

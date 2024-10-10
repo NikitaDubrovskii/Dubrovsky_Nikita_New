@@ -23,13 +23,16 @@ public class BonusService implements IBonusService {
     private final BonusRepository bonusRepository;
     private final LoyaltyProgramRepository loyaltyProgramRepository;
 
-    private final ModelMapper mapper = new ModelMapper();
+    private final ModelMapper mapper;
 
     @Override
     public void create(NewBonusRequest request) {
         ValidationUtil.checkEntityPresent(request.getProgramId(), loyaltyProgramRepository);
 
-        Bonus bonus = mapper.map(request, Bonus.class);
+        Bonus bonus = mapper
+                .typeMap(NewBonusRequest.class, Bonus.class)
+                .addMappings(mapper -> mapper.skip(Bonus::setId))
+                .map(request);
         bonus.setDescription(request.getDescription() != null ? request.getDescription() : "");
         bonus.setProgram(loyaltyProgramRepository
                 .findById(request.getProgramId())

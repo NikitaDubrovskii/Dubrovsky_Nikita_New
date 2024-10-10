@@ -24,13 +24,16 @@ public class AnalyticsService implements IAnalyticsService {
     private final AnalyticsRepository analyticsRepository;
     private final UserRepository userRepository;
 
-    private final ModelMapper mapper = new ModelMapper();
+    private final ModelMapper mapper;
 
     @Override
     public void create(NewAnalyticsRequest request) {
         ValidationUtil.checkEntityPresent(request.getUserId(), userRepository);
 
-        Analytics analytics = mapper.map(request, Analytics.class);
+        Analytics analytics = mapper
+                .typeMap(NewAnalyticsRequest.class, Analytics.class)
+                .addMappings(mapper -> mapper.skip(Analytics::setId))
+                .map(request);
         analytics.setUser(userRepository
                 .findById(request.getUserId())
                 .orElseThrow(DbResponseErrorException::new));

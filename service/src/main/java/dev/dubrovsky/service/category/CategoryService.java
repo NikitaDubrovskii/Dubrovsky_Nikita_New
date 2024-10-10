@@ -21,11 +21,14 @@ public class CategoryService implements ICategoryService {
 
     private final CategoryRepository categoryRepository;
 
-    private final ModelMapper mapper = new ModelMapper();
+    private final ModelMapper mapper;
 
     @Override
     public void create(NewCategoryRequest request) {
-        Category category = mapper.map(request, Category.class);
+        Category category = mapper
+                .typeMap(NewCategoryRequest.class, Category.class)
+                .addMappings(mapper -> mapper.skip(Category::setId))
+                .map(request);
         if (request.getDescription() != null && !request.getDescription().isEmpty()) {
             category.setDescription(request.getDescription());
         }

@@ -22,11 +22,14 @@ public class LoyaltyProgramService implements ILoyaltyProgramService {
 
     private final LoyaltyProgramRepository loyaltyProgramRepository;
 
-    private final ModelMapper mapper = new ModelMapper();
+    private final ModelMapper mapper;
 
     @Override
     public void create(NewLoyaltyProgramRequest request) {
-        LoyaltyProgram loyaltyProgram = mapper.map(request, LoyaltyProgram.class);
+        LoyaltyProgram loyaltyProgram = mapper
+                .typeMap(NewLoyaltyProgramRequest.class, LoyaltyProgram.class)
+                .addMappings(mapper -> mapper.skip(LoyaltyProgram::setId))
+                .map(request);
         if (request.getDescription() != null && !request.getDescription().isEmpty()) {
             loyaltyProgram.setDescription(request.getDescription());
         }
