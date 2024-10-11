@@ -11,6 +11,7 @@ import dev.dubrovsky.exception.EntityNotFoundException;
 import dev.dubrovsky.model.user.User;
 import dev.dubrovsky.repository.user.UserRepository;
 import dev.dubrovsky.util.encoder.SimplePasswordEncoder;
+import dev.dubrovsky.util.jwt.JWTTokenUtil;
 import dev.dubrovsky.util.validation.ValidationUtil;
 import jakarta.persistence.NonUniqueResultException;
 import lombok.AllArgsConstructor;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -29,6 +31,8 @@ public class UserService implements IUserService {
     private final UserRepository userRepository;
 
     private final ModelMapper mapper;
+
+    private final JWTTokenUtil jwtTokenUtil;
 
     @Override
     public void create(NewUserRequest request) {
@@ -41,6 +45,7 @@ public class UserService implements IUserService {
                 .map(request);
         user.setPassword(SimplePasswordEncoder.encode(request.getPassword()));
         user.setCreatedAt(LocalDateTime.now());
+        user.setRole("USER");
 
         userRepository.save(user);
     }
@@ -103,7 +108,10 @@ public class UserService implements IUserService {
             throw new IllegalArgumentException("Неверный пароль");
         }
 
-        return new SimpleTextResponse("Вход выполнен");
+        String token = jwtTokenUtil.generateToken(user);
+
+
+        return new SimpleTextResponse("Вход выполнен. Ваш токен: " + token);
     }
 
     @Override
@@ -134,8 +142,8 @@ public class UserService implements IUserService {
 
     private void checkUniqueUsername(String username) {
         try {
-            User user = userRepository.findByUsername(username);
-            if (user != null) {
+            Optional<User> byUsername = userRepository.findByUsername(username);
+            if (byUsername.isPresent()) {
                 throw new IllegalArgumentException("Пользователь уже существует с именем: " + username);
             }
         } catch (NonUniqueResultException e) {
