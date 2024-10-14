@@ -10,12 +10,12 @@ import dev.dubrovsky.exception.DbResponseErrorException;
 import dev.dubrovsky.exception.EntityNotFoundException;
 import dev.dubrovsky.model.user.User;
 import dev.dubrovsky.repository.user.UserRepository;
-import dev.dubrovsky.util.encoder.SimplePasswordEncoder;
 import dev.dubrovsky.util.jwt.JWTTokenUtil;
 import dev.dubrovsky.util.validation.ValidationUtil;
 import jakarta.persistence.NonUniqueResultException;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -34,6 +34,8 @@ public class UserService implements IUserService {
 
     private final JWTTokenUtil jwtTokenUtil;
 
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
     @Override
     public void create(NewUserRequest request) {
         checkUniqueUsername(request.getUsername());
@@ -43,7 +45,7 @@ public class UserService implements IUserService {
                 .typeMap(NewUserRequest.class, User.class)
                 .addMappings(mapper -> mapper.skip(User::setId))
                 .map(request);
-        user.setPassword(SimplePasswordEncoder.encode(request.getPassword()));
+        user.setPassword(bCryptPasswordEncoder.encode(request.getPassword()));
         user.setCreatedAt(LocalDateTime.now());
         user.setRole("USER");
 
@@ -104,7 +106,7 @@ public class UserService implements IUserService {
         if (user == null) {
             throw new IllegalArgumentException("Неверно имя пользователя или почта");
         }
-        if (!SimplePasswordEncoder.matches(request.getPassword(), user.getPassword())) {
+        if (!bCryptPasswordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new IllegalArgumentException("Неверный пароль");
         }
 
@@ -121,7 +123,7 @@ public class UserService implements IUserService {
             throw new IllegalArgumentException("Неверная почта, пользователь не найден");
         }
         String tempPassword = generateTemporaryPassword();
-        user.setPassword(SimplePasswordEncoder.encode(tempPassword));
+        user.setPassword(bCryptPasswordEncoder.encode(tempPassword));
         userRepository.save(user);
 
         return new SimpleTextResponse("Отправка временного пароля на почту " + email + ": " + tempPassword);
@@ -133,10 +135,10 @@ public class UserService implements IUserService {
         if (user == null) {
             throw new IllegalArgumentException("Неверно имя пользователя или почта");
         }
-        if (!SimplePasswordEncoder.matches(request.getOldPassword(), user.getPassword())) {
+        if (!bCryptPasswordEncoder.matches(request.getOldPassword(), user.getPassword())) {
             throw new IllegalArgumentException("Неверный пароль");
         }
-        user.setPassword(SimplePasswordEncoder.encode(request.getNewPassword()));
+        user.setPassword(bCryptPasswordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
     }
 
