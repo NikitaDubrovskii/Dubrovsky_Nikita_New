@@ -8,6 +8,7 @@ import dev.dubrovsky.dto.request.user.UserResetPasswordRequest;
 import dev.dubrovsky.dto.response.user.UserResponse;
 import dev.dubrovsky.exception.DbResponseErrorException;
 import dev.dubrovsky.exception.EntityNotFoundException;
+import dev.dubrovsky.model.user.Role;
 import dev.dubrovsky.model.user.User;
 import dev.dubrovsky.repository.user.UserRepository;
 import dev.dubrovsky.util.jwt.JWTTokenUtil;
@@ -16,13 +17,11 @@ import jakarta.persistence.NonUniqueResultException;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -34,7 +33,7 @@ public class UserService implements IUserService {
 
     private final JWTTokenUtil jwtTokenUtil;
 
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final PasswordEncoder bCryptPasswordEncoder;
 
     @Override
     public void create(NewUserRequest request) {
@@ -47,7 +46,7 @@ public class UserService implements IUserService {
                 .map(request);
         user.setPassword(bCryptPasswordEncoder.encode(request.getPassword()));
         user.setCreatedAt(LocalDateTime.now());
-        user.setRole("USER");
+        user.setRole(Role.ROLE_USER);
 
         userRepository.save(user);
     }

@@ -21,19 +21,24 @@ import java.io.IOException;
 @AllArgsConstructor
 public class JWTFilter extends OncePerRequestFilter {
 
+    public static final String BEARER_PREFIX = "Bearer ";
+    public static final String HEADER_NAME = "Authorization";
+
     private final UserDetailsServiceImpl userService;
 
     private final JWTTokenUtil jwtTokenUtil;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        final String authorizationHeader = request.getHeader("Authorization");
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
+        final String authorizationHeader = request.getHeader(HEADER_NAME);
 
         String username = null;
         String jwt = null;
 
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            jwt = authorizationHeader.substring(7);
+        if (authorizationHeader != null && authorizationHeader.startsWith(BEARER_PREFIX)) {
+            jwt = authorizationHeader.substring(BEARER_PREFIX.length());
             username = jwtTokenUtil.extractUserName(jwt);
         }
 
