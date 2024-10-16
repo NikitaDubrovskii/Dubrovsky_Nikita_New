@@ -2,6 +2,7 @@ package dev.dubrovsky.controller;
 
 import dev.dubrovsky.service.ICommonService;
 import dev.dubrovsky.util.response.ResponseUtil;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,7 +28,7 @@ public abstract class AbstractController<S extends ICommonService<R, N, U>, R, N
     }
 
     @Override
-    public ResponseEntity<?> getById(@PathVariable Integer id) {
+    public ResponseEntity<?> getById(@PathVariable @Parameter(description = "Id объекта") Integer id) {
         return new ResponseEntity<>(service.getById(id), HttpStatus.OK);
     }
 
@@ -38,7 +39,7 @@ public abstract class AbstractController<S extends ICommonService<R, N, U>, R, N
 
     @Override
     public ResponseEntity<?> update(@RequestBody @Valid U request,
-                                    @PathVariable Integer id,
+                                    @PathVariable @Parameter(description = "Id обновляемоего объекта") Integer id,
                                     BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return ResponseUtil.generateErrorResponse(bindingResult);
@@ -49,7 +50,7 @@ public abstract class AbstractController<S extends ICommonService<R, N, U>, R, N
     }
 
     @Override
-    public ResponseEntity<?> delete(@PathVariable Integer id) {
+    public ResponseEntity<?> delete(@PathVariable @Parameter(description = "Id удаляемого объекта") Integer id) {
         service.delete(id);
         return new ResponseEntity<>(ResponseStatus.DELETED.getDescription(), HttpStatus.OK);
     }
