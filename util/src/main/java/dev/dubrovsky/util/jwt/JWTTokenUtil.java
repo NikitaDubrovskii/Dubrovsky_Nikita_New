@@ -21,12 +21,15 @@ public class JWTTokenUtil {
     @Value("${secret.key}")
     private String secretKey;
 
+    @Value("${jwt.token.expiration}")
+    private long expirationTime;
+
     public String generateToken(User user) {
         return Jwts.builder()
                 .subject(user.getUsername())
                 .claim("roles", user.getRole())
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
+                .expiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(getKey())
                 .compact();
     }
