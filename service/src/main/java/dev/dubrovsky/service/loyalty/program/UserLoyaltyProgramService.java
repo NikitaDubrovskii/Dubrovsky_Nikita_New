@@ -30,12 +30,12 @@ public class UserLoyaltyProgramService implements IUserLoyaltyProgramService {
 
     @Override
     public void create(NewUserLoyaltyProgramRequest request) {
-        checkId(request.userId(), request.programId());
+        checkId(request.getUserId(), request.getProgramId());
 
         UserLoyaltyProgram userLoyaltyProgram = new UserLoyaltyProgram();
         UserLoyaltyProgramId userLoyaltyProgramId = new UserLoyaltyProgramId();
-        userLoyaltyProgramId.setProgramId(request.programId());
-        userLoyaltyProgramId.setUserId(request.userId());
+        userLoyaltyProgramId.setProgramId(request.getProgramId());
+        userLoyaltyProgramId.setUserId(request.getUserId());
         userLoyaltyProgram.setUserLoyaltyProgramId(userLoyaltyProgramId);
         userLoyaltyProgram.setReceivedAt(LocalDateTime.now());
 

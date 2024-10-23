@@ -9,6 +9,7 @@ import dev.dubrovsky.model.loyalty.program.LoyaltyProgram;
 import dev.dubrovsky.repository.loyalty.program.LoyaltyProgramRepository;
 import dev.dubrovsky.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -21,12 +22,16 @@ public class LoyaltyProgramService implements ILoyaltyProgramService {
 
     private final LoyaltyProgramRepository loyaltyProgramRepository;
 
+    private final ModelMapper mapper;
+
     @Override
     public void create(NewLoyaltyProgramRequest request) {
-        LoyaltyProgram loyaltyProgram = new LoyaltyProgram();
-        loyaltyProgram.setName(request.name());
-        if (request.description() != null && !request.description().isEmpty()) {
-            loyaltyProgram.setDescription(request.description());
+        LoyaltyProgram loyaltyProgram = mapper
+                .typeMap(NewLoyaltyProgramRequest.class, LoyaltyProgram.class)
+                .addMappings(mapper -> mapper.skip(LoyaltyProgram::setId))
+                .map(request);
+        if (request.getDescription() != null && !request.getDescription().isEmpty()) {
+            loyaltyProgram.setDescription(request.getDescription());
         }
         loyaltyProgram.setCreatedAt(LocalDateTime.now());
 
@@ -61,11 +66,11 @@ public class LoyaltyProgramService implements ILoyaltyProgramService {
 
         LoyaltyProgram loyaltyProgram = loyaltyProgramRepository.findById(id).orElseThrow(DbResponseErrorException::new);
 
-        if (request.name() != null && !request.name().isEmpty()) {
-            loyaltyProgram.setName(request.name());
+        if (request.getName() != null && !request.getName().isEmpty()) {
+            loyaltyProgram.setName(request.getName());
         }
-        if (request.description() != null && !request.description().isEmpty()) {
-            loyaltyProgram.setDescription(request.description());
+        if (request.getDescription() != null && !request.getDescription().isEmpty()) {
+            loyaltyProgram.setDescription(request.getDescription());
         }
         loyaltyProgram.setId(id);
 

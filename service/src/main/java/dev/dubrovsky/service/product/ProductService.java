@@ -10,6 +10,7 @@ import dev.dubrovsky.repository.category.CategoryRepository;
 import dev.dubrovsky.repository.product.ProductRepository;
 import dev.dubrovsky.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -23,18 +24,21 @@ public class ProductService implements IProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
 
+    private final ModelMapper mapper;
+
     @Override
     public void create(NewProductRequest request) {
-        ValidationUtil.checkEntityPresent(request.categoryId(), categoryRepository);
+        ValidationUtil.checkEntityPresent(request.getCategoryId(), categoryRepository);
 
-        Product product = new Product();
-        product.setName(request.name());
-        if (request.description() != null && !request.description().isEmpty()) {
-            product.setDescription(request.description());
+        Product product = mapper
+                .typeMap(NewProductRequest.class, Product.class)
+                .addMappings(mapper -> mapper.skip(Product::setId))
+                .map(request);
+        if (request.getDescription() != null && !request.getDescription().isEmpty()) {
+            product.setDescription(request.getDescription());
         }
-        product.setPrice(request.price());
         product.setCategory(categoryRepository
-                .findById(request.categoryId())
+                .findById(request.getCategoryId())
                 .orElseThrow(DbResponseErrorException::new));
         product.setCreatedAt(LocalDateTime.now());
 
@@ -69,18 +73,18 @@ public class ProductService implements IProductService {
 
         Product product = productRepository.findById(id).orElseThrow(DbResponseErrorException::new);
 
-        if (request.name() != null && !request.name().isEmpty()) {
-            product.setName(request.name());
+        if (request.getName() != null && !request.getName().isEmpty()) {
+            product.setName(request.getName());
         }
-        if (request.description() != null && !request.description().isEmpty()) {
-            product.setDescription(request.description());
+        if (request.getDescription() != null && !request.getDescription().isEmpty()) {
+            product.setDescription(request.getDescription());
         }
-        if (request.price() != null && request.price() > 0) {
-            product.setPrice(request.price());
+        if (request.getPrice() != null && request.getPrice() > 0) {
+            product.setPrice(request.getPrice());
         }
-        if (request.categoryId() != null && request.categoryId() > 0) {
-            ValidationUtil.checkEntityPresent(request.categoryId(), categoryRepository);
-            product.setCategory(categoryRepository.findById(request.categoryId()).orElseThrow(DbResponseErrorException::new));
+        if (request.getCategoryId() != null && request.getCategoryId() > 0) {
+            ValidationUtil.checkEntityPresent(request.getCategoryId(), categoryRepository);
+            product.setCategory(categoryRepository.findById(request.getCategoryId()).orElseThrow(DbResponseErrorException::new));
         }
         product.setId(id);
 

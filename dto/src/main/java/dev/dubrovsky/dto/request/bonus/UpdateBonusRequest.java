@@ -1,14 +1,28 @@
 package dev.dubrovsky.dto.request.bonus;
 
-public record UpdateBonusRequest(
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-        String name,
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Schema(description = "Запрос на обновление бонуса")
+public class UpdateBonusRequest{
 
-        String description,
+    @Schema(description = "Название бонуса", example = "Подписка")
+    String name;
 
-        Integer points,
+    @Schema(description = "Описание бонуса", example = "Бонус за подписку на ютуб")
+    String description;
 
-        Integer programId
+    @Schema(description = "Количество очков", example = "55")
+    Integer points;
 
-) {
+    @Schema(description = "Id программы лояльности, для которой начислился бонус", example = "2")
+    Integer programId;
+
 }

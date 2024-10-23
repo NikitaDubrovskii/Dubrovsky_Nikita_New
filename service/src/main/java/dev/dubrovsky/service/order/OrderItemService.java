@@ -11,6 +11,7 @@ import dev.dubrovsky.repository.order.OrderRepository;
 import dev.dubrovsky.repository.product.ProductRepository;
 import dev.dubrovsky.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -24,18 +25,22 @@ public class OrderItemService implements IOrderItemService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
 
+    private final ModelMapper mapper;
+
     @Override
     public void create(NewOrderItemRequest request) {
-        ValidationUtil.checkEntityPresent(request.orderId(), orderRepository);
-        ValidationUtil.checkEntityPresent(request.productId(), productRepository);
+        ValidationUtil.checkEntityPresent(request.getOrderId(), orderRepository);
+        ValidationUtil.checkEntityPresent(request.getProductId(), productRepository);
 
-        OrderItem orderItem = new OrderItem();
-        orderItem.setQuantity(request.quantity());
+        OrderItem orderItem = mapper
+                .typeMap(NewOrderItemRequest.class, OrderItem.class)
+                .addMappings(mapper -> mapper.skip(OrderItem::setId))
+                .map(request);
         orderItem.setOrder(orderRepository
-                .findById(request.orderId())
+                .findById(request.getOrderId())
                 .orElseThrow(DbResponseErrorException::new));
         orderItem.setProduct(productRepository
-                .findById(request.productId())
+                .findById(request.getProductId())
                 .orElseThrow(DbResponseErrorException::new));
 
         orderItemRepository.save(orderItem);
@@ -69,16 +74,16 @@ public class OrderItemService implements IOrderItemService {
 
         OrderItem orderItem = orderItemRepository.findById(id).orElseThrow(DbResponseErrorException::new);
 
-        if (request.quantity() != null && request.quantity() > 0) {
-            orderItem.setQuantity(request.quantity());
+        if (request.getQuantity() != null && request.getQuantity() > 0) {
+            orderItem.setQuantity(request.getQuantity());
         }
-        if (request.productId() != null && request.productId() > 0) {
-            ValidationUtil.checkEntityPresent(request.productId(), productRepository);
-            orderItem.setProduct(productRepository.findById(request.productId()).orElseThrow(DbResponseErrorException::new));
+        if (request.getProductId() != null && request.getProductId() > 0) {
+            ValidationUtil.checkEntityPresent(request.getProductId(), productRepository);
+            orderItem.setProduct(productRepository.findById(request.getProductId()).orElseThrow(DbResponseErrorException::new));
         }
-        if (request.orderId() != null && request.orderId() > 0) {
-            ValidationUtil.checkEntityPresent(request.orderId(), orderRepository);
-            orderItem.setOrder(orderRepository.findById(request.orderId()).orElseThrow(DbResponseErrorException::new));
+        if (request.getOrderId() != null && request.getOrderId() > 0) {
+            ValidationUtil.checkEntityPresent(request.getOrderId(), orderRepository);
+            orderItem.setOrder(orderRepository.findById(request.getOrderId()).orElseThrow(DbResponseErrorException::new));
         }
         orderItem.setId(id);
 

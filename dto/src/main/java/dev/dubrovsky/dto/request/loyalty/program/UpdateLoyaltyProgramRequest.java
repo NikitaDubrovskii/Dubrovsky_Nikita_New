@@ -1,10 +1,22 @@
 package dev.dubrovsky.dto.request.loyalty.program;
 
-public record UpdateLoyaltyProgramRequest(
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-        String name,
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Schema(description = "Запрос на обновление программы лояльности")
+public class UpdateLoyaltyProgramRequest {
 
-        String description
+    @Schema(description = "Название программы лояльности", example = "Золото 1")
+    String name;
 
-) {
+    @Schema(description = "Описание программы лояльности", example = "Уровень Золото 1")
+    String description;
+
 }

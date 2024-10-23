@@ -8,18 +8,20 @@ import dev.dubrovsky.dto.request.user.UserResetPasswordRequest;
 import dev.dubrovsky.dto.response.user.UserResponse;
 import dev.dubrovsky.exception.DbResponseErrorException;
 import dev.dubrovsky.exception.EntityNotFoundException;
+import dev.dubrovsky.model.user.Role;
 import dev.dubrovsky.model.user.User;
 import dev.dubrovsky.repository.user.UserRepository;
-import dev.dubrovsky.util.encoder.SimplePasswordEncoder;
+import dev.dubrovsky.util.jwt.JWTTokenUtil;
 import dev.dubrovsky.util.validation.ValidationUtil;
 import jakarta.persistence.NonUniqueResultException;
 import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -27,16 +29,24 @@ public class UserService implements IUserService {
 
     private final UserRepository userRepository;
 
+    private final ModelMapper mapper;
+
+    private final JWTTokenUtil jwtTokenUtil;
+
+    private final PasswordEncoder bCryptPasswordEncoder;
+
     @Override
     public void create(NewUserRequest request) {
-        checkUniqueUsername(request.username());
-        checkUniqueEmail(request.email());
+        checkUniqueUsername(request.getUsername());
+        checkUniqueEmail(request.getEmail());
 
-        User user = new User();
-        user.setUsername(request.username());
-        user.setPassword(SimplePasswordEncoder.encode(request.password()));
-        user.setEmail(request.email());
+        User user = mapper
+                .typeMap(NewUserRequest.class, User.class)
+                .addMappings(mapper -> mapper.skip(User::setId))
+                .map(request);
+        user.setPassword(bCryptPasswordEncoder.encode(request.getPassword()));
         user.setCreatedAt(LocalDateTime.now());
+        user.setRole(Role.ROLE_USER);
 
         userRepository.save(user);
     }
@@ -69,13 +79,13 @@ public class UserService implements IUserService {
 
         User user = userRepository.findById(id).orElseThrow(DbResponseErrorException::new);
 
-        if (request.username() != null && !request.username().isEmpty() && !request.username().equals(user.getUsername())) {
-            checkUniqueUsername(request.username());
-            user.setUsername(request.username());
+        if (request.getUsername() != null && !request.getUsername().isEmpty() && !request.getUsername().equals(user.getUsername())) {
+            checkUniqueUsername(request.getUsername());
+            user.setUsername(request.getUsername());
         }
-        if (request.email() != null && !request.email().isEmpty() && !request.email().equals(user.getEmail())) {
-            checkUniqueEmail(request.email());
-            user.setEmail(request.email());
+        if (request.getEmail() != null && !request.getEmail().isEmpty() && !request.getEmail().equals(user.getEmail())) {
+            checkUniqueEmail(request.getEmail());
+            user.setEmail(request.getEmail());
         }
         user.setId(id);
 
@@ -91,15 +101,18 @@ public class UserService implements IUserService {
     @Override
     public SimpleTextResponse loginUser(UserLoginRequest request) {
 
-        User user = userRepository.findByUsernameOrEmail(request.usernameOrEmail(), request.usernameOrEmail());
+        User user = userRepository.findByUsernameOrEmail(request.getUsernameOrEmail(), request.getUsernameOrEmail());
         if (user == null) {
             throw new IllegalArgumentException("Неверно имя пользователя или почта");
         }
-        if (!SimplePasswordEncoder.matches(request.password(), user.getPassword())) {
+        if (!bCryptPasswordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new IllegalArgumentException("Неверный пароль");
         }
 
-        return new SimpleTextResponse("Вход выполнен");
+        String token = jwtTokenUtil.generateToken(user);
+
+
+        return new SimpleTextResponse("Вход выполнен. Ваш токен: " + token);
     }
 
     @Override
@@ -109,7 +122,7 @@ public class UserService implements IUserService {
             throw new IllegalArgumentException("Неверная почта, пользователь не найден");
         }
         String tempPassword = generateTemporaryPassword();
-        user.setPassword(SimplePasswordEncoder.encode(tempPassword));
+        user.setPassword(bCryptPasswordEncoder.encode(tempPassword));
         userRepository.save(user);
 
         return new SimpleTextResponse("Отправка временного пароля на почту " + email + ": " + tempPassword);
@@ -117,21 +130,21 @@ public class UserService implements IUserService {
 
     @Override
     public void resetPassword(UserResetPasswordRequest request) {
-        User user = userRepository.findByUsernameOrEmail(request.usernameOrEmail(), request.usernameOrEmail());
+        User user = userRepository.findByUsernameOrEmail(request.getUsernameOrEmail(), request.getUsernameOrEmail());
         if (user == null) {
             throw new IllegalArgumentException("Неверно имя пользователя или почта");
         }
-        if (!SimplePasswordEncoder.matches(request.oldPassword(), user.getPassword())) {
+        if (!bCryptPasswordEncoder.matches(request.getOldPassword(), user.getPassword())) {
             throw new IllegalArgumentException("Неверный пароль");
         }
-        user.setPassword(SimplePasswordEncoder.encode(request.newPassword()));
+        user.setPassword(bCryptPasswordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
     }
 
     private void checkUniqueUsername(String username) {
         try {
-            User user = userRepository.findByUsername(username);
-            if (user != null) {
+            Optional<User> byUsername = userRepository.findByUsername(username);
+            if (byUsername.isPresent()) {
                 throw new IllegalArgumentException("Пользователь уже существует с именем: " + username);
             }
         } catch (NonUniqueResultException e) {
