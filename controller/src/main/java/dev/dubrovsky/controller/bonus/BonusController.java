@@ -5,7 +5,9 @@ import dev.dubrovsky.dto.request.bonus.UpdateBonusRequest;
 import dev.dubrovsky.service.bonus.BonusService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -50,6 +52,18 @@ public class BonusController extends AbstractBonusController {
     @Operation(summary = "Удаление бонуса", description = "Удаление бонуса по id")
     public ResponseEntity<?> delete(Integer id) {
         return super.delete(id);
+    }
+
+    @Override
+    public ResponseEntity<?> getBonusesByUser(Authentication authentication) {
+        String username = super.getUsername(authentication);
+        return new ResponseEntity<>(service.getBonusesByUser(username), HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<?> getOneByUser(Authentication authentication, Integer id) {
+        String username = super.getUsername(authentication);
+        return new ResponseEntity<>(service.getOneByUser(username, id), HttpStatus.OK);
     }
 
 }

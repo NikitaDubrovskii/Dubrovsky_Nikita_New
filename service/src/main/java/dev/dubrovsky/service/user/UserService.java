@@ -16,12 +16,14 @@ import dev.dubrovsky.util.validation.ValidationUtil;
 import jakarta.persistence.NonUniqueResultException;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @AllArgsConstructor
@@ -139,6 +141,11 @@ public class UserService implements IUserService {
         }
         user.setPassword(bCryptPasswordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
+    }
+
+    @Override
+    public UserResponse getYourself(String username) {
+        return userRepository.findByUsername(username).orElseThrow(DbResponseErrorException::new).mapToResponse();
     }
 
     private void checkUniqueUsername(String username) {

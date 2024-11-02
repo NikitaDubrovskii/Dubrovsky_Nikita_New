@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -63,6 +64,15 @@ public class UserController extends AbstractUserController {
     }
 
     @Override
+    public ResponseEntity<?> register(NewUserRequest request, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return ResponseUtil.generateErrorResponse(bindingResult);
+        } else {
+            return super.create(request, bindingResult);
+        }
+    }
+
+    @Override
     @Operation(summary = "Вход пользователя", description = "Вход пользователя по username/email и password")
     public ResponseEntity<?> login(UserLoginRequest request,
                                    BindingResult bindingResult) {
@@ -89,6 +99,12 @@ public class UserController extends AbstractUserController {
             userService.resetPassword(request);
             return new ResponseEntity<>("Пароль изменен!", HttpStatus.OK);
         }
+    }
+
+    @Override
+    public ResponseEntity<?> getYourself(Authentication authentication) {
+        String username = super.getUsername(authentication);
+        return new ResponseEntity<>(service.getYourself(username), HttpStatus.OK);
     }
 
 }

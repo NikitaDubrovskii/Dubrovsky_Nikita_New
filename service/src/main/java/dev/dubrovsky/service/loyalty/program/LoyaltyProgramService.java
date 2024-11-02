@@ -6,10 +6,13 @@ import dev.dubrovsky.dto.response.loyalty.program.LoyaltyProgramResponse;
 import dev.dubrovsky.exception.DbResponseErrorException;
 import dev.dubrovsky.exception.EntityNotFoundException;
 import dev.dubrovsky.model.loyalty.program.LoyaltyProgram;
+import dev.dubrovsky.model.user.User;
 import dev.dubrovsky.repository.loyalty.program.LoyaltyProgramRepository;
+import dev.dubrovsky.repository.user.UserRepository;
 import dev.dubrovsky.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -21,6 +24,7 @@ import java.util.List;
 public class LoyaltyProgramService implements ILoyaltyProgramService {
 
     private final LoyaltyProgramRepository loyaltyProgramRepository;
+    private final UserRepository userRepository;
 
     private final ModelMapper mapper;
 
@@ -81,6 +85,38 @@ public class LoyaltyProgramService implements ILoyaltyProgramService {
     public void delete(Integer id) {
         ValidationUtil.checkId(id, loyaltyProgramRepository);
         loyaltyProgramRepository.deleteById(id);
+    }
+
+    @Override
+    public List<LoyaltyProgramResponse> getProgramsByUser(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException(username + " is not found in the DB"));
+
+        if (user.getLoyaltyPrograms().isEmpty()) {
+            throw new EntityNotFoundException("По запросу ничего не найдено :(");
+        } else {
+            List<LoyaltyProgramResponse> responses = new ArrayList<>();
+            List<LoyaltyProgram> programs = user.getLoyaltyPrograms();
+            programs.forEach(program -> responses.add(program.mapToResponse()));
+            return responses;
+        }
+    }
+
+    @Override
+    public LoyaltyProgramResponse getOneByUser(String username, Integer id) {
+        ValidationUtil.checkId(id, loyaltyProgramRepository);
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException(username + " is not found in the DB"));
+
+        if (user.getLoyaltyPrograms().isEmpty()) {
+            throw new EntityNotFoundException("По запросу ничего не найдено :(");
+        } else {
+            return user.getLoyaltyPrograms().stream()
+                    .filter(program -> program.getId().equals(id))
+                    .findFirst()
+                    .orElseThrow(DbResponseErrorException::new)
+                    .mapToResponse();
+        }
     }
 
 }

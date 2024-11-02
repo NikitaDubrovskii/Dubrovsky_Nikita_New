@@ -19,7 +19,7 @@ public class UpdateCartItemRequest {
     Integer quantity;
 
     @Positive(message = "CartId должно быть больше 0")
-    @Schema(description = "Id коризны", example = "1")
+    @Schema(description = "Id корзины", example = "1")
     Integer cartId;
 
     @Positive(message = "ProductId должно быть больше 0")

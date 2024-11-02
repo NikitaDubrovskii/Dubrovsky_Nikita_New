@@ -5,7 +5,10 @@ import dev.dubrovsky.dto.request.cart.UpdateCartRequest;
 import dev.dubrovsky.service.cart.CartService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -50,6 +53,18 @@ public class CartController extends AbstractCartController {
     @Operation(summary = "Удаление корзины", description = "Удаление корзины по id")
     public ResponseEntity<?> delete(Integer id) {
         return super.delete(id);
+    }
+
+    @Override
+    public ResponseEntity<?> getCartsByUser(Authentication authentication) {
+        String username = super.getUsername(authentication);
+        return new ResponseEntity<>(service.getCartsByUser(username), HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<?> getOneByUser(Authentication authentication, Integer id) {
+        String username = super.getUsername(authentication);
+        return new ResponseEntity<>(service.getOneByUser(username, id), HttpStatus.OK);
     }
 
 }

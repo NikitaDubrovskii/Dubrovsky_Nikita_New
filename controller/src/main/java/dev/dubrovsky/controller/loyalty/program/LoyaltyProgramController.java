@@ -5,7 +5,9 @@ import dev.dubrovsky.dto.request.loyalty.program.UpdateLoyaltyProgramRequest;
 import dev.dubrovsky.service.loyalty.program.LoyaltyProgramService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -39,6 +41,16 @@ public class LoyaltyProgramController extends AbstractLoyaltyProgramController {
     }
 
     @Override
+    public ResponseEntity<?> getAllPublic() {
+        return super.getAll();
+    }
+
+    @Override
+    public ResponseEntity<?> getByIdPublic(Integer id) {
+        return super.getById(id);
+    }
+
+    @Override
     @Operation(summary = "Обновление программы лояльности", description = "Обновление программы лояльности по id")
     public ResponseEntity<?> update(UpdateLoyaltyProgramRequest request,
                                     Integer id,
@@ -50,6 +62,18 @@ public class LoyaltyProgramController extends AbstractLoyaltyProgramController {
     @Operation(summary = "Удаление программы лояльности", description = "Удаление программы лояльности по id")
     public ResponseEntity<?> delete(Integer id) {
         return super.delete(id);
+    }
+
+    @Override
+    public ResponseEntity<?> getProgramsByUser(Authentication authentication) {
+        String username = super.getUsername(authentication);
+        return new ResponseEntity<>(service.getProgramsByUser(username), HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<?> getOneByUser(Authentication authentication, Integer id) {
+        String username = super.getUsername(authentication);
+        return new ResponseEntity<>(service.getOneByUser(username, id), HttpStatus.OK);
     }
 
 }

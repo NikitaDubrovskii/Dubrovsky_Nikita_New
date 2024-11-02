@@ -2,16 +2,21 @@ package dev.dubrovsky.service.order;
 
 import dev.dubrovsky.dto.request.order.NewOrderRequest;
 import dev.dubrovsky.dto.request.order.UpdateOrderRequest;
+import dev.dubrovsky.dto.response.cart.CartResponse;
 import dev.dubrovsky.dto.response.order.OrderResponse;
 import dev.dubrovsky.exception.DbResponseErrorException;
 import dev.dubrovsky.exception.EntityNotFoundException;
+import dev.dubrovsky.model.cart.Cart;
 import dev.dubrovsky.model.order.Order;
+import dev.dubrovsky.model.user.User;
 import dev.dubrovsky.repository.order.OrderRepository;
 import dev.dubrovsky.repository.payment.method.PaymentMethodRepository;
 import dev.dubrovsky.repository.user.UserRepository;
 import dev.dubrovsky.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
+import org.aspectj.weaver.ast.Or;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -102,6 +107,44 @@ public class OrderService implements IOrderService {
     public void delete(Integer id) {
         ValidationUtil.checkId(id, orderRepository);
         orderRepository.deleteById(id);
+    }
+
+    @Override
+    public List<OrderResponse> getOrdersByUser(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException(username + " is not found in the DB"));
+
+        if (user.getOrders().isEmpty()) {
+            throw new EntityNotFoundException("По запросу ничего не найдено :(");
+        } else {
+            List<OrderResponse> responses = new ArrayList<>();
+            List<Order> orders = user.getOrders();
+            orders.forEach(order -> responses.add(order.mapToResponse()));
+            return responses;
+        }
+    }
+
+    @Override
+    public OrderResponse getOneByUser(String username, Integer id) {
+        ValidationUtil.checkId(id, orderRepository);
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException(username + " is not found in the DB"));
+
+        if (user.getOrders().isEmpty()) {
+            throw new EntityNotFoundException("По запросу ничего не найдено :(");
+        } else {
+            return user.getOrders().stream()
+                    .filter(order -> order.getId().equals(id))
+                    .findFirst()
+                    .orElseThrow(DbResponseErrorException::new)
+                    .mapToResponse();
+        }
+    }
+
+    @Override
+    public Order getByUserId(Integer userId) {
+        ValidationUtil.checkId(userId, userRepository);
+        return orderRepository.findByUserId(userId).orElseThrow(DbResponseErrorException::new);
     }
 
 }

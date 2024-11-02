@@ -7,6 +7,8 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -53,6 +55,11 @@ public abstract class AbstractController<S extends ICommonService<R, N, U>, R, N
     public ResponseEntity<?> delete(@PathVariable @Parameter(description = "Id удаляемого объекта") Integer id) {
         service.delete(id);
         return new ResponseEntity<>(ResponseStatus.DELETED.getDescription(), HttpStatus.OK);
+    }
+
+    protected String getUsername(Authentication authentication) {
+        UserDetails principal = (UserDetails) authentication.getPrincipal();
+        return principal.getUsername();
     }
 
 }

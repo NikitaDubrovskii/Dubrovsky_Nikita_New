@@ -5,7 +5,9 @@ import dev.dubrovsky.dto.request.order.UpdateOrderRequest;
 import dev.dubrovsky.service.order.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -50,6 +52,18 @@ public class OrderController extends AbstractOrderController {
     @Operation(summary = "Удаление заказа", description = "Удаление заказа по id")
     public ResponseEntity<?> delete(Integer id) {
         return super.delete(id);
+    }
+
+    @Override
+    public ResponseEntity<?> getOrdersByUser(Authentication authentication) {
+        String username = super.getUsername(authentication);
+        return new ResponseEntity<>(service.getOrdersByUser(username), HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<?> getOneByUser(Authentication authentication, Integer id) {
+        String username = super.getUsername(authentication);
+        return new ResponseEntity<>(service.getOneByUser(username, id), HttpStatus.OK);
     }
 
 }

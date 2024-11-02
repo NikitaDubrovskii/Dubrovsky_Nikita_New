@@ -6,7 +6,9 @@ import dev.dubrovsky.service.category.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -36,6 +38,16 @@ public class CategoryController extends AbstractCategoryController {
     @Operation(summary = "Получение списка категорий", description = "Получение списка категорий")
     public ResponseEntity<?> getAll() {
         return super.getAll();
+    }
+
+    @Override
+    public ResponseEntity<?> getAllPublic() {
+        return super.getAll();
+    }
+
+    @Override
+    public ResponseEntity<?> getByIdPublic(Integer id) {
+        return super.getById(id);
     }
 
     @Override

@@ -9,7 +9,9 @@ import dev.dubrovsky.dto.response.user.UserResponse;
 import dev.dubrovsky.service.user.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,6 +22,9 @@ public abstract class AbstractUserController extends AbstractController<UserServ
         super(service);
     }
 
+    @PostMapping("/register")
+    public abstract ResponseEntity<?> register(@RequestBody @Valid NewUserRequest request, BindingResult bindingResult);
+
     @PostMapping("/login")
     public abstract ResponseEntity<?> login(@RequestBody @Valid UserLoginRequest request, BindingResult bindingResult);
 
@@ -28,5 +33,8 @@ public abstract class AbstractUserController extends AbstractController<UserServ
 
     @PostMapping("/reset-password")
     public abstract ResponseEntity<?> resetPassword(@RequestBody @Valid UserResetPasswordRequest request, BindingResult bindingResult);
+
+    @GetMapping("/me")
+    public abstract ResponseEntity<?> getYourself(Authentication authentication);
 
 }

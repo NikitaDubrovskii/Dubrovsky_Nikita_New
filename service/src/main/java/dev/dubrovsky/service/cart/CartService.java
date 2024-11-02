@@ -2,12 +2,15 @@ package dev.dubrovsky.service.cart;
 
 import dev.dubrovsky.dto.request.cart.NewCartRequest;
 import dev.dubrovsky.dto.request.cart.UpdateCartRequest;
+import dev.dubrovsky.dto.response.bonus.BonusResponse;
 import dev.dubrovsky.dto.response.cart.CartResponse;
 import dev.dubrovsky.exception.DbResponseErrorException;
 import dev.dubrovsky.exception.EntityNotFoundException;
+import dev.dubrovsky.model.bonus.Bonus;
 import dev.dubrovsky.model.cart.Cart;
 import dev.dubrovsky.model.cart.CartItem;
 import dev.dubrovsky.model.product.Product;
+import dev.dubrovsky.model.user.User;
 import dev.dubrovsky.repository.cart.CartItemRepository;
 import dev.dubrovsky.repository.cart.CartRepository;
 import dev.dubrovsky.repository.product.ProductRepository;
@@ -15,10 +18,12 @@ import dev.dubrovsky.repository.user.UserRepository;
 import dev.dubrovsky.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -106,6 +111,44 @@ public class CartService implements ICartService {
         }
 
         return totalPrice;
+    }
+
+    @Override
+    public List<CartResponse> getCartsByUser(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException(username + " is not found in the DB"));
+
+        if (user.getCarts().isEmpty()) {
+            throw new EntityNotFoundException("По запросу ничего не найдено :(");
+        } else {
+            List<CartResponse> responses = new ArrayList<>();
+            List<Cart> carts = user.getCarts();
+            carts.forEach(cart -> responses.add(cart.mapToResponse()));
+            return responses;
+        }
+    }
+
+    @Override
+    public CartResponse getOneByUser(String username, Integer id) {
+        ValidationUtil.checkId(id, cartRepository);
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException(username + " is not found in the DB"));
+
+        if (user.getCarts().isEmpty()) {
+            throw new EntityNotFoundException("По запросу ничего не найдено :(");
+        } else {
+            return user.getCarts().stream()
+                    .filter(cart -> cart.getId().equals(id))
+                    .findFirst()
+                    .orElseThrow(DbResponseErrorException::new)
+                    .mapToResponse();
+        }
+    }
+
+    @Override
+    public Cart getByUserId(Integer userId) {
+        ValidationUtil.checkId(userId, userRepository);
+        return cartRepository.findByUserId(userId).orElseThrow(DbResponseErrorException::new);
     }
 
 }

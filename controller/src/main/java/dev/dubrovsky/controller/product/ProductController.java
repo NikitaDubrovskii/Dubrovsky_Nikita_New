@@ -39,6 +39,16 @@ public class ProductController extends AbstractProductController {
     }
 
     @Override
+    public ResponseEntity<?> getAllPublic() {
+        return super.getAll();
+    }
+
+    @Override
+    public ResponseEntity<?> getByIdPublic(Integer id) {
+        return super.getById(id);
+    }
+
+    @Override
     @Operation(summary = "Обновление товара", description = "Обновление товара по id")
     public ResponseEntity<?> update(UpdateProductRequest request,
                                     Integer id,
