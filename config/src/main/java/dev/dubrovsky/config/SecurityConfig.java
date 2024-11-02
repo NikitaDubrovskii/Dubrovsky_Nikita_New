@@ -38,14 +38,13 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers(HttpMethod.POST, "/api/v1/user", "/api/v1/user/login", "/api/v1/user/reset-password", "/api/v1/user/recover-password").permitAll()
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/v1/user/register", "/api/v1/user/login",
+                                "/api/v1/user/reset-password", "/api/v1/user/recover-password").permitAll()
                         .requestMatchers(HttpMethod.GET,
-                                "/api/v1/category", "/api/v1/category/*",
-                                "/api/v1/loyalty-program", "/api/v1/loyalty-program/*",
-                                "/api/v1/product", "/api/v1/product/*").permitAll()
-                        .requestMatchers(HttpMethod.POST).hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT).hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE).hasRole("ADMIN")
+                                "/api/v1/category/public", "/api/v1/category/public/*",
+                                "/api/v1/loyalty-program/public", "/api/v1/loyalty-program/public/*",
+                                "/api/v1/product/public", "/api/v1/product/public/*").permitAll()
                         .requestMatchers("/swagger-ui/**", "/swagger-resources/*", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())
