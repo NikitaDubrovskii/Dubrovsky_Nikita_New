@@ -1,5 +1,6 @@
 package dev.dubrovsky.service.bonus;
 
+import dev.dubrovsky.dto.request.analytics.NewAnalyticsRequest;
 import dev.dubrovsky.dto.request.bonus.NewUserBonusRequest;
 import dev.dubrovsky.dto.response.bonus.BonusResponse;
 import dev.dubrovsky.dto.response.bonus.UserBonusResponse;
@@ -13,6 +14,7 @@ import dev.dubrovsky.model.user.User;
 import dev.dubrovsky.repository.bonus.BonusRepository;
 import dev.dubrovsky.repository.bonus.UserBonusRepository;
 import dev.dubrovsky.repository.user.UserRepository;
+import dev.dubrovsky.service.analytics.AnalyticsService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +29,7 @@ public class UserBonusService implements IUserBonusService {
     private final UserBonusRepository userBonusRepository;
     private final UserRepository userRepository;
     private final BonusRepository bonusRepository;
+    private final AnalyticsService analyticsService;
 
     @Override
     public void create(NewUserBonusRequest request) {
@@ -40,6 +43,7 @@ public class UserBonusService implements IUserBonusService {
         userBonus.setReceivedAt(LocalDateTime.now());
 
         userBonusRepository.save(userBonus);
+        analyticsService.create(new NewAnalyticsRequest("Получен бонус", request.getUserId()));
     }
 
     @Override

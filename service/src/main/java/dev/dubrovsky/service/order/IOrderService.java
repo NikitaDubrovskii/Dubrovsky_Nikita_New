@@ -16,4 +16,6 @@ public interface IOrderService extends ICommonService<OrderResponse, NewOrderReq
 
     Order getByUserId(Integer id);
 
+    void createOrder(String username, Integer cartId, NewOrderRequest newOrderRequest);
+
 }

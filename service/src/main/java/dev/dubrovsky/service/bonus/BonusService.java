@@ -3,7 +3,6 @@ package dev.dubrovsky.service.bonus;
 import dev.dubrovsky.dto.request.bonus.NewBonusRequest;
 import dev.dubrovsky.dto.request.bonus.UpdateBonusRequest;
 import dev.dubrovsky.dto.response.bonus.BonusResponse;
-import dev.dubrovsky.dto.response.user.UserResponse;
 import dev.dubrovsky.exception.DbResponseErrorException;
 import dev.dubrovsky.exception.EntityNotFoundException;
 import dev.dubrovsky.model.bonus.Bonus;

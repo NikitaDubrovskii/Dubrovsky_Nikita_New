@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 public abstract class AbstractOrderController extends AbstractController<OrderService, OrderResponse, NewOrderRequest, UpdateOrderRequest> {
 
@@ -21,5 +23,8 @@ public abstract class AbstractOrderController extends AbstractController<OrderSe
 
     @GetMapping("/my/{id}")
     public abstract ResponseEntity<?> getOneByUser(Authentication authentication, @PathVariable Integer id);
+
+    @PostMapping("/create-order/{cartId}")
+    public abstract ResponseEntity<?> createOrder(Authentication authentication, @PathVariable Integer cartId, @RequestBody NewOrderRequest newOrderRequest);
 
 }

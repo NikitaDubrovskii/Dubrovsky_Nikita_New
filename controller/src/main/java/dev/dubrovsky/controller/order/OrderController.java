@@ -1,5 +1,6 @@
 package dev.dubrovsky.controller.order;
 
+import dev.dubrovsky.controller.ResponseStatus;
 import dev.dubrovsky.dto.request.order.NewOrderRequest;
 import dev.dubrovsky.dto.request.order.UpdateOrderRequest;
 import dev.dubrovsky.service.order.OrderService;
@@ -64,6 +65,13 @@ public class OrderController extends AbstractOrderController {
     public ResponseEntity<?> getOneByUser(Authentication authentication, Integer id) {
         String username = super.getUsername(authentication);
         return new ResponseEntity<>(service.getOneByUser(username, id), HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<?> createOrder(Authentication authentication, Integer cartId, NewOrderRequest newOrderRequest) {
+        String username = super.getUsername(authentication);
+        service.createOrder(username, cartId, newOrderRequest);
+        return new ResponseEntity<>(ResponseStatus.CREATED.getDescription(), HttpStatus.CREATED);
     }
 
 }
