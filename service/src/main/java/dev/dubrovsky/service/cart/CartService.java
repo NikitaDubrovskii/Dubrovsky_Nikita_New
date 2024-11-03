@@ -2,11 +2,9 @@ package dev.dubrovsky.service.cart;
 
 import dev.dubrovsky.dto.request.cart.NewCartRequest;
 import dev.dubrovsky.dto.request.cart.UpdateCartRequest;
-import dev.dubrovsky.dto.response.bonus.BonusResponse;
 import dev.dubrovsky.dto.response.cart.CartResponse;
 import dev.dubrovsky.exception.DbResponseErrorException;
 import dev.dubrovsky.exception.EntityNotFoundException;
-import dev.dubrovsky.model.bonus.Bonus;
 import dev.dubrovsky.model.cart.Cart;
 import dev.dubrovsky.model.cart.CartItem;
 import dev.dubrovsky.model.product.Product;
@@ -23,7 +21,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @AllArgsConstructor

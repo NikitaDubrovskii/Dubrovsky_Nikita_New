@@ -4,7 +4,6 @@ import dev.dubrovsky.dto.request.cart.NewCartItemRequest;
 import dev.dubrovsky.dto.request.cart.NewCartRequest;
 import dev.dubrovsky.dto.request.cart.UpdateCartItemRequest;
 import dev.dubrovsky.dto.response.cart.CartItemResponse;
-import dev.dubrovsky.dto.response.cart.CartResponse;
 import dev.dubrovsky.exception.DbResponseErrorException;
 import dev.dubrovsky.exception.EntityNotFoundException;
 import dev.dubrovsky.model.cart.Cart;

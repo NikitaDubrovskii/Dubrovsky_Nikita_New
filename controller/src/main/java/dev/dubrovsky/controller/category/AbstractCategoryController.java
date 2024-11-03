@@ -6,7 +6,6 @@ import dev.dubrovsky.dto.request.category.UpdateCategoryRequest;
 import dev.dubrovsky.dto.response.category.CategoryResponse;
 import dev.dubrovsky.service.category.CategoryService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 

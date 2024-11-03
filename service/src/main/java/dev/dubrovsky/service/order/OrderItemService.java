@@ -2,11 +2,9 @@ package dev.dubrovsky.service.order;
 
 import dev.dubrovsky.dto.request.order.NewOrderItemRequest;
 import dev.dubrovsky.dto.request.order.UpdateOrderItemRequest;
-import dev.dubrovsky.dto.response.cart.CartItemResponse;
 import dev.dubrovsky.dto.response.order.OrderItemResponse;
 import dev.dubrovsky.exception.DbResponseErrorException;
 import dev.dubrovsky.exception.EntityNotFoundException;
-import dev.dubrovsky.model.cart.CartItem;
 import dev.dubrovsky.model.order.OrderItem;
 import dev.dubrovsky.model.user.User;
 import dev.dubrovsky.repository.order.OrderItemRepository;

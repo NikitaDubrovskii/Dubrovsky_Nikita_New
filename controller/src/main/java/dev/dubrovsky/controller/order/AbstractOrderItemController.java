@@ -5,7 +5,6 @@ import dev.dubrovsky.dto.request.order.NewOrderItemRequest;
 import dev.dubrovsky.dto.request.order.UpdateOrderItemRequest;
 import dev.dubrovsky.dto.response.order.OrderItemResponse;
 import dev.dubrovsky.service.order.OrderItemService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
