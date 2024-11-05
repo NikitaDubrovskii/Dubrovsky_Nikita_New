@@ -33,7 +33,7 @@ public class UserBonusService implements IUserBonusService {
 
     @Override
     public void create(NewUserBonusRequest request) {
-        checkId(request.getBonusId(), request.getUserId());
+        checkId(request.getUserId(), request.getBonusId());
 
         UserBonus userBonus = new UserBonus();
         UserBonusId userBonusId = new UserBonusId();

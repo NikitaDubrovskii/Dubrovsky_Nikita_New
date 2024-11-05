@@ -9,8 +9,14 @@ import dev.dubrovsky.dto.response.cart.CartItemResponse;
 import dev.dubrovsky.dto.response.order.OrderResponse;
 import dev.dubrovsky.exception.DbResponseErrorException;
 import dev.dubrovsky.exception.EntityNotFoundException;
+import dev.dubrovsky.kafka.OrderProducer;
+import dev.dubrovsky.kafka.data.*;
 import dev.dubrovsky.model.order.Order;
+import dev.dubrovsky.model.order.OrderItem;
+import dev.dubrovsky.model.payment.method.PaymentMethod;
+import dev.dubrovsky.model.product.Product;
 import dev.dubrovsky.model.user.User;
+import dev.dubrovsky.repository.order.OrderItemRepository;
 import dev.dubrovsky.repository.order.OrderRepository;
 import dev.dubrovsky.repository.payment.method.PaymentMethodRepository;
 import dev.dubrovsky.repository.user.UserRepository;
@@ -33,6 +39,7 @@ import java.util.List;
 public class OrderService implements IOrderService {
 
     private final OrderRepository orderRepository;
+    private final OrderItemRepository orderItemRepository;
     private final PaymentMethodRepository paymentMethodRepository;
     private final UserRepository userRepository;
     private final CartItemService cartItemService;
@@ -40,6 +47,7 @@ public class OrderService implements IOrderService {
     private final OrderItemService orderItemService;
     private final AnalyticsService analyticsService;
     private final UserBonusService userBonusService;
+    private final OrderProducer orderProducer;
 
     private final ModelMapper mapper;
 
@@ -186,6 +194,27 @@ public class OrderService implements IOrderService {
 
         analyticsService.create(new NewAnalyticsRequest("Сделан заказ №" + cartId, user.getId()));
         userBonusService.create(new NewUserBonusRequest(user.getId(), 3));
+
+        orderProducer.sendOrder("order_topic", createOrderData(newOrderId));
+    }
+
+    private OrderData createOrderData(Integer orderId) {
+        Order order = orderRepository.findById(orderId).orElseThrow(DbResponseErrorException::new);
+        List<OrderItem> orderItems = orderItemRepository.findAllByOrderId(orderId);
+
+        PaymentMethodData paymentMethodData = mapper.typeMap(PaymentMethod.class, PaymentMethodData.class).map(order.getPaymentMethod());
+        UserData userData = mapper.typeMap(User.class, UserData.class).map(order.getUser());
+
+        List<OrderItemData> orderItemDataList = new ArrayList<>();
+
+        for (OrderItem orderItem : orderItems) {
+            ProductData productData = mapper.typeMap(Product.class, ProductData.class).map(orderItem.getProduct());
+            OrderItemData orderItemData = new OrderItemData(orderItem.getId(), orderItem.getQuantity(), productData);
+            orderItemDataList.add(orderItemData);
+        }
+
+        return new OrderData(orderId, order.getTotalPrice(), order.getCreatedAt(),
+                order.getAddress(), paymentMethodData, userData, orderItemDataList);
     }
 
 }
