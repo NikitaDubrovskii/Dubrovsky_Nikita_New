@@ -16,4 +16,6 @@ public interface IUserService extends ICommonService<UserResponse, NewUserReques
 
     void resetPassword(UserResetPasswordRequest request);
 
+    UserResponse getYourself(String username);
+
 }

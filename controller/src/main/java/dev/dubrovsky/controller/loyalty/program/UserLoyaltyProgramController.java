@@ -22,7 +22,7 @@ public class UserLoyaltyProgramController extends AbstractUserLoyaltyProgramCont
     private final UserLoyaltyProgramService loyaltyProgramService;
 
     @Override
-    @Operation(summary = "Создание программы лояльности пользователя", description = "Создание программы лояльности пользователя")
+    @Operation(summary = "Создание программы лояльности пользователя (admin)", description = "Создание программы лояльности пользователя, доступно с ролью ROLE_ADMIN")
     public ResponseEntity<?> create(NewUserLoyaltyProgramRequest request,
                                     BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
@@ -34,12 +34,12 @@ public class UserLoyaltyProgramController extends AbstractUserLoyaltyProgramCont
     }
 
     @Override
-    @Operation(summary = "Получение списка программ лояльности пользователей", description = "Получение списка программ лояльности пользователей")
+    @Operation(summary = "Получение списка программ лояльности пользователей (admin)", description = "Получение списка программ лояльности пользователей, доступно с ролью ROLE_ADMIN")
     public ResponseEntity<?> getAll() {
         return new ResponseEntity<>(loyaltyProgramService.getAll(), HttpStatus.OK);
     }
 
-    @Operation(summary = "Удаление программ лояльности пользователя", description = "Удаление программ лояльности пользователя по id пользователя и id программы лояльности")
+    @Operation(summary = "Удаление программ лояльности пользователя (admin)", description = "Удаление программ лояльности пользователя по id пользователя и id программы лояльности, доступно с ролью ROLE_ADMIN")
     @Override
     public ResponseEntity<?> delete(Integer userId,
                                     Integer programId) {

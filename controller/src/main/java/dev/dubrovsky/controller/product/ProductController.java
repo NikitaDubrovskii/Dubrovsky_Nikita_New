@@ -20,34 +20,46 @@ public class ProductController extends AbstractProductController {
     }
 
     @Override
-    @Operation(summary = "Создание товара", description = "Создание товара")
+    @Operation(summary = "Создание товара (admin)", description = "Создание товара, доступно с ролью ROLE_ADMIN")
     public ResponseEntity<?> create(NewProductRequest request,
                                     BindingResult bindingResult) {
         return super.create(request, bindingResult);
     }
 
     @Override
-    @Operation(summary = "Получение товара", description = "Получение товара по id")
+    @Operation(summary = "Получение товара (admin)", description = "Получение товара по id, доступно с ролью ROLE_ADMIN")
     public ResponseEntity<?> getById(Integer id) {
         return super.getById(id);
     }
 
     @Override
-    @Operation(summary = "Получение списка товаров", description = "Получение списка товаров")
+    @Operation(summary = "Получение списка товаров (admin)", description = "Получение списка товаров, доступно с ролью ROLE_ADMIN")
     public ResponseEntity<?> getAll() {
         return super.getAll();
     }
 
     @Override
-    @Operation(summary = "Обновление товара", description = "Обновление товара по id")
-    public ResponseEntity<?> update(UpdateProductRequest request,
-                                    Integer id,
-                                    BindingResult bindingResult) {
-        return super.update(request, id, bindingResult);
+    @Operation(summary = "Получение списка товаров (public)", description = "Получение списка товаров, доступно незарегистрированным пользователям")
+    public ResponseEntity<?> getAllPublic() {
+        return super.getAll();
     }
 
     @Override
-    @Operation(summary = "Удаление товара", description = "Удаление товара по id")
+    @Operation(summary = "Получение товара (public)", description = "Получение товара по id, доступно незарегистрированным пользователям")
+    public ResponseEntity<?> getByIdPublic(Integer id) {
+        return super.getById(id);
+    }
+
+    @Override
+    @Operation(summary = "Обновление товара (admin)", description = "Обновление товара по id, доступно с ролью ROLE_ADMIN")
+    public ResponseEntity<?> update(Integer id,
+                                    UpdateProductRequest request,
+                                    BindingResult bindingResult) {
+        return super.update(id, request, bindingResult);
+    }
+
+    @Override
+    @Operation(summary = "Удаление товара (admin)", description = "Удаление товара по id, доступно с ролью ROLE_ADMIN")
     public ResponseEntity<?> delete(Integer id) {
         return super.delete(id);
     }

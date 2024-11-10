@@ -8,6 +8,7 @@ import dev.dubrovsky.exception.EntityNotFoundException;
 import dev.dubrovsky.model.cart.Cart;
 import dev.dubrovsky.model.cart.CartItem;
 import dev.dubrovsky.model.product.Product;
+import dev.dubrovsky.model.user.User;
 import dev.dubrovsky.repository.cart.CartItemRepository;
 import dev.dubrovsky.repository.cart.CartRepository;
 import dev.dubrovsky.repository.product.ProductRepository;
@@ -15,8 +16,11 @@ import dev.dubrovsky.repository.user.UserRepository;
 import dev.dubrovsky.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -105,7 +109,47 @@ public class CartService implements ICartService {
             }
         }
 
-        return totalPrice;
+        BigDecimal roundedTotalPrice = new BigDecimal(totalPrice).setScale(2, RoundingMode.HALF_UP);
+
+        return roundedTotalPrice.floatValue();
+    }
+
+    @Override
+    public List<CartResponse> getCartsByUser(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException(username + " is not found in the DB"));
+
+        if (user.getCarts().isEmpty()) {
+            throw new EntityNotFoundException("По запросу ничего не найдено :(");
+        } else {
+            List<CartResponse> responses = new ArrayList<>();
+            List<Cart> carts = user.getCarts();
+            carts.forEach(cart -> responses.add(cart.mapToResponse()));
+            return responses;
+        }
+    }
+
+    @Override
+    public CartResponse getOneByUser(String username, Integer id) {
+        ValidationUtil.checkId(id, cartRepository);
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException(username + " is not found in the DB"));
+
+        if (user.getCarts().isEmpty()) {
+            throw new EntityNotFoundException("По запросу ничего не найдено :(");
+        } else {
+            return user.getCarts().stream()
+                    .filter(cart -> cart.getId().equals(id))
+                    .findFirst()
+                    .orElseThrow(DbResponseErrorException::new)
+                    .mapToResponse();
+        }
+    }
+
+    @Override
+    public Cart getByUserId(Integer userId) {
+        ValidationUtil.checkId(userId, userRepository);
+        return cartRepository.findByUserId(userId).orElseThrow(DbResponseErrorException::new);
     }
 
 }

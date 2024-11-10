@@ -1,5 +1,6 @@
 package dev.dubrovsky.service.loyalty.program;
 
+import dev.dubrovsky.dto.request.analytics.NewAnalyticsRequest;
 import dev.dubrovsky.dto.request.loyalty.program.NewUserLoyaltyProgramRequest;
 import dev.dubrovsky.dto.response.loyalty.program.LoyaltyProgramResponse;
 import dev.dubrovsky.dto.response.loyalty.program.UserLoyaltyProgramResponse;
@@ -13,6 +14,7 @@ import dev.dubrovsky.model.user.User;
 import dev.dubrovsky.repository.loyalty.program.LoyaltyProgramRepository;
 import dev.dubrovsky.repository.loyalty.program.UserLoyaltyProgramRepository;
 import dev.dubrovsky.repository.user.UserRepository;
+import dev.dubrovsky.service.analytics.AnalyticsService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +29,7 @@ public class UserLoyaltyProgramService implements IUserLoyaltyProgramService {
     private final UserLoyaltyProgramRepository userLoyaltyProgramRepository;
     private final UserRepository userRepository;
     private final LoyaltyProgramRepository loyaltyProgramRepository;
+    private final AnalyticsService analyticsService;
 
     @Override
     public void create(NewUserLoyaltyProgramRequest request) {
@@ -40,6 +43,7 @@ public class UserLoyaltyProgramService implements IUserLoyaltyProgramService {
         userLoyaltyProgram.setReceivedAt(LocalDateTime.now());
 
         userLoyaltyProgramRepository.save(userLoyaltyProgram);
+        analyticsService.create(new NewAnalyticsRequest("Начало участия в программе лояльности №" + request.getProgramId(), request.getUserId()));
     }
 
     @Override

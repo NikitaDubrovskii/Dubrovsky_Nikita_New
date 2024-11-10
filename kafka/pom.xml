@@ -7,10 +7,10 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>controller</artifactId>
+    <artifactId>kafka</artifactId>
     <packaging>jar</packaging>
 
-    <name>controller</name>
+    <name>kafka</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -18,9 +18,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>dev.dubrovsky</groupId>
-            <artifactId>service</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+            <version>3.2.4</version>
         </dependency>
     </dependencies>
 </project>

@@ -22,7 +22,7 @@ public class UserBonusController extends AbstractUserBonusController {
     private final UserBonusService userBonusService;
 
     @Override
-    @Operation(summary = "Создание бонуса пользователя", description = "Создание бонуса пользователя")
+    @Operation(summary = "Создание бонуса пользователя (admin)", description = "Создание бонуса пользователя, доступно с ролью ROLE_ADMIN")
     public ResponseEntity<?> create(NewUserBonusRequest request,
                                     BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
@@ -34,13 +34,13 @@ public class UserBonusController extends AbstractUserBonusController {
     }
 
     @Override
-    @Operation(summary = "Получение списка бонусов пользователей", description = "Получение списка бонусов пользователей")
+    @Operation(summary = "Получение списка бонусов пользователей (admin)", description = "Получение списка бонусов пользователей, доступно с ролью ROLE_ADMIN")
     public ResponseEntity<?> getAll() {
         return new ResponseEntity<>(userBonusService.getAll(), HttpStatus.OK);
     }
 
     @Override
-    @Operation(summary = "Удаление бонуса пользователя", description = "Удаление бонуса пользователя по id пользователя и id бонуса")
+    @Operation(summary = "Удаление бонуса пользователя (admin)", description = "Удаление бонуса пользователя по id пользователя и id бонуса, доступно с ролью ROLE_ADMIN")
     public ResponseEntity<?> delete(Integer userId,
                                     Integer bonusId) {
         userBonusService.delete(userId, bonusId);

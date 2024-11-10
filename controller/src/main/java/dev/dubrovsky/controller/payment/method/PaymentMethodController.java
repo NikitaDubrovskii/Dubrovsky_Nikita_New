@@ -20,34 +20,34 @@ public class PaymentMethodController extends AbstractPaymentMethodController {
     }
 
     @Override
-    @Operation(summary = "Создание способа оплаты", description = "Создание способа оплаты")
+    @Operation(summary = "Создание способа оплаты (admin)", description = "Создание способа оплаты, доступно с ролью ROLE_ADMIN")
     public ResponseEntity<?> create(NewPaymentMethodRequest request,
                                     BindingResult bindingResult) {
         return super.create(request, bindingResult);
     }
 
     @Override
-    @Operation(summary = "Получение способа оплаты", description = "Получение способа оплаты по id")
+    @Operation(summary = "Получение способа оплаты (admin)", description = "Получение способа оплаты по id, доступно с ролью ROLE_ADMIN")
     public ResponseEntity<?> getById(Integer id) {
         return super.getById(id);
     }
 
     @Override
-    @Operation(summary = "Получение списка способов оплаты", description = "Получение списка способов оплаты")
+    @Operation(summary = "Получение списка способов оплаты (admin)", description = "Получение списка способов оплаты, доступно с ролью ROLE_ADMIN")
     public ResponseEntity<?> getAll() {
         return super.getAll();
     }
 
     @Override
-    @Operation(summary = "Обновление способа оплаты", description = "Обновление способа оплаты по id")
-    public ResponseEntity<?> update(UpdatePaymentMethodRequest request,
-                                    Integer id,
+    @Operation(summary = "Обновление способа оплаты (admin)", description = "Обновление способа оплаты по id, доступно с ролью ROLE_ADMIN")
+    public ResponseEntity<?> update(Integer id,
+                                    UpdatePaymentMethodRequest request,
                                     BindingResult bindingResult) {
-        return super.update(request, id, bindingResult);
+        return super.update(id, request, bindingResult);
     }
 
     @Override
-    @Operation(summary = "Удаление способа оплаты", description = "Удаление способа оплаты по id")
+    @Operation(summary = "Удаление способа оплаты (admin)", description = "Удаление способа оплаты по id, доступно с ролью ROLE_ADMIN")
     public ResponseEntity<?> delete(Integer id) {
         return super.delete(id);
     }

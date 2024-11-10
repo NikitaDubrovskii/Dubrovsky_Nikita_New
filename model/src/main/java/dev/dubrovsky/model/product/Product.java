@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -40,11 +41,11 @@ public class Product {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @OneToOne(mappedBy = "product")
-    private CartItem cartItem;
+    @OneToMany(mappedBy = "product")
+    private List<CartItem> cartItem;
 
-    @OneToOne(mappedBy = "product")
-    private OrderItem orderItem;
+    @OneToMany(mappedBy = "product")
+    private List<OrderItem> orderItem;
 
     public Product(String name, String description,
                    Float price, Category category) {

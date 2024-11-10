@@ -20,9 +20,9 @@ public class NewCartItemRequest {
     @Schema(description = "Количество данного продукта", example = "2")
     Integer quantity;
 
-    @NotNull(message = "CartId не может отсутствовать")
+    //@NotNull(message = "CartId не может отсутствовать")
     @Positive(message = "CartId должно быть больше 0")
-    @Schema(description = "Id коризны", example = "1")
+    @Schema(description = "Id корзины", example = "1")
     Integer cartId;
 
     @NotNull(message = "ProductId не может отсутствовать")

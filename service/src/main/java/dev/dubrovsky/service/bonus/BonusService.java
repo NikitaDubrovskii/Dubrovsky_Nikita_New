@@ -6,11 +6,14 @@ import dev.dubrovsky.dto.response.bonus.BonusResponse;
 import dev.dubrovsky.exception.DbResponseErrorException;
 import dev.dubrovsky.exception.EntityNotFoundException;
 import dev.dubrovsky.model.bonus.Bonus;
+import dev.dubrovsky.model.user.User;
 import dev.dubrovsky.repository.bonus.BonusRepository;
 import dev.dubrovsky.repository.loyalty.program.LoyaltyProgramRepository;
+import dev.dubrovsky.repository.user.UserRepository;
 import dev.dubrovsky.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -22,6 +25,7 @@ public class BonusService implements IBonusService {
 
     private final BonusRepository bonusRepository;
     private final LoyaltyProgramRepository loyaltyProgramRepository;
+    private final UserRepository userRepository;
 
     private final ModelMapper mapper;
 
@@ -90,6 +94,38 @@ public class BonusService implements IBonusService {
     public void delete(Integer id) {
         ValidationUtil.checkId(id, bonusRepository);
         bonusRepository.deleteById(id);
+    }
+
+    @Override
+    public List<BonusResponse> getBonusesByUser(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException(username + " is not found in the DB"));
+
+        if (user.getBonuses().isEmpty()) {
+            throw new EntityNotFoundException("По запросу ничего не найдено :(");
+        } else {
+            List<BonusResponse> responses = new ArrayList<>();
+            List<Bonus> bonuses = user.getBonuses();
+            bonuses.forEach(bonus -> responses.add(bonus.mapToResponse()));
+            return responses;
+        }
+    }
+
+    @Override
+    public BonusResponse getOneByUser(String username, Integer id) {
+        ValidationUtil.checkId(id, bonusRepository);
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException(username + " is not found in the DB"));
+
+        if (user.getBonuses().isEmpty()) {
+            throw new EntityNotFoundException("По запросу ничего не найдено :(");
+        } else {
+            return user.getBonuses().stream()
+                    .filter(bonus -> bonus.getId().equals(id))
+                    .findFirst()
+                    .orElseThrow(DbResponseErrorException::new)
+                    .mapToResponse();
+        }
     }
 
 }

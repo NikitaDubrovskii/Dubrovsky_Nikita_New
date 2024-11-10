@@ -27,6 +27,7 @@
         <module>controller</module>
         <module>dto</module>
         <module>config</module>
+        <module>kafka</module>
     </modules>
 
     <properties>

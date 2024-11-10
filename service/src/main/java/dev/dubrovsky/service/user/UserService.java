@@ -8,6 +8,7 @@ import dev.dubrovsky.dto.request.user.UserResetPasswordRequest;
 import dev.dubrovsky.dto.response.user.UserResponse;
 import dev.dubrovsky.exception.DbResponseErrorException;
 import dev.dubrovsky.exception.EntityNotFoundException;
+import dev.dubrovsky.kafka.OrderProducer;
 import dev.dubrovsky.model.user.Role;
 import dev.dubrovsky.model.user.User;
 import dev.dubrovsky.repository.user.UserRepository;
@@ -16,12 +17,14 @@ import dev.dubrovsky.util.validation.ValidationUtil;
 import jakarta.persistence.NonUniqueResultException;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @AllArgsConstructor
@@ -34,6 +37,7 @@ public class UserService implements IUserService {
     private final JWTTokenUtil jwtTokenUtil;
 
     private final PasswordEncoder bCryptPasswordEncoder;
+    private final OrderProducer orderProducer;
 
     @Override
     public void create(NewUserRequest request) {
@@ -111,7 +115,7 @@ public class UserService implements IUserService {
 
         String token = jwtTokenUtil.generateToken(user);
 
-
+        //orderProducer.sendMessage("token_topic", "Ваш токен: " + token);
         return new SimpleTextResponse("Вход выполнен. Ваш токен: " + token);
     }
 
@@ -139,6 +143,11 @@ public class UserService implements IUserService {
         }
         user.setPassword(bCryptPasswordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
+    }
+
+    @Override
+    public UserResponse getYourself(String username) {
+        return userRepository.findByUsername(username).orElseThrow(DbResponseErrorException::new).mapToResponse();
     }
 
     private void checkUniqueUsername(String username) {
