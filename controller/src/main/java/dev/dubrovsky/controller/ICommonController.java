@@ -22,7 +22,7 @@ public interface ICommonController<N, U> {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    ResponseEntity<?> update(@RequestBody @Valid U request, @PathVariable Integer id, BindingResult bindingResult);
+    ResponseEntity<?> update(@PathVariable Integer id, @RequestBody @Valid U request,  BindingResult bindingResult);
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")

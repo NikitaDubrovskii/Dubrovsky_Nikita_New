@@ -30,8 +30,8 @@ public abstract class AbstractCartItemController extends AbstractController<Cart
 
     @PutMapping("/my/{itemId}")
     public abstract ResponseEntity<?> updateCartItem(Authentication authentication,
-                                                     @RequestBody @Valid UpdateCartItemRequest request,
                                                      @PathVariable Integer itemId,
+                                                     @RequestBody @Valid UpdateCartItemRequest request,
                                                      BindingResult bindingResult);
 
     @DeleteMapping("/my/{itemId}")

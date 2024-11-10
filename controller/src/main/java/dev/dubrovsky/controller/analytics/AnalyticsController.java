@@ -20,31 +20,31 @@ public class AnalyticsController extends AbstractAnalyticsController {
     }
 
     @Override
-    @Operation(summary = "Создание аналитики", description = "Создание аналитики")
+    @Operation(summary = "Создание аналитики (admin)", description = "Создание аналитики, доступно с ролью ROLE_ADMIN")
     public ResponseEntity<?> create(NewAnalyticsRequest request, BindingResult bindingResult) {
         return super.create(request, bindingResult);
     }
 
     @Override
-    @Operation(summary = "Получение аналитики", description = "Получение аналитики по id")
+    @Operation(summary = "Получение аналитики (admin)", description = "Получение аналитики по id, доступно с ролью ROLE_ADMIN")
     public ResponseEntity<?> getById(Integer id) {
         return super.getById(id);
     }
 
     @Override
-    @Operation(summary = "Получение списка аналитики", description = "Получение списка аналитики")
+    @Operation(summary = "Получение списка аналитики (admin)", description = "Получение списка аналитики, доступно с ролью ROLE_ADMIN")
     public ResponseEntity<?> getAll() {
         return super.getAll();
     }
 
     @Override
-    @Operation(summary = "Обновление аналитики", description = "Обновление аналитики по id")
-    public ResponseEntity<?> update(UpdateAnalyticsRequest request, Integer id, BindingResult bindingResult) {
-        return super.update(request, id, bindingResult);
+    @Operation(summary = "Обновление аналитики (admin)", description = "Обновление аналитики по id, доступно с ролью ROLE_ADMIN")
+    public ResponseEntity<?> update(Integer id, UpdateAnalyticsRequest request, BindingResult bindingResult) {
+        return super.update(id, request, bindingResult);
     }
 
     @Override
-    @Operation(summary = "Удаление аналитики", description = "Удаление аналитики по id")
+    @Operation(summary = "Удаление аналитики (admin)", description = "Удаление аналитики по id, доступно с ролью ROLE_ADMIN")
     public ResponseEntity<?> delete(Integer id) {
         return super.delete(id);
     }

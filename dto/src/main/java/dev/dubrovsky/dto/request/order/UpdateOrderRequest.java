@@ -1,7 +1,7 @@
 package dev.dubrovsky.dto.request.order;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,7 +15,7 @@ import lombok.Setter;
 @Schema(description = "Запрос на обновление заказа")
 public class UpdateOrderRequest {
 
-    @NotEmpty(message = "TotalPrice не может быть пустым")
+    @NotNull(message = "TotalPrice не может быть пустым")
     @Positive(message = "TotalPrice должен быть больше 0.00")
     @Schema(description = "Общая стоимость", example = "123.45")
     Float totalPrice;

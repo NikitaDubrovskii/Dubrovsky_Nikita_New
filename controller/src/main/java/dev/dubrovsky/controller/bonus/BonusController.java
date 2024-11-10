@@ -22,45 +22,47 @@ public class BonusController extends AbstractBonusController {
     }
 
     @Override
-    @Operation(summary = "Создание бонусов", description = "Создание бонусов")
+    @Operation(summary = "Создание бонусов (admin)", description = "Создание бонусов, доступно с ролью ROLE_ADMIN")
     public ResponseEntity<?> create(NewBonusRequest request,
                                     BindingResult bindingResult) {
         return super.create(request, bindingResult);
     }
 
     @Override
-    @Operation(summary = "Получение бонусов", description = "Получение бонусов по id")
+    @Operation(summary = "Получение бонусов (admin)", description = "Получение бонусов по id, доступно с ролью ROLE_ADMIN")
     public ResponseEntity<?> getById(Integer id) {
         return super.getById(id);
     }
 
     @Override
-    @Operation(summary = "Получение списка бонусов", description = "Получение списка бонусов")
+    @Operation(summary = "Получение списка бонусов (admin)", description = "Получение списка бонусов, доступно с ролью ROLE_ADMIN")
     public ResponseEntity<?> getAll() {
         return super.getAll();
     }
 
     @Override
-    @Operation(summary = "Обновление бонуса", description = "Обновление бонуса по id")
-    public ResponseEntity<?> update(UpdateBonusRequest request,
-                                    Integer id,
+    @Operation(summary = "Обновление бонуса (admin)", description = "Обновление бонуса по id, доступно с ролью ROLE_ADMIN")
+    public ResponseEntity<?> update(Integer id,
+                                    UpdateBonusRequest request,
                                     BindingResult bindingResult) {
-        return super.update(request, id, bindingResult);
+        return super.update(id, request, bindingResult);
     }
 
     @Override
-    @Operation(summary = "Удаление бонуса", description = "Удаление бонуса по id")
+    @Operation(summary = "Удаление бонуса (admin)", description = "Удаление бонуса по id, доступно с ролью ROLE_ADMIN")
     public ResponseEntity<?> delete(Integer id) {
         return super.delete(id);
     }
 
     @Override
+    @Operation(summary = "Получение бонусов (user)", description = "Получение списка бонусов, доступно с ролью ROLE_USER")
     public ResponseEntity<?> getBonusesByUser(Authentication authentication) {
         String username = super.getUsername(authentication);
         return new ResponseEntity<>(service.getBonusesByUser(username), HttpStatus.OK);
     }
 
     @Override
+    @Operation(summary = "Получение бонуса (user)", description = "Удаление бонуса по id, доступно с ролью ROLE_USER")
     public ResponseEntity<?> getOneByUser(Authentication authentication, Integer id) {
         String username = super.getUsername(authentication);
         return new ResponseEntity<>(service.getOneByUser(username, id), HttpStatus.OK);

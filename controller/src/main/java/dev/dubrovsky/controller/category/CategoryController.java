@@ -20,44 +20,46 @@ public class CategoryController extends AbstractCategoryController {
     }
 
     @Override
-    @Operation(summary = "Создание категории", description = "Создание категории")
+    @Operation(summary = "Создание категории (admin)", description = "Создание категории, доступно с ролью ROLE_ADMIN")
     public ResponseEntity<?> create(NewCategoryRequest request,
                                     BindingResult bindingResult) {
         return super.create(request, bindingResult);
     }
 
     @Override
-    @Operation(summary = "Получение категории", description = "Получение категории по id")
+    @Operation(summary = "Получение категории (admin)", description = "Получение категории по id, доступно с ролью ROLE_ADMIN")
     public ResponseEntity<?> getById(Integer id) {
         return super.getById(id);
     }
 
     @Override
-    @Operation(summary = "Получение списка категорий", description = "Получение списка категорий")
+    @Operation(summary = "Получение списка категорий (admin)", description = "Получение списка категорий, доступно с ролью ROLE_ADMIN")
     public ResponseEntity<?> getAll() {
         return super.getAll();
     }
 
     @Override
+    @Operation(summary = "Получение списка категорий (public)", description = "Получение списка категорий, доступно незарегистрированным пользователям")
     public ResponseEntity<?> getAllPublic() {
         return super.getAll();
     }
 
     @Override
+    @Operation(summary = "Получение категории (public)", description = "Получение категории по id, доступно незарегистрированным пользователям")
     public ResponseEntity<?> getByIdPublic(Integer id) {
         return super.getById(id);
     }
 
     @Override
-    @Operation(summary = "Обновление категории", description = "Обновление категории по id")
-    public ResponseEntity<?> update(UpdateCategoryRequest request,
-                                    Integer id,
+    @Operation(summary = "Обновление категории (admin)", description = "Обновление категории по id, доступно с ролью ROLE_ADMIN")
+    public ResponseEntity<?> update(Integer id,
+                                    UpdateCategoryRequest request,
                                     BindingResult bindingResult) {
-        return super.update(request, id, bindingResult);
+        return super.update(id, request, bindingResult);
     }
 
     @Override
-    @Operation(summary = "Удаление категории", description = "Удаление категории по id")
+    @Operation(summary = "Удаление категории (admin)", description = "Удаление категории по id, доступно с ролью ROLE_ADMIN")
     public ResponseEntity<?> delete(Integer id) {
         return super.delete(id);
     }

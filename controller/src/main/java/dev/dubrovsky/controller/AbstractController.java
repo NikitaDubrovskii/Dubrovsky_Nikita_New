@@ -40,8 +40,8 @@ public abstract class AbstractController<S extends ICommonService<R, N, U>, R, N
     }
 
     @Override
-    public ResponseEntity<?> update(@RequestBody @Valid U request,
-                                    @PathVariable @Parameter(description = "Id обновляемоего объекта") Integer id,
+    public ResponseEntity<?> update(@PathVariable @Parameter(description = "Id обновляемоего объекта") Integer id,
+                                    @RequestBody @Valid U request,
                                     BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return ResponseUtil.generateErrorResponse(bindingResult);

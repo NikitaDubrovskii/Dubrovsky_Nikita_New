@@ -23,51 +23,54 @@ public class OrderController extends AbstractOrderController {
     }
 
     @Override
-    @Operation(summary = "Создание заказа", description = "Создание заказа")
+    @Operation(summary = "Создание заказа (admin)", description = "Создание заказа, доступно с ролью ROLE_ADMIN")
     public ResponseEntity<?> create(NewOrderRequest request,
                                     BindingResult bindingResult) {
         return super.create(request, bindingResult);
     }
 
     @Override
-    @Operation(summary = "Получение заказа", description = "Получение заказа по id")
+    @Operation(summary = "Получение заказа (admin)", description = "Получение заказа по id, доступно с ролью ROLE_ADMIN")
     public ResponseEntity<?> getById(Integer id) {
         return super.getById(id);
     }
 
     @Override
-    @Operation(summary = "Получение списка заказов", description = "Получение списка заказов")
+    @Operation(summary = "Получение списка заказов (admin)", description = "Получение списка заказов, доступно с ролью ROLE_ADMIN")
     public ResponseEntity<?> getAll() {
         return super.getAll();
     }
 
     @Override
-    @Operation(summary = "Обновление заказа", description = "Обновление заказа по id")
-    public ResponseEntity<?> update(UpdateOrderRequest request,
-                                    Integer id,
+    @Operation(summary = "Обновление заказа (admin)", description = "Обновление заказа по id, доступно с ролью ROLE_ADMIN")
+    public ResponseEntity<?> update(Integer id,
+                                    UpdateOrderRequest request,
                                     BindingResult bindingResult) {
-        return super.update(request, id, bindingResult);
+        return super.update(id, request, bindingResult);
     }
 
     @Override
-    @Operation(summary = "Удаление заказа", description = "Удаление заказа по id")
+    @Operation(summary = "Удаление заказа (admin)", description = "Удаление заказа по id, доступно с ролью ROLE_ADMIN")
     public ResponseEntity<?> delete(Integer id) {
         return super.delete(id);
     }
 
     @Override
+    @Operation(summary = "Получение списка заказов (user)", description = "Получение списка заказов, доступно с ролью ROLE_USER")
     public ResponseEntity<?> getOrdersByUser(Authentication authentication) {
         String username = super.getUsername(authentication);
         return new ResponseEntity<>(service.getOrdersByUser(username), HttpStatus.OK);
     }
 
     @Override
+    @Operation(summary = "Получение заказа (user)", description = "Получение заказа по id, доступно с ролью ROLE_USER")
     public ResponseEntity<?> getOneByUser(Authentication authentication, Integer id) {
         String username = super.getUsername(authentication);
         return new ResponseEntity<>(service.getOneByUser(username, id), HttpStatus.OK);
     }
 
     @Override
+    @Operation(summary = "Создание заказа (user)", description = "Создание заказа, доступно с ролью ROLE_USER")
     public ResponseEntity<?> createOrder(Authentication authentication, Integer cartId, NewOrderRequest newOrderRequest) {
         String username = super.getUsername(authentication);
         service.createOrder(username, cartId, newOrderRequest);

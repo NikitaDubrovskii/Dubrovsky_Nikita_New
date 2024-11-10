@@ -8,6 +8,7 @@ import dev.dubrovsky.dto.request.user.UserResetPasswordRequest;
 import dev.dubrovsky.dto.response.user.UserResponse;
 import dev.dubrovsky.exception.DbResponseErrorException;
 import dev.dubrovsky.exception.EntityNotFoundException;
+import dev.dubrovsky.kafka.OrderProducer;
 import dev.dubrovsky.model.user.Role;
 import dev.dubrovsky.model.user.User;
 import dev.dubrovsky.repository.user.UserRepository;
@@ -36,6 +37,7 @@ public class UserService implements IUserService {
     private final JWTTokenUtil jwtTokenUtil;
 
     private final PasswordEncoder bCryptPasswordEncoder;
+    private final OrderProducer orderProducer;
 
     @Override
     public void create(NewUserRequest request) {
@@ -113,7 +115,7 @@ public class UserService implements IUserService {
 
         String token = jwtTokenUtil.generateToken(user);
 
-
+        //orderProducer.sendMessage("token_topic", "Ваш токен: " + token);
         return new SimpleTextResponse("Вход выполнен. Ваш токен: " + token);
     }
 

@@ -37,6 +37,11 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                 HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleAllUncaughtException(Exception ex) {
+        return new ResponseEntity<>("Ошибка на стороне сервера: " + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(@Nonnull Exception ex,
                                                              @Nullable Object body,

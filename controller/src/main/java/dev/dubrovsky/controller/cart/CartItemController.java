@@ -24,39 +24,40 @@ public class CartItemController extends AbstractCartItemController {
     }
 
     @Override
-    @Operation(summary = "Создание товара в корзине", description = "Создание товара в корзине")
+    @Operation(summary = "Создание товара в корзине (admin)", description = "Создание товара в корзине, доступно с ролью ROLE_ADMIN")
     public ResponseEntity<?> create(NewCartItemRequest request,
                                     BindingResult bindingResult) {
         return super.create(request, bindingResult);
     }
 
     @Override
-    @Operation(summary = "Получение товара в корзине", description = "Получение товара в корзине по id товара")
+    @Operation(summary = "Получение товара в корзине (admin)", description = "Получение товара в корзине по id товара, доступно с ролью ROLE_ADMIN")
     public ResponseEntity<?> getById(Integer id) {
         return super.getById(id);
     }
 
     @Override
-    @Operation(summary = "Получение списка товаров в корзинах", description = "Получение списка товаров в корзинах")
+    @Operation(summary = "Получение списка товаров в корзинах (admin)", description = "Получение списка товаров в корзинах, доступно с ролью ROLE_ADMIN")
     public ResponseEntity<?> getAll() {
         return super.getAll();
     }
 
     @Override
-    @Operation(summary = "Обновление товаров в корзине", description = "Обновление товаров в корзине по id товара")
-    public ResponseEntity<?> update(UpdateCartItemRequest request,
-                                    Integer id,
+    @Operation(summary = "Обновление товаров в корзине (admin)", description = "Обновление товаров в корзине по id товара, доступно с ролью ROLE_ADMIN")
+    public ResponseEntity<?> update(Integer id,
+                                    UpdateCartItemRequest request,
                                     BindingResult bindingResult) {
-        return super.update(request, id, bindingResult);
+        return super.update(id, request, bindingResult);
     }
 
     @Override
-    @Operation(summary = "Удаление товара из корзины", description = "Удаление товара из корзины по id товара")
+    @Operation(summary = "Удаление товара из корзины (admin)", description = "Удаление товара из корзины по id товара, доступно с ролью ROLE_ADMIN")
     public ResponseEntity<?> delete(Integer id) {
         return super.delete(id);
     }
 
     @Override
+    @Operation(summary = "Добавление продукта в корзину (user)", description = "Добавление продукта в корзину, доступно с ролью ROLE_USER")
     public ResponseEntity<?> addItemToCart(Authentication authentication,
                                            NewCartItemRequest request,
                                            BindingResult bindingResult) {
@@ -70,21 +71,24 @@ public class CartItemController extends AbstractCartItemController {
     }
 
     @Override
+    @Operation(summary = "Получение списка товаров в корзине (user)", description = "Получение списка товаров в корзине по cart_id, доступно с ролью ROLE_USER")
     public ResponseEntity<?> getCartItemsByUser(Authentication authentication, Integer cartId) {
         String username = super.getUsername(authentication);
         return new ResponseEntity<>(service.getCartItemsByUser(username, cartId), HttpStatus.OK);
     }
 
     @Override
+    @Operation(summary = "Получение товара в корзине (user)", description = "Получение товара в корзине по cart_id и item_id, доступно с ролью ROLE_USER")
     public ResponseEntity<?> getOneByUser(Authentication authentication, Integer cartId, Integer itemId) {
         String username = super.getUsername(authentication);
         return new ResponseEntity<>(service.getOneByUser(username, cartId, itemId), HttpStatus.OK);
     }
 
     @Override
+    @Operation(summary = "Обновление товара в корзине (user)", description = "Обновление товара в корзине по item_id, доступно с ролью ROLE_USER")
     public ResponseEntity<?> updateCartItem(Authentication authentication,
-                                            UpdateCartItemRequest request,
                                             Integer itemId,
+                                            UpdateCartItemRequest request,
                                             BindingResult bindingResult) {
         String username = super.getUsername(authentication);
         if (bindingResult.hasErrors()) {
@@ -96,6 +100,7 @@ public class CartItemController extends AbstractCartItemController {
     }
 
     @Override
+    @Operation(summary = "Удаление товара из корзины (user)", description = "Удаление товара из корзины по item_id, доступно с ролью ROLE_USER")
     public ResponseEntity<?> deleteItemFromCart(Authentication authentication, Integer itemId) {
         String username = super.getUsername(authentication);
         service.deleteItemFromCart(username, itemId);

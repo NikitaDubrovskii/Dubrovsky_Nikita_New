@@ -19,6 +19,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -107,7 +109,9 @@ public class CartService implements ICartService {
             }
         }
 
-        return totalPrice;
+        BigDecimal roundedTotalPrice = new BigDecimal(totalPrice).setScale(2, RoundingMode.HALF_UP);
+
+        return roundedTotalPrice.floatValue();
     }
 
     @Override
